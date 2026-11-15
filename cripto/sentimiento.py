@@ -8,6 +8,8 @@ from concurrent.futures import ThreadPoolExecutor
 from . import fuentes
 
 BINANCE = "https://fapi.binance.com"
+BYBIT = "https://api.bybit.com"
+OKX = "https://www.okx.com"
 SIN_BINANCE = os.environ.get("SALTY_SIN_BINANCE") == "1"   # para probar en local cómo funciona sin Binance
 KFUT = "https://futures.kraken.com/derivatives/api/v3/tickers"
 KF_SYM = {"BTC": "PF_XBTUSD", "ETH": "PF_ETHUSD", "XRP": "PF_XRPUSD", "SOL": "PF_SOLUSD", "HYPE": "PF_HYPEUSD",
@@ -50,10 +52,88 @@ def binance_moneda(s):
     return s, out
 
 
+def bybit_moneda(s):
+    """Respaldo cuando Binance no responde (p. ej. desde los servidores de GitHub): Bybit publica funding,
+    reparto de cuentas en largo e interés abierto (con histórico) para los mismos perpetuos USDT."""
+    sym = s + "USDT"
+    out = {"ok": False}
+    try:
+        t = fuentes.jget(f"{BYBIT}/v5/market/tickers?category=linear&symbol={sym}", 8)["result"]["list"][0]
+        out["funding"] = _f(t.get("fundingRate"))                # por 8 h
+        out["mark"] = _f(t.get("markPrice"))
+        out["oi_usd"] = _f(t.get("openInterestValue"))
+        try:
+            ls = fuentes.jget(f"{BYBIT}/v5/market/account-ratio?category=linear&symbol={sym}&period=1h&limit=1", 8)["result"]["list"]
+            if ls:
+                out["largos_pct"] = _f(ls[0]["buyRatio"]) * 100
+                out["ls_ratio"] = _f(ls[0]["buyRatio"]) / max(_f(ls[0]["sellRatio"]) or 1e-9, 1e-9)
+        except Exception:  # noqa: BLE001
+            pass
+        try:
+            oi = fuentes.jget(f"{BYBIT}/v5/market/open-interest?category=linear&symbol={sym}&intervalTime=1h&limit=25", 8)["result"]["list"]
+            if oi and len(oi) >= 2:                              # Bybit devuelve del más reciente al más antiguo
+                b, a = _f(oi[0]["openInterest"]), _f(oi[-1]["openInterest"])
+                out["oi_24h"] = (b / a - 1) * 100 if a else None
+        except Exception:  # noqa: BLE001
+            pass
+        out["ok"] = out["funding"] is not None
+    except Exception as e:  # noqa: BLE001
+        out["error"] = str(e)[:80]
+    return out
+
+
+def okx_moneda(s):
+    """Segundo respaldo: OKX (reparto largo/corto e interés abierto por moneda; funding del perpetuo USDT)."""
+    out = {"ok": False}
+    try:
+        f = fuentes.jget(f"{OKX}/api/v5/public/funding-rate?instId={s}-USDT-SWAP", 8)["data"]
+        if f:
+            out["funding"] = _f(f[0].get("fundingRate"))
+        try:
+            ls = fuentes.jget(f"{OKX}/api/v5/rubik/stat/contracts/long-short-account-ratio?ccy={s}&period=1H", 8)["data"]
+            r = _f(ls[0][1]) if ls else None
+            if r is not None:
+                out["largos_pct"] = r / (1 + r) * 100
+                out["ls_ratio"] = r
+        except Exception:  # noqa: BLE001
+            pass
+        try:
+            oi = fuentes.jget(f"{OKX}/api/v5/rubik/stat/contracts/open-interest-volume?ccy={s}&period=1H", 8)["data"]
+            if oi and len(oi) >= 2:
+                b = _f(oi[0][1])
+                a = _f(oi[min(24, len(oi) - 1)][1])
+                out["oi_usd"] = b
+                out["oi_24h"] = (b / a - 1) * 100 if a else None
+        except Exception:  # noqa: BLE001
+            pass
+        out["ok"] = out.get("funding") is not None
+    except Exception as e:  # noqa: BLE001
+        out["error"] = str(e)[:80]
+    return out
+
+
+def _moneda(s):
+    """Derivados de una moneda probando las fuentes por orden: Binance → Bybit → OKX."""
+    _, out = binance_moneda(s)
+    if out.get("ok"):
+        out["fuente"] = "binance"
+        return s, out
+    errs = [out.get("error")]
+    for nombre, fn in (("bybit", bybit_moneda), ("okx", okx_moneda)):
+        o = fn(s)
+        if o.get("ok"):
+            o["fuente"] = nombre
+            o["error_binance"] = errs[0]
+            return s, o
+        errs.append(o.get("error"))
+    return s, {"ok": False, "error": " · ".join(str(e) for e in errs if e)[:120]}
+
+
 def derivados(monedas):
-    """Datos de derivados por moneda (Binance) con contraste del funding en Kraken Futures."""
+    """Datos de derivados por moneda (Binance, o Bybit/OKX si no responde) con contraste del funding en
+    Kraken Futures; si ninguna responde, Kraken aporta funding e interés abierto (sin reparto de cuentas)."""
     with ThreadPoolExecutor(8) as ex:
-        res = dict(ex.map(binance_moneda, monedas))
+        res = dict(ex.map(_moneda, monedas))
     try:
         kt = {t["symbol"]: t for t in fuentes.jget(KFUT, 10)["tickers"]}
         for s in monedas:
@@ -62,14 +142,12 @@ def derivados(monedas):
                 res[s]["kraken_funding_h"] = _f(t.get("relativeFundingRate"))   # por hora
                 res[s]["kraken_oi"] = _f(t.get("openInterest"))
                 if res[s].get("ok"):
-                    res[s]["fuente"] = "binance"
                     if res[s].get("funding") is not None and res[s]["kraken_funding_h"] is not None:
                         a, b = res[s]["funding"], res[s]["kraken_funding_h"]
                         res[s]["funding_coincide"] = (a >= 0) == (b >= 0) or abs(a) < 2e-5 or abs(b) < 2e-6
                 else:
-                    # Binance bloquea muchos servidores (p. ej. los de GitHub en EE. UU.): respaldo con Kraken
-                    # Futures. Su funding es por hora; ×8 lo hace comparable con el de Binance (cada 8 h).
-                    # Kraken no publica el reparto de cuentas en largo ni el histórico de interés abierto.
+                    # Último respaldo: Kraken Futures. Su funding es por hora; ×8 lo hace comparable con el de
+                    # Binance (cada 8 h). Kraken no publica el reparto de cuentas en largo ni el histórico de OI.
                     fh, oi, mk = res[s]["kraken_funding_h"], res[s]["kraken_oi"], _f(t.get("markPrice"))
                     res[s].update(ok=fh is not None, fuente="kraken", funding=fh * 8 if fh is not None else None,
                                   mark=mk, oi_usd=oi * mk if (oi is not None and mk) else None, oi_24h=None,

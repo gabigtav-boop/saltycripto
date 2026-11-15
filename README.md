@@ -18,10 +18,12 @@ La primera vez instala lo necesario (requiere Python 3 de python.org).
 | Precio, libro de órdenes (verificado con CRC32), operaciones, velas de 1 min | al instante (WebSocket) | Kraken |
 | Análisis técnico en vivo (vela en formación), zonas, semáforo, fiabilidad, microestructura | cada segundo | motor propio |
 | Motor completo v21: 16 señales en 5 familias, 4 temporalidades, histórico sin información futura, validación | cada 10 min | Kraken, Coinbase, CoinGecko |
-| Derivados: funding, % de cuentas en largo, interés abierto | cada minuto | Binance Futures + Kraken Futures |
+| Derivados: funding, % de cuentas en largo, interés abierto | cada minuto | Binance Futures (o Bybit / OKX si no responde) + Kraken Futures |
 | Noticias e impacto fundamental (temas, activos afectados, reacción real del precio) | cada minuto | 14 medios (CoinDesk, Cointelegraph, The Block, Reserva Federal, CNBC…) |
 | Agenda macro (IPC, Fed, empleo…) | cada hora | ForexFactory |
 | Sentimiento compuesto 0-100 | cada minuto | miedo y codicia, impulso, amplitud técnica, funding, posicionamiento, noticias |
+
+Versión publicada (GitHub Pages): el análisis se renueva cada 20-30 min; el botón ↻ vuelve a descargar el último análisis saltándose cachés, reconecta los precios en vivo y dice de cuándo es el análisis y cuándo llega el siguiente. En el Estudio, los **casos parecidos** van numerados en el gráfico (al pasar el cursor o tocar uno en la lista se resalta su camino; un clic lo fija) y el detalle técnico, de derivados y de fiabilidad va plegado. **Mi posición** acepta monedas, invertido o precio de compra (dos de los tres bastan) y números en formato español (3.200 o 1.500,25).
 
 Secciones: **Mercado** (panorama, sentimiento, tabla de mercados con previsión, noticias, agenda, derivados y si el sistema funciona), **Estudio** (cada moneda a fondo: gráfico, previsión combinada con objetivo e invalidación, niveles, noticias que la afectan, resumen del libro y del flujo, análisis técnico, derivados, fiabilidad y tu posición), **Noticias** (efecto conjunto sobre el gráfico de cada activo y lista desplegable) y **Datos** (estado y verificación de todas las fuentes).
 

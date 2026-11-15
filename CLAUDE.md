@@ -21,7 +21,9 @@ Normas para Claude:
 ## Notas técnicas
 - `nube.py` ejecuta el motor una vez y genera `publico/` (web estática + `datos/estado.json` + `datos/moneda/<SÍMBOLO>.json`).
 - La web publicada funciona con `window.ESTATICO=true`: lee los archivos y se conecta directamente al WebSocket de Kraken para precios, velas, libro y operaciones.
-- Binance bloquea los servidores de GitHub (EE. UU.): `SALTY_SIN_BINANCE=1` → derivados desde Kraken Futures e histórico desde Coinbase.
+- Binance bloquea los servidores de GitHub (EE. UU.): `SALTY_SIN_BINANCE=1` → histórico desde Coinbase y derivados por orden Bybit → OKX → Kraken Futures (`cripto/sentimiento.py`). Kraken no publica cuentas en largo ni OI de 24 h: la web oculta esas columnas si ninguna fuente las aporta.
+- Interfaz (`web/index.html`): en modo estático el botón ↻ (`$('rf')`) descarga `datos/estado.json` con `no-store`, reconecta el WebSocket y avisa con una burbuja; el sondeo de cada minuto usa `no-cache` (304 si no hay análisis nuevo). Los casos parecidos van numerados en el gráfico (`projDraw`, `CASEHOV`/`CASEPIN`); los desplegables `det()` recuerdan su estado en `OPD`; `memoH` evita repintar HTML idéntico.
+- Calculadora de posición (`num`, `pq`, `pinv`, `posCalc`): con dos de los tres datos (monedas, invertido, precio de compra) se deduce el tercero; `num` entiende formato español (3.200 = tres mil doscientos; 0.05 = decimal).
 - La web vive en `/saltycripto/`: las rutas de recursos deben ser **relativas** (`vendor/…`, no `/vendor/…`).
 - Motor técnico v21 con prueba de paridad: no tocar `cripto/motor.py` ni `cripto/indicadores.py` sin actualizar `tests/test_paridad.py`.
 
