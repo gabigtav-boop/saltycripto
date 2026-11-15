@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0c10"><title>Saltycripto</title>
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <script>try{document.documentElement.dataset.theme=localStorage.getItem("salty_theme")==="light"?"light":"dark"}catch(e){document.documentElement.dataset.theme="dark"}</script>
 <style>
 :root{color-scheme:dark;
@@ -116,7 +116,7 @@ details.nw .ti{font-size:13px;font-weight:550;line-height:1.35}details.nw .tm{fo
 <div class="tape" id="tape" aria-label="Monedas"></div>
 <main id="app"><div class="empty">Conectando con el motor…</div></main>
 <div class="menu" id="menu" hidden></div><div class="nots" id="nots" aria-live="polite"></div>
-<script src="/vendor/lightweight-charts.js"></script>
+<script src="vendor/lightweight-charts.js"></script>
 <script>
 "use strict";
 /* ---------- configuración ---------- */
@@ -200,7 +200,7 @@ function panorama(){const ids=coins().filter(s=>DATA[s]&&DATA[s].bL&&DATA[s].bL!
   const pb=pv.filter(p=>p.dir==='bajista').length,pa=pv.filter(p=>p.dir==='alcista').length,sc=(tec+(SENT?(SENT.valor-50)/50:0)+(rn?rn.score/100:0)+(pv.length?(pa-pb)/pv.length:0))/4;
   const head=sc>=.3?['up','Mercado alcista']:sc>=.1?['up','Sesgo alcista']:sc<=-.3?['dn','Mercado bajista']:sc<=-.1?['dn','Sesgo bajista']:['','Mercado mixto'];
   return{head,pts,pa,pb,pl:pv.length-pa-pb}}
-function distBar(P){const n=P.pa+P.pb+P.pl;if(!n)return'';const w=x=>(x/n*100).toFixed(1)+'%';return`<div style="margin-top:auto;padding-top:18px"><div class="lbl" style="margin-bottom:6px">Lectura de los ${n} activos</div><div class="press" style="height:22px">${P.pb?`<i style="width:${w(P.pb)};background:var(--dnb);color:var(--dn)">${P.pb} bajistas</i>`:''}${P.pl?`<i style="width:${w(P.pl)};background:var(--s3);color:var(--mut)">${P.pl} laterales</i>`:''}${P.pa?`<i style="width:${w(P.pa)};background:var(--upb);color:var(--up)">${P.pa} alcistas</i>`:''}</div></div>`}
+function distBar(P){const n=P.pa+P.pb+P.pl;if(!n)return'';const w=x=>(x/n*100).toFixed(1)+'%';return`<div style="margin-top:auto;padding-top:18px"><div class="lbl" style="margin-bottom:6px">Lectura de los ${n} activos</div><div class="press" style="height:22px">${P.pb?`<i style="width:${w(P.pb)};background:var(--dnb);color:var(--dn)">${P.pb}${P.pb/n>=.25?' bajistas':''}</i>`:''}${P.pl?`<i style="width:${w(P.pl)};background:var(--s3);color:var(--mut)">${P.pl}${P.pl/n>=.25?' laterales':''}</i>`:''}${P.pa?`<i style="width:${w(P.pa)};background:var(--upb);color:var(--up)">${P.pa}${P.pa/n>=.25?' alcistas':''}</i>`:''}</div></div>`}
 function sigRow(s){const o=DATA[s];if(!o||!o.price)return`<tr><td>${ico(s)} <b style="font-family:var(--sans);margin-left:6px">${lab(s)}</b></td><td colspan="8" class="dim" style="text-align:left">${o&&o.fail?'Sin datos: '+esc(o.fail):'Cargando…'}</td></tr>`;
   const L=liveB(o),fl=PRV[s]&&o.price!==PRV[s]?(o.price>PRV[s]?'fu':'fd'):'',rn=RNEWS[s];
   return`<tr class="cl" data-s="${s}"><td><span style="display:inline-flex;align-items:center;gap:10px">${ico(s,24)}<span><b style="font:600 13px var(--sans)">${lab(s)}</b><span class="dim hide-s" style="display:block;font:400 11px var(--sans)">${COINS[s].n}</span></span></span></td>
