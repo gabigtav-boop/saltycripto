@@ -1,0 +1,63 @@
+# Saltycripto · versión nube
+# Cada 20 minutos ejecuta el motor en Python una vez y publica la página en GitHub Pages.
+# Los precios y gráficos se mueven en vivo en el navegador (conexión directa con Kraken);
+# el análisis completo (técnico, noticias, derivados, sentimiento, niveles y flecha) se renueva aquí.
+name: Publicar Saltycripto
+
+on:
+  schedule:
+    - cron: "*/20 * * * *"     # GitHub puede retrasarlo unos minutos en horas de mucha carga
+  workflow_dispatch:            # botón «Run workflow» para publicar a mano
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      # histórico profundo y caché de lecturas: se conservan entre ejecuciones (más rápido y menos peticiones)
+      - name: Recuperar caché de datos
+        uses: actions/cache@v6
+        with:
+          path: datos
+          key: datos-${{ github.run_id }}
+          restore-keys: datos-
+
+      - name: Analizar el mercado
+        run: python nube.py
+        env:
+          # Binance bloquea los servidores de GitHub (EE. UU.): derivados desde Kraken Futures e histórico desde Coinbase
+          SALTY_SIN_BINANCE: "1"
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: publico
+
+      - name: Publicar
+        id: deploy
+        uses: actions/deploy-pages@v5

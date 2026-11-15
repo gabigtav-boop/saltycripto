@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a0c10"><title>Saltycripto</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("salty_theme")==="light"?"light":"dark"}catch(e){document.documentElement.dataset.theme="dark"}</script>
+<style>
+:root{color-scheme:dark;
+--bg:#0a0c10;--s1:#111419;--s2:#161a21;--s3:#1d222b;--ln:rgba(255,255,255,.065);--ln2:rgba(255,255,255,.11);
+--ink:#eef0f4;--mut:#8d94a1;--dim:#5c636e;--up:#22c58b;--dn:#f04e5e;--wa:#f2a93b;--ac:#6c8cff;--ac2:#40d3c9;
+--upb:rgba(34,197,139,.11);--dnb:rgba(240,78,94,.11);--wab:rgba(242,169,59,.11);--acb:rgba(108,140,255,.13);
+--ink2:#cfd3da;--tne:#b3bac6;--acx:#a5b8ff;--notx:#f6c27a;--mid:#3a3f48;--hdr:rgba(10,12,16,.8);--pop:rgba(28,31,38,.82);--nbg:rgba(36,38,45,.72);--ntx:rgba(235,235,245,.85);--nsub:rgba(235,235,245,.55);--cs:none;--knob:#eef0f4;
+--r:14px;--gap:14px;--mono:"SF Mono",SFMono-Regular,ui-monospace,Menlo,monospace;--sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Helvetica Neue",Arial,sans-serif}
+*{box-sizing:border-box}html,body{margin:0}
+body{transition:background .25s,color .25s;background:var(--bg);color:var(--ink);font:13.5px/1.5 var(--sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}a{color:inherit;text-decoration:none}
+button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--ac);outline-offset:2px;border-radius:6px}
+.m{font-family:var(--mono)}.up{color:var(--up)}.dn{color:var(--dn)}.wa{color:var(--wa)}.mut{color:var(--mut)}.dim{color:var(--dim)}
+:root[data-theme=light]{color-scheme:light;--bg:#e7eaef;--s1:#f8f9fb;--s2:#eef1f5;--s3:#e1e5eb;--ln:rgba(15,23,42,.09);--ln2:rgba(15,23,42,.16);--ink:#0b1220;--ink2:#273142;--mut:#4a5464;--dim:#727c8c;
+--up:#0a875c;--dn:#c92f43;--wa:#9a5a00;--ac:#3f5fe0;--upb:rgba(10,135,92,.12);--dnb:rgba(201,47,67,.1);--wab:rgba(184,110,0,.13);--acb:rgba(63,95,224,.11);--tne:#3d4757;--acx:#2f4fd0;--notx:#7a4600;--mid:#c9ced8;
+--hdr:rgba(231,234,239,.86);--pop:rgba(248,249,251,.9);--nbg:rgba(248,249,251,.82);--ntx:#1d2939;--nsub:#5d6675;--cs:0 1px 2px rgba(15,23,42,.06),0 12px 32px -20px rgba(15,23,42,.24);--knob:#0b1220}
+:root[data-theme=light] .card{box-shadow:var(--cs);border-color:rgba(15,23,42,.08)}:root[data-theme=light] .nav button[aria-pressed=true]{background:var(--s1);box-shadow:0 1px 3px rgba(16,24,40,.12)}:root[data-theme=light] .nav{background:var(--s3)}
+:root[data-theme=light] .tp{background:var(--s1)}:root[data-theme=light] .tp[aria-pressed=true]{background:var(--acb)}:root[data-theme=light] .pillst,:root[data-theme=light] .ib{background:var(--s1)}
+:root[data-theme=light] .nt{border-color:rgba(16,24,40,.08);box-shadow:0 14px 40px rgba(16,24,40,.18)}:root[data-theme=light] .menu{box-shadow:0 24px 60px rgba(16,24,40,.2)}
+:root[data-theme=light] .dg>.card:first-child{background:linear-gradient(160deg,#e3e9fb,var(--s1))}:root[data-theme=light] .seg{background:var(--s2)}:root[data-theme=light] .seg button[aria-pressed=true],:root[data-theme=light] .btabs button[aria-pressed=true]{background:var(--s1);box-shadow:0 1px 3px rgba(16,24,40,.1)}
+.pchip{position:absolute;right:76px;top:6px;white-space:nowrap;max-width:calc(100% - 90px);overflow:hidden;z-index:3;display:flex;align-items:center;gap:7px;padding:4px 10px;border-radius:99px;background:var(--pop);border:1px solid var(--ln2);font:600 11.5px var(--sans);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);pointer-events:none}
+.pjs{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;overflow:hidden}.pjs .org{animation:pulse 1.8s ease-out infinite;transform-box:fill-box;transform-origin:center}@keyframes pulse{0%{opacity:.7;transform:scale(1)}100%{opacity:0;transform:scale(3.2)}}.pjs text{font:600 11px var(--mono)}
+.pchip .pb{display:inline-block;width:54px;height:6px;border-radius:3px;background:var(--dnb);overflow:hidden}.pchip .pb i{display:block;height:100%;background:var(--up)}.pchip{max-width:calc(100% - 96px);overflow:hidden;white-space:nowrap}.pchip[hidden]{display:none}.pchip .a{font-size:13px;animation:bob 1.6s ease-in-out infinite}@keyframes bob{50%{transform:translateY(var(--bo,3px))}}
+/* ---------- cabecera ---------- */
+.hdr{position:sticky;top:0;z-index:30;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;height:56px;padding:0 20px;background:var(--hdr);backdrop-filter:saturate(170%) blur(18px);-webkit-backdrop-filter:saturate(170%) blur(18px);border-bottom:1px solid var(--ln)}
+.brand{display:flex;align-items:center;gap:10px;font:650 15px var(--sans);letter-spacing:-.01em}.brand svg{width:26px;height:26px;flex:none}.brand span{color:var(--dim);font:500 11px var(--mono);letter-spacing:.06em;margin-left:2px}
+.nav{display:flex;gap:2px;background:var(--s1);border:1px solid var(--ln);border-radius:10px;padding:3px}
+.nav button{padding:5px 16px;border-radius:7px;color:var(--mut);font-weight:550;font-size:13px;transition:background .15s,color .15s}.nav button:hover{color:var(--ink)}.nav button[aria-pressed=true]{background:var(--s3);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.4)}
+.hr{display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.pillst{display:flex;align-items:center;gap:7px;height:30px;padding:0 11px;border-radius:99px;background:var(--s1);border:1px solid var(--ln);font:500 11.5px var(--mono);color:var(--mut);white-space:nowrap}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--dim);flex:none}.dot.on{background:var(--up);box-shadow:0 0 0 3px rgba(34,197,139,.18)}.dot.bad{background:var(--dn)}
+.ib{display:grid;place-items:center;width:30px;height:30px;border-radius:99px;background:var(--s1);border:1px solid var(--ln);color:var(--mut)}.ib:hover{color:var(--ink);background:var(--s2)}.ib svg{width:15px;height:15px}
+/* ---------- cinta de monedas ---------- */
+.tape{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:10px 20px;border-bottom:1px solid var(--ln)}.tape::-webkit-scrollbar{display:none}
+.tp{display:flex;align-items:center;gap:8px;flex:none;padding:6px 12px 6px 7px;border-radius:99px;background:var(--s1);border:1px solid var(--ln);font:500 12px var(--mono);transition:border-color .15s,background .15s}.tp:hover{background:var(--s2)}
+.tp[aria-pressed=true]{border-color:rgba(108,140,255,.55);background:var(--acb)}.tp b{font:600 12.5px var(--sans)}
+.ci{display:inline-grid;place-items:center;flex:none;width:var(--s,20px);height:var(--s,20px);border-radius:50%;font:700 calc(var(--s,20px)*.46)/1 var(--sans);color:#0a0c10;background:var(--c)}
+main{max-width:1440px;margin:0 auto;padding:var(--gap) 20px 48px}
+/* ---------- tarjetas ---------- */
+.sec{grid-column:1/-1;display:flex;align-items:center;gap:12px;margin:12px 2px 0;font:650 13px var(--sans);letter-spacing:-.005em;color:var(--ink)}.sec:first-child{margin-top:2px}.sec small{font:500 12px var(--sans);color:var(--dim)}.sec:after{content:"";flex:1;height:1px;background:var(--ln)}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap)}.c12{grid-column:span 12}.c8{grid-column:span 8}.c7{grid-column:span 7}.c6{grid-column:span 6}.c5{grid-column:span 5}.c4{grid-column:span 4}.c3{grid-column:span 3}
+.card{display:flex;flex-direction:column;background:var(--s1);border:1px solid var(--ln);border-radius:var(--r);min-width:0}
+.ch{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px 0}.ch h2{margin:0;font:650 11.5px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}.ch .t{font-size:12px;color:var(--dim)}
+.cb{padding:12px 18px 16px;flex:1}.sub{color:var(--mut);font-size:12.5px}.tiny{font-size:12px;color:var(--dim)}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:7px;font:600 11.5px var(--sans);white-space:nowrap}
+.t-AL,.t-C,.t-pos{background:var(--upb);color:var(--up)}.t-BA,.t-V,.t-neg{background:var(--dnb);color:var(--dn)}.t-NE,.t-E,.t-neu{background:rgba(141,148,161,.13);color:var(--tne)}.t-ND{background:rgba(92,99,110,.14);color:var(--dim)}.t-wa{background:var(--wab);color:var(--wa)}.t-ac{background:var(--acb);color:var(--acx)}
+.seg{display:inline-flex;gap:2px;background:var(--bg);border:1px solid var(--ln);border-radius:8px;padding:2px}.seg button{padding:3px 10px;border-radius:6px;font:550 11.5px var(--mono);color:var(--mut)}.seg button[aria-pressed=true]{background:var(--s3);color:var(--ink)}
+table{width:100%;border-collapse:collapse}th{font:600 11px var(--sans);color:var(--dim);text-transform:uppercase;letter-spacing:.06em;text-align:right;padding:10px 12px;white-space:nowrap;border-bottom:1px solid var(--ln)}th:first-child,td:first-child{text-align:left;padding-left:18px}th:last-child,td:last-child{padding-right:18px}
+td{padding:10px 12px;border-bottom:1px solid var(--ln);text-align:right;white-space:nowrap;font:500 12.5px var(--mono)}tbody tr:last-child td{border-bottom:0}tr.cl{cursor:pointer;transition:background .12s}tr.cl:hover{background:var(--s2)}
+.fu{animation:fu .8s}.fd{animation:fd .8s}@keyframes fu{0%{color:var(--up);text-shadow:0 0 12px rgba(34,197,139,.6)}}@keyframes fd{0%{color:var(--dn);text-shadow:0 0 12px rgba(240,78,94,.6)}}
+.bar{position:relative;height:5px;border-radius:3px;background:var(--s3);overflow:hidden}.bar i{position:absolute;top:0;bottom:0;border-radius:3px}
+.dv{position:relative;height:5px;border-radius:3px;background:var(--s3)}.dv:before{content:"";position:absolute;left:50%;top:-3px;width:1px;height:11px;background:var(--dim)}.dv i{position:absolute;top:0;height:100%;border-radius:3px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--ln);font-size:12.5px}.kv:last-child{border:0}.kv span{color:var(--mut)}.kv b{font:600 12.5px var(--mono);text-align:right}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11.5px;background:var(--s3);color:var(--mut);margin:2px 4px 2px 0}.pill.y{color:var(--up);background:var(--upb)}.pill.w{color:var(--wa);background:var(--wab)}
+.empty{padding:26px 18px;text-align:center;color:var(--dim);font-size:12.5px}.note{margin-top:10px;padding:9px 12px;border-radius:10px;background:var(--wab);color:var(--notx);font-size:12px}
+.lbl{font:600 11px var(--sans);letter-spacing:.07em;text-transform:uppercase;color:var(--dim)}
+/* ---------- mercado ---------- */
+.headline{font:650 26px/1.15 var(--sans);letter-spacing:-.02em;margin:2px 0 4px}.pts{display:grid;grid-template-columns:1fr 1fr;gap:12px 22px;margin-top:14px}
+.pt{display:grid;grid-template-columns:24px 1fr;gap:10px;align-items:start;font-size:12.8px;color:var(--ink2)}.pt i{display:grid;place-items:center;width:24px;height:24px;border-radius:7px;font:600 11px var(--mono);font-style:normal}.pt b{color:var(--ink)}
+.kpi{padding:14px 18px}.kpi .v{font:600 22px var(--mono);letter-spacing:-.02em;margin-top:4px}.kpi .s{font:500 12px var(--mono);margin-top:2px}
+.gauge{display:flex;flex-direction:column;align-items:center}.cmp{display:grid;grid-template-columns:1fr 64px 88px;gap:10px;align-items:center;padding:3px 0;font-size:12px;color:var(--mut)}.cmp b{font:500 11.5px var(--mono);text-align:right}
+.sp{display:block;width:96px;height:26px;margin-left:auto}
+.nr{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:9px 18px;border-top:1px solid var(--ln);font-size:12.8px}.nr .tm{font:500 11px var(--mono);color:var(--dim)}.nr .ti{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.digest{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:12px;background:var(--s2);margin-bottom:12px}.digest .ar{font:700 18px var(--mono);line-height:1}.digest p{margin:2px 0 0;font-size:12.8px;color:var(--ink2)}
+.ev{display:grid;grid-template-columns:70px 1fr auto;gap:12px;align-items:center;padding:9px 18px;border-top:1px solid var(--ln);font-size:12.8px}.ev .w{font:500 11.5px var(--mono)}
+/* ---------- estudio ---------- */
+.hero{display:flex;align-items:center;gap:22px;flex-wrap:wrap;padding:16px 18px}.hero .px{font:600 30px var(--mono);letter-spacing:-.03em;line-height:1}.stats{display:flex;gap:26px;flex-wrap:wrap;margin-left:auto}.stats div{display:flex;flex-direction:column;gap:1px}.stats>div>span{font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}.stats b{font:500 13px var(--mono)}
+#chart{height:430px;position:relative;margin:8px 4px 4px}.chartcard #chart{flex:1;height:auto;min-height:430px}.col{display:flex;flex-direction:column;gap:var(--gap);min-width:0}.col>.card{flex:none}.col>.card:last-child{flex:1}
+.rng{padding:12px 14px;border-radius:12px;background:var(--s2);margin-bottom:6px}.rng .rv{font:650 20px var(--mono);letter-spacing:-.02em;margin:3px 0 2px}
+details.more{margin-top:12px}details.more summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--mut);list-style:none}details.more summary:before{content:"▸ "}details.more[open] summary:before{content:"▾ "}.leg{position:absolute;left:12px;top:6px;z-index:3;font:500 11px var(--mono);color:var(--mut);pointer-events:none;display:flex;gap:12px}
+.fdir{font:650 28px/1.1 var(--sans);letter-spacing:-.02em}.meter{position:relative;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--dn),var(--mid) 45%,var(--mid) 55%,var(--up));margin:14px 0 6px}.meter i{position:absolute;top:-4px;width:16px;height:16px;border-radius:50%;background:var(--knob);transition:left .6s cubic-bezier(.2,.8,.2,1);border:3px solid var(--s1);transform:translateX(-8px);box-shadow:0 0 0 1px var(--ln2)}
+.ml{display:flex;justify-content:space-between;font:500 10.5px var(--mono);color:var(--dim)}
+.box{padding:10px 12px;border-radius:10px;background:var(--s2);margin-top:10px;font-size:12.8px}.box b{font-family:var(--mono)}
+.fx{display:grid;grid-template-columns:1fr 92px 46px;gap:10px;align-items:center;padding:4px 0;font-size:12px;color:var(--mut)}.fx b{font:500 11.5px var(--mono);text-align:right}
+.lad{display:grid;gap:8px}.lr{display:grid;grid-template-columns:78px 1fr auto;gap:12px;align-items:center;padding:11px 14px;border-radius:12px;background:var(--s2)}.lr .lb{font:650 11.5px var(--sans);letter-spacing:.04em}.lr.x .lb{color:var(--dn)}.lr.e .lb{color:var(--up)}.lr.now{background:transparent;border:1px dashed var(--ln2)}.lr .lp{font:600 16px var(--mono);letter-spacing:-.01em}.lr .ls{font-size:12px;margin-top:1px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lr .rt{text-align:right;font:600 13.5px var(--mono)}
+.press{display:flex;height:26px;border-radius:8px;overflow:hidden;font:600 11px var(--mono)}.press i{display:flex;align-items:center;font-style:normal;padding:0 9px;white-space:nowrap}
+.flw{display:grid;grid-template-columns:52px 1fr 44px;gap:10px;align-items:center;font:500 11.5px var(--mono);color:var(--mut);padding:3px 0}
+.btabs{display:flex;gap:2px;padding:12px 18px 0}.btabs button{padding:6px 12px;border-radius:8px;font-weight:550;font-size:12.5px;color:var(--mut)}.btabs button[aria-pressed=true]{background:var(--s3);color:var(--ink)}
+.tfg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.tfc{border-radius:10px;padding:10px;text-align:center;background:var(--s2)}.tfc b{display:block;font:600 12px var(--mono);color:var(--mut)}.tfc span{font:600 13px var(--sans)}
+.cat{display:grid;grid-template-columns:100px 1fr 54px;gap:12px;align-items:center;padding:5px 0;font-size:12.5px}.cat span:last-child{text-align:right;font:500 11.5px var(--mono)}
+.sigs{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px}.sg{display:flex;justify-content:space-between;gap:6px;padding:7px 10px;border-radius:8px;background:var(--s2);font-size:12px}.sg b{font:500 11px var(--mono)}
+.pg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.pf{display:grid;gap:4px;font-size:11.5px;color:var(--mut)}.pf input{height:38px;border-radius:9px;border:1px solid var(--ln2);background:var(--bg);color:var(--ink);padding:0 11px;font:500 13px var(--mono)}.pf input:focus{border-color:var(--ac);outline:0}
+.btn{border:1px solid var(--ln2);border-radius:9px;padding:6px 13px;font-weight:550;font-size:12.5px;color:var(--mut)}.btn:hover{color:var(--ink);background:var(--s2)}
+/* ---------- noticias ---------- */
+.dg{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--gap)}.dg>.card:first-child{grid-row:span 2;justify-content:center;background:linear-gradient(160deg,var(--s2),var(--s1))}.dg>.card:first-child .h{font-size:15px}.dg>.card:first-child p{font-size:13px}@media(max-width:1180px){.dg{grid-template-columns:repeat(3,minmax(0,1fr))}.dg>.card:first-child{grid-row:auto;grid-column:span 3}}@media(max-width:860px){.dg{grid-template-columns:1fr 1fr}.dg>.card:first-child{grid-column:span 2}}.dgc{padding:14px 16px;cursor:pointer;transition:border-color .15s}.dgc:hover{border-color:var(--ln2)}.dgc .h{display:flex;align-items:center;gap:8px;font-weight:600}.dgc .s{font:600 12px var(--mono);margin-left:auto}.dgc p{margin:8px 0 0;font-size:12px;color:var(--mut);line-height:1.45}
+details.nw{border-top:1px solid var(--ln)}details.nw summary{list-style:none;display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:11px 18px;cursor:pointer}details.nw summary::-webkit-details-marker{display:none}details.nw summary:hover{background:var(--s2)}
+details.nw .ti{font-size:13px;font-weight:550;line-height:1.35}details.nw .tm{font:500 11px var(--mono);color:var(--dim)}details.nw[open] summary{background:var(--s2)}
+.nd{padding:4px 18px 14px 74px;background:var(--s2);font-size:12.5px;color:var(--ink2)}.nd p{margin:0 0 8px}.nd .row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}.nd a.lk{color:var(--acx);font-weight:550}.nd a.lk:hover{text-decoration:underline}
+/* ---------- menú y notificaciones estilo iPhone ---------- */
+.menu{position:fixed;top:64px;right:16px;z-index:40;width:min(360px,94vw);max-height:80vh;overflow:auto;background:var(--pop);backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);border:1px solid var(--ln2);border-radius:16px;padding:10px 16px 16px;box-shadow:0 24px 60px rgba(0,0,0,.5)}.menu[hidden]{display:none}.menu h3{margin:12px 0 4px}
+.sw{display:flex;align-items:center;gap:10px;min-height:36px;cursor:pointer;font-size:13px}.sw input{appearance:none;-webkit-appearance:none;width:38px;height:22px;border-radius:11px;background:var(--s3);position:relative;flex:none;margin:0;cursor:pointer;transition:background .2s}.sw input:before{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.4);transition:left .2s}.sw input:checked{background:var(--up)}.sw input:checked:before{left:18px}
+.nots{position:fixed;top:66px;right:16px;z-index:60;display:flex;flex-direction:column;gap:8px;width:min(372px,calc(100vw - 24px));pointer-events:none}
+.nt{pointer-events:auto;display:grid;grid-template-columns:38px 1fr;gap:10px;padding:11px 13px 12px;border-radius:22px;background:var(--nbg);backdrop-filter:blur(34px) saturate(190%);-webkit-backdrop-filter:blur(34px) saturate(190%);border:1px solid rgba(255,255,255,.09);box-shadow:0 14px 40px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05);cursor:pointer;animation:nin .55s cubic-bezier(.2,1.25,.32,1) both;transform-origin:top center}
+.nt.out{animation:nout .35s cubic-bezier(.4,0,1,1) both}.nt svg{width:38px;height:38px;border-radius:9px}
+.nt .hd{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--nsub);margin-bottom:1px}.nt .tt{color:var(--ink);font-weight:600;font-size:13.5px;line-height:1.3}.nt .bd{font-size:13px;line-height:1.35;color:var(--ntx);margin-top:1px}
+@keyframes nin{from{opacity:0;transform:translateY(-28px) scale(.94)}to{opacity:1;transform:none}}@keyframes nout{to{opacity:0;transform:translateY(-22px) scale(.96)}}
+.foot{margin-top:22px;text-align:center;color:var(--dim);font-size:11.5px}.foot a{color:var(--mut);text-decoration:underline}
+@media(max-width:1180px){.c8,.c7,.c5,.c4{grid-column:span 6}.e8{grid-column:span 12!important}.e4{grid-column:span 12!important}.c3{grid-column:span 6}}
+@media(max-width:860px){.grid>*{grid-column:span 12!important}.hdr{grid-template-columns:auto 1fr;height:auto;padding:10px 14px;row-gap:8px}.hdr .nav{grid-column:1/-1;grid-row:2;justify-self:stretch}.nav button{flex:1;padding:5px 6px}.hr{grid-column:2;grid-row:1}.pts{grid-template-columns:1fr}.pg{grid-template-columns:1fr 1fr}#chart{height:340px}main{padding:12px 12px 40px}.tape{padding:8px 12px}.hide-s{display:none}.stats{margin-left:0;gap:16px}.pillst .tx{display:none}}
+@media(prefers-reduced-motion:reduce){.fu,.fd,.nt,.nt.out{animation:none}}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6c8cff"/><stop offset="1" stop-color="#40d3c9"/></linearGradient>
+<symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="url(#lg)"/><path d="M32 12l17 10v20L32 52 15 42V22z" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><path d="M15 22l17 10 17-10M32 32v20" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round" opacity=".55"/></symbol></defs></svg>
+<header class="hdr">
+  <div class="brand"><svg><use href="#logo"/></svg>Saltycripto<span>LIVE</span></div>
+  <nav class="nav" id="tabs" aria-label="Secciones"><button data-v="ALL">Mercado</button><button data-v="TRADE">Estudio</button><button data-v="NEWS">Noticias</button><button data-v="DATA">Datos</button></nav>
+  <div class="hr"><div class="pillst" id="stt"><i class="dot"></i><span class="tx">conectando…</span></div>
+   <button class="ib" id="thm" aria-label="Cambiar tema" title="Modo claro / oscuro"></button>
+   <button class="ib" id="bell" aria-label="Avisos" title="Avisos"></button>
+   <button class="ib" id="rf" aria-label="Recargar todo el análisis" title="Recargar todo el análisis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button></div>
+</header>
+<div class="tape" id="tape" aria-label="Monedas"></div>
+<main id="app"><div class="empty">Conectando con el motor…</div></main>
+<div class="menu" id="menu" hidden></div><div class="nots" id="nots" aria-live="polite"></div>
+<script src="/vendor/lightweight-charts.js"></script>
+<script>
+"use strict";
+/* ---------- configuración ---------- */
+const COINS={BTC:{n:'Bitcoin',a:'#f7931a',i:'₿'},ETH:{n:'Ethereum',a:'#8c8cff',i:'Ξ'},XRP:{n:'XRP',a:'#a9bccf',i:'X'},SOL:{n:'Solana',a:'#b678ff',i:'S'},HYPE:{n:'Hyperliquid',a:'#2ee6c9',i:'H'},SUI:{n:'Sui',a:'#4da2ff',i:'S'},ZEC:{n:'Zcash',a:'#f4b728',i:'Z'},PAXG:{n:'Oro (PAXG)',lab:'ORO',a:'#d4a634',i:'Au'}};
+const TFS=[['1h',2],['4h',3],['1d',4],['1w',3]],CATN={tend:'Tendencia',mom:'Impulso',rev:'Extremos',volu:'Volumen',est:'Estructura'},CAT={tend:['ema','e200','st','ichi'],mom:['macd','rsim'],rev:['rsix','bb','div'],volu:['obv','cmf','vol'],est:['swing','don']};
+const SIGN={ema:'Medias EMA 20/50',e200:'EMA 200',st:'Supertrend',ichi:'Nube Ichimoku',macd:'MACD',rsim:'RSI impulso',rsix:'RSI extremos',bb:'Bollinger',div:'Divergencia RSI',obv:'OBV',cmf:'Flujo CMF',vol:'Volumen relativo',swing:'Máx./mín.',don:'Ruptura 20 velas'};
+const SB={AL:'Alcista',BA:'Bajista',NE:'Neutral',ND:'Sin datos'},TMV={C:'Compra favorable',V:'Venta favorable',E:'Esperar'};
+/* ---------- utilidades ---------- */
+const $=id=>document.getElementById(id),clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),lab=s=>COINS[s]?COINS[s].lab||s:s;
+const dec=v=>v==null?2:v<1?5:v<10?4:v<1000?2:v<10000?1:0;
+const fp=(v,d)=>v==null||isNaN(v)?'—':new Intl.NumberFormat('es-ES',{minimumFractionDigits:d??dec(v),maximumFractionDigits:d??dec(v)}).format(v);
+const eur=v=>v==null||isNaN(v)?'—':fp(v)+' €',pc=(v,d=2)=>v==null||isNaN(v)?'—':(v>=0?'+':'')+v.toFixed(d).replace('.',',')+' %';
+const f0=v=>v==null||isNaN(v)?'—':Math.round(v).toString(),f1=v=>v==null||isNaN(v)?'—':v.toFixed(1).replace('.',','),cmp=v=>v==null?'—':new Intl.NumberFormat('es-ES',{notation:'compact',maximumFractionDigits:1}).format(v);
+const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hm=t=>new Date(t).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}),hms=t=>new Date(t).toLocaleTimeString('es-ES');
+const ago=t=>{const m=Math.max(0,Math.round((Date.now()-t)/6e4));return m<1?'ahora':m<60?m+' min':m<1440?Math.round(m/60)+' h':Math.round(m/1440)+' d'};
+const until=t=>{const m=Math.round((t-Date.now())/6e4);return m<0?'hace '+ago(t):m<60?'en '+m+' min':m<1440?'en '+Math.round(m/60)+' h':'en '+Math.round(m/1440)+' d'};
+const cls=v=>v==null?'':v>=0?'up':'dn',ico=(s,z=20)=>`<span class="ci" style="--c:${COINS[s].a};--s:${z}px">${COINS[s].i}</span>`;
+const bias=(s,p)=>s==null?'ND':s>=(p==='AL'?57:60)?'AL':s<=(p==='BA'?43:40)?'BA':'NE';
+const ci=(w,n)=>n?1.96*Math.sqrt(Math.max(w/n*(1-w/n),.01)/(n*.4))*100:0;
+const bigEur=v=>v==null?'—':v>=1e12?(v/1e12).toFixed(2).replace('.',',')+' bill. €':v>=1e9?(v/1e9).toFixed(1).replace('.',',')+' mil M €':cmp(v)+' €';
+const kv=(k,v)=>`<div class="kv"><span>${k}</span><b>${v}</b></div>`,bTag=(b,txt)=>`<span class="tag t-${b||'ND'}">${txt||SB[b||'ND']}</span>`;
+const best=a=>(a||[]).reduce((m,g)=>!m||g.s>m.s?g:m,null),dots=g=>{const l=g.s>=5?3:g.s>=3?2:1;return'●'.repeat(l)+'○'.repeat(3-l)};
+const DIRC={alcista:'up',bajista:'dn',lateral:'',neutral:''},ARW={alcista:'▲',bajista:'▼',lateral:'◆',neutral:'◆'};
+const card=(cl,title,right,body,id)=>`<section class="card ${cl}"${id?` id="${id}"`:''}><div class="ch"><h2>${title}</h2>${right||''}</div>${body}</section>`;
+/* ---------- estado ---------- */
+let DATA={},CTX={},MK={},ORDER=Object.keys(COINS),VAL,NEWS=[],PULSO={},RNEWS={},CAL=[],DERIV={},SENT=null,SALUD=null,BAR='',BUSY=false,ERR=null,SV=-1,LASTT=0;
+let VIEW='ALL',SEL='BTC',TF='4h',TAB='tec',NF='all',ES=null,PRV={},ALERTS=false,HZ='S',OPENN=new Set();
+let PREF={tf:'4h',ema:true,zon:true,snd:true,al:{sig:true,prev:true,niv:true,mov:true,news:true,macro:true,pos:true}},POS={};
+try{const p=JSON.parse(localStorage.getItem('salty_pref')||'{}');Object.assign(PREF,p);PREF.al=Object.assign({sig:true,prev:true,niv:true,mov:true,news:true,macro:true,pos:true},p.al||{});ALERTS=localStorage.getItem('salty_alerts')==='1';POS=JSON.parse(localStorage.getItem('ci_pos')||'{}')||{};const h=location.hash.slice(1).split('/');if(['ALL','TRADE','NEWS','DATA'].includes(h[0]))VIEW=h[0];if(COINS[h[1]])SEL=h[1]}catch(e){}
+if(typeof POS!=='object'||Array.isArray(POS))POS={};TF=PREF.tf||'4h';
+const save=()=>{try{localStorage.setItem('salty_pref',JSON.stringify(PREF))}catch(e){}},savePos=()=>{try{localStorage.setItem('ci_pos',JSON.stringify(POS))}catch(e){}};
+const coins=()=>ORDER.filter(s=>COINS[s]);
+/* ---------- conexión con el motor ---------- */
+const rowsOf=a=>(a||[]).map(x=>({t:x[0],o:x[1],h:x[2],l:x[3],c:x[4],v:x[5]}));
+function hydrate(o){if(o.res){for(const k in o.res)o.res[k].rows=rowsOf(o.res[k].rows);o.d1=o.res['1d']}if(o.raw1d)o.raw1d=o.raw1d.map(x=>({h:x[0],l:x[1],c:x[2]}));if(!o.errs)o.errs=[];return o}
+const LIVEK=['price','chg','z','tm','crit','conf','tkv','vivo','micro','prev','proy','t'];
+function apply(st){SV=st.v;const D={};for(const s in st.data){const o=hydrate(st.data[s]),old=DATA[s];o._p0=o.price;if(window.ESTATICO){if(old&&old.tkv&&old.tkv.t)for(const k of ['price','chg','tkv'])o[k]=old[k]}else if(old&&old.t>o.t)for(const k of LIVEK)if(old[k]!==undefined)o[k]=old[k];D[s]=o}
+  DATA=D;CTX=st.ctx||{};MK=st.mk||{};if(st.order&&st.order.length)ORDER=st.order;VAL=st.val==='pending'?undefined:st.val;NEWS=st.noticias||[];PULSO=st.pulso||{};RNEWS=st.rnews||{};CAL=st.cal||[];DERIV=st.deriv||{};SENT=st.sent;BAR=st.bar;BUSY=st.busy;ERR=st.err;
+  renderAll(true);alerts()}
+let polling=false;async function poll(){if(polling)return;polling=true;try{
+  if(window.ESTATICO){const r=await fetch('datos/estado.json?'+Math.floor(Date.now()/60000),{cache:'no-store'});const st=await r.json();if(st.nube&&st.nube.generado!==SV){NUBE=st.nube;st.v=st.nube.generado;apply(st);if(VIEW==='TRADE'){await moneda(SEL);CHK='';loadChart()}}}
+  else{const r=await fetch('/api/state?v='+SV,{cache:'no-store'});if(r.status===200)apply(await r.json())}}catch(e){}polling=false}
+setInterval(poll,window.ESTATICO?60000:5000);
+function stream(){if(window.ESTATICO)return krakenWS();if(ES)ES.close();ES=new EventSource('/api/stream'+(VIEW==='TRADE'?'?sel='+SEL+'&tf='+TF:''));ES.onmessage=e=>onTick(JSON.parse(e.data));ES.onerror=()=>{LASTT=0;renderStatus()}}
+function onTick(t){LASTT=Date.now();if(t.salud)SALUD=t.salud;BAR=t.bar;BUSY=t.busy;
+  for(const s in t.coins){const o=DATA[s];if(!o)continue;PRV[s]=o.price;Object.assign(o,t.coins[s])}
+  if(t.sel&&t.sel.sym===SEL){chartLive(t.sel.velas);if(t.sel.proy&&DATA[SEL])DATA[SEL].proy=t.sel.proy}
+  if(t.v!==SV)poll();renderAll(false);alerts()}
+/* ---------- render general ---------- */
+function renderAll(slow){renderTape();renderStatus();
+  if(VIEW==='ALL')viewMercado(slow);else if(VIEW==='TRADE')viewEstudio(slow);else if(VIEW==='NEWS'){if(slow||!$('nwl'))viewNews()}else if(VIEW==='DATA')viewData()}
+function renderStatus(){const w=SALUD&&SALUD.ws,live=w&&w.conectado&&Date.now()-LASTT<5000;
+  $('stt').innerHTML=window.ESTATICO?`<i class="dot ${WSST.conectado?'on':'bad'}"></i><span class="tx">${WSST.conectado?'Precios en vivo':'Conectando…'}${NUBE?' · análisis '+ago(NUBE.generado):''}</span><span>${hm(Date.now())}</span>`:`<i class="dot ${live?'on':LASTT?'bad':''}"></i><span class="tx">${BUSY?esc(BAR):live?`En vivo · ${w.latencia_ms!=null?w.latencia_ms+' ms':''}`:LASTT?'Reconectando…':'Conectando…'}</span><span>${hm(Date.now())}</span>`;
+  $('rf').disabled=BUSY;$('rf').style.opacity=BUSY?.4:1}
+function renderTape(){$('tape').innerHTML=coins().map(s=>{const o=DATA[s],p=o&&o.price,fl=p&&PRV[s]&&p!==PRV[s]?(p>PRV[s]?'fu':'fd'):'';return`<button class="tp" data-s="${s}" aria-pressed="${VIEW==='TRADE'&&SEL===s}">${ico(s,20)}<b>${lab(s)}</b><span class="${fl}">${p?fp(p):'…'}</span><span class="${cls(o&&o.chg)}">${o&&o.chg!=null?pc(o.chg,1):''}</span></button>`}).join('')}
+$('tape').onclick=e=>{const b=e.target.closest('[data-s]');if(b)go('TRADE',b.dataset.s)};
+function go(v,s){const prevSel=SEL;if(s)SEL=s;const ch=v!==VIEW||(v==='TRADE'&&s&&s!==prevSel);VIEW=v;history.replaceState(null,'','#'+v+(v==='TRADE'?'/'+SEL:''));document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===VIEW));
+  if(ch){if(CHART){CHART.remove();CHART=null;PJ=PU=PD=null;PK='';LASTBAR=null}CHK='';$('app').innerHTML='';stream();window.scrollTo({top:0})}renderAll(true)}
+$('tabs').onclick=e=>{const b=e.target.closest('button');if(b)go(b.dataset.v,b.dataset.v==='TRADE'?SEL:null)};
+const liveB=o=>o&&o.vivo?{s:o.vivo.bS,l:o.vivo.bL,ts:o.vivo.ts,tl:o.vivo.tl}:{s:o&&o.bS,l:o&&o.bL,ts:o&&o.ts,tl:o&&o.tl};
+const prevTag=p=>p?`<span class="${DIRC[p.dir]}" style="font-weight:600">${ARW[p.dir]} ${p.dir[0].toUpperCase()+p.dir.slice(1)}</span> <span class="dim">· ${p.conf}</span>`:'<span class="dim">—</span>';
+/* ---------- MERCADO ---------- */
+function gauge(v){const R=56,cx=75,cy=68,pt=(a,r)=>[cx+r*Math.cos(Math.PI*(1-a/100)),cy-r*Math.sin(Math.PI*(1-a/100))],cols=['#f04e5e','#f2a93b','#6b7280','#7fd6ac','#22c58b'];
+  const sg=cols.map((c,i)=>{const a=pt(i*20+1.8,R),b=pt(i*20+18.2,R);return`<path d="M${a[0].toFixed(1)} ${a[1].toFixed(1)}A${R} ${R} 0 0 1 ${b[0].toFixed(1)} ${b[1].toFixed(1)}" stroke="${c}" stroke-width="8" stroke-linecap="round" fill="none"/>`}).join(''),n=pt(clamp(v,0,100),R-15);
+  return`<svg viewBox="0 0 150 88" width="170" role="img" aria-label="Sentimiento ${f0(v)} de 100">${sg}<line x1="${cx}" y1="${cy}" x2="${n[0].toFixed(1)}" y2="${n[1].toFixed(1)}" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="4" fill="var(--ink)"/></svg>`}
+function spark(o){const x=o&&o.res&&(o.res['4h']||o.res['1d']);if(!x)return'';const c=x.rows.slice(-60).map(k=>k.c);if(c.length<5)return'';const mn=Math.min(...c),mx=Math.max(...c),W=96,H=26,P=c.map((v,i)=>(i*W/(c.length-1)).toFixed(1)+','+(H-2-(v-mn)/(mx-mn||1)*(H-4)).toFixed(1)).join(' '),col=c[c.length-1]>=c[0]?'var(--up)':'var(--dn)';
+  return`<svg class="sp" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${P}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`}
+const med=a=>{a=a.filter(x=>x!=null).sort((x,y)=>x-y);return a.length?a[Math.floor(a.length/2)]:null};
+function panorama(){const ids=coins().filter(s=>DATA[s]&&DATA[s].bL&&DATA[s].bL!=='ND'),n=ids.length;if(!n)return null;
+  const al=ids.filter(s=>DATA[s].bL==='AL').length,ba=ids.filter(s=>DATA[s].bL==='BA').length,L=s=>liveB(DATA[s]),sba=ids.filter(s=>L(s).s==='BA').length,sal=ids.filter(s=>L(s).s==='AL').length;
+  const C=ids.filter(s=>DATA[s].tm&&DATA[s].tm.v==='C'),V=ids.filter(s=>DATA[s].tm&&DATA[s].tm.v==='V'),pv=ids.map(s=>DATA[s].prev).filter(Boolean),pts=[];
+  const tec=al>=n*.6?1:ba>=n*.6?-1:al>ba+1?.5:ba>al+1?-.5:0;
+  pts.push([tec>0?'up':tec<0?'dn':'','T',`<b>Técnico.</b> ${ba} de ${n} bajistas a largo plazo y ${al} alcistas; a corto, ${sba} bajistas y ${sal} alcistas.`]);
+  pts.push([C.length?'up':V.length?'dn':'','S',`<b>Semáforo.</b> Compra favorable en ${C.map(lab).join(', ')||'ninguno'}; venta en ${V.map(lab).join(', ')||'ninguno'}.`]);
+  if(SENT)pts.push([SENT.valor>=60?'up':SENT.valor<40?'dn':'','◐',`<b>Sentimiento.</b> ${SENT.lectura} (${f0(SENT.valor)}/100)${CTX.fg?`, miedo y codicia en ${CTX.fg.value}`:''}.`]);
+  const cr=coins().filter(s=>s!=='PAXG'&&DERIV[s]&&DERIV[s].ok);if(cr.length){const fu=med(cr.map(s=>DERIV[s].funding)),lp=med(cr.map(s=>DERIV[s].largos_pct)),oi=med(cr.map(s=>DERIV[s].oi_24h));
+    pts.push([lp>=75?'wa':'','D',`<b>Derivados.</b> ${lp!=null?f0(lp)+' % de cuentas en largo, ':`funding mediano ${(fu*100).toFixed(4).replace('.',',')} %, `}${oi!=null?`interés abierto ${pc(oi,1)}: ${oi<=-3?'se cierran posiciones':oi>=3?'entra apalancamiento':'apalancamiento estable'}`:`${fu>=.00015?'euforia apalancada':fu<0?'dominan los cortos':'sin excesos de apalancamiento'}`}.`])}
+  const rn=RNEWS.MERCADO;if(rn&&rn.n)pts.push([rn.dir==='alcista'?'up':rn.dir==='bajista'?'dn':'','N',`<b>Noticias.</b> ${esc(rn.efecto)}.`]);
+  const ev=CAL.find(e=>e.rel>=2&&e.t>Date.now());pts.push([ev&&ev.rel>=3&&ev.t-Date.now()<864e5?'wa':'','M',ev?`<b>Agenda.</b> ${esc(ev.titulo)} (${ev.pais}) ${until(ev.t)}.`:'<b>Agenda.</b> Sin eventos importantes publicados para los próximos días.']);
+  const pb=pv.filter(p=>p.dir==='bajista').length,pa=pv.filter(p=>p.dir==='alcista').length,sc=(tec+(SENT?(SENT.valor-50)/50:0)+(rn?rn.score/100:0)+(pv.length?(pa-pb)/pv.length:0))/4;
+  const head=sc>=.3?['up','Mercado alcista']:sc>=.1?['up','Sesgo alcista']:sc<=-.3?['dn','Mercado bajista']:sc<=-.1?['dn','Sesgo bajista']:['','Mercado mixto'];
+  return{head,pts,pa,pb,pl:pv.length-pa-pb}}
+function distBar(P){const n=P.pa+P.pb+P.pl;if(!n)return'';const w=x=>(x/n*100).toFixed(1)+'%';return`<div style="margin-top:auto;padding-top:18px"><div class="lbl" style="margin-bottom:6px">Lectura de los ${n} activos</div><div class="press" style="height:22px">${P.pb?`<i style="width:${w(P.pb)};background:var(--dnb);color:var(--dn)">${P.pb} bajistas</i>`:''}${P.pl?`<i style="width:${w(P.pl)};background:var(--s3);color:var(--mut)">${P.pl} laterales</i>`:''}${P.pa?`<i style="width:${w(P.pa)};background:var(--upb);color:var(--up)">${P.pa} alcistas</i>`:''}</div></div>`}
+function sigRow(s){const o=DATA[s];if(!o||!o.price)return`<tr><td>${ico(s)} <b style="font-family:var(--sans);margin-left:6px">${lab(s)}</b></td><td colspan="8" class="dim" style="text-align:left">${o&&o.fail?'Sin datos: '+esc(o.fail):'Cargando…'}</td></tr>`;
+  const L=liveB(o),fl=PRV[s]&&o.price!==PRV[s]?(o.price>PRV[s]?'fu':'fd'):'',rn=RNEWS[s];
+  return`<tr class="cl" data-s="${s}"><td><span style="display:inline-flex;align-items:center;gap:10px">${ico(s,24)}<span><b style="font:600 13px var(--sans)">${lab(s)}</b><span class="dim hide-s" style="display:block;font:400 11px var(--sans)">${COINS[s].n}</span></span></span></td>
+  <td class="${fl}" style="font-weight:600">${fp(o.price)}</td><td class="${cls(o.chg)}">${pc(o.chg)}</td><td class="hide-s">${spark(o)}</td>
+  <td>${bTag(L.s)}</td><td>${bTag(o.bL)}</td><td class="hide-s">${o.tm?`<span class="tag t-${o.tm.v}">${TMV[o.tm.v]}</span>`:'—'}</td>
+  <td>${prevTag(o.prev)}</td><td class="hide-s">${rn&&rn.n?`<span class="${rn.dir==='alcista'?'up':rn.dir==='bajista'?'dn':'mut'}">${rn.dir==='alcista'?'Positivas':rn.dir==='bajista'?'Negativas':'Mixtas'}</span>`:'<span class="dim">—</span>'}</td></tr>`}
+const hasEff=x=>x.afecta&&Object.keys(x.afecta).length&&Math.abs(x.dir)>=.2&&x.fuerza>=1;
+const effTag=x=>{const e=hasEff(x),c=e?(x.dir<0?'t-neg':'t-pos'):'t-ND';return`<span class="tag ${c}">${e?(x.dir<0?'▼':'▲'):'◆'} ${x.nivel}</span>`};
+function digest(rn,big){if(!rn)return'<div class="digest"><p class="dim">Calculando el impacto de las noticias…</p></div>';const c=rn.dir==='alcista'?'up':rn.dir==='bajista'?'dn':'mut';
+  return`<div class="digest"><span class="ar ${c}">${ARW[rn.dir==='neutral'?'lateral':rn.dir]}</span><div><b class="${c}">${esc(rn.efecto)}</b><p>${esc(rn.texto)}</p></div></div>`}
+function calRows(n){const up=CAL.filter(e=>e.t>Date.now()-36e5).slice(0,n),row=e=>`<div class="ev"><span class="w ${e.rel>=3?'wa':'mut'}">${new Date(e.t).toLocaleDateString('es-ES',{weekday:'short'})} ${hm(e.t)}</span><div><b style="font-weight:550">${esc(e.titulo)}</b> <span class="dim">${e.pais}</span><div class="tiny">${e.prevision?'Previsión '+esc(e.prevision):''}${e.prevision&&e.anterior?' · ':''}${e.anterior?'Anterior '+esc(e.anterior):''}</div></div><span class="tag ${e.impacto==='Alto'?'t-neg':'t-wa'}">${e.impacto}</span></div>`;
+  if(up.length)return up.map(row).join('');const past=CAL.filter(e=>e.rel>=2).slice(-4);return`<div class="cb sub" style="flex:0">La agenda de la próxima semana se publica el domingo.${past.length?' Últimos eventos importantes:':''}</div>${past.map(row).join('')}`}
+function derivTable(){const ids=coins().filter(s=>DERIV[s]&&DERIV[s].ok);if(!ids.length)return'<div class="empty">Cargando derivados…</div>';
+  return`<table><thead><tr><th>Activo</th><th>Funding 8 h</th><th>Cuentas en largo</th><th class="hide-s">Top traders</th><th>Interés abierto 24 h</th></tr></thead><tbody>${ids.map(s=>{const d=DERIV[s];return`<tr class="cl" data-s="${s}"><td>${ico(s,18)} <b style="font-family:var(--sans);margin-left:6px">${lab(s)}</b></td><td class="${d.funding>=.00015?'wa':d.funding<0?'up':''}">${d.funding!=null?(d.funding*100).toFixed(4).replace('.',',')+' %':'—'}</td><td class="${d.largos_pct>=75?'wa':''}">${d.largos_pct!=null?f0(d.largos_pct)+' %':'<span class="dim">—</span>'}</td><td class="hide-s">${d.top_largos_pct!=null?f0(d.top_largos_pct)+' %':'<span class="dim">—</span>'}</td><td class="${cls(d.oi_24h)}">${pc(d.oi_24h,1)}</td></tr>`}).join('')}</tbody></table>`}
+function valBody(){if(VAL===undefined)return'<div class="empty">Calculando el histórico…</div>';if(!VAL)return'<div class="empty">Sin histórico suficiente.</div>';
+  const A=VAL.A,T=A.T,R=T.fill?T.r/T.fill:0,sg=v=>v==null?'—':(v>=0?'+':'')+v.toFixed(2).replace('.',',');
+  return`<div class="cb"><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"><span class="tag t-${VAL.vd[0]}">Lectura técnica: ${VAL.vd[1].toLowerCase()}</span><span class="tag ${R>0?'t-pos':'t-wa'}">Entradas: ${R>0?'positivas':'sin beneficio demostrado'}</span></div>
+  ${A.b.n?kv('Lectura alcista → subió a 5 días',`${(A.b.w/A.b.n*100).toFixed(0)} % (media ${(VAL.base*100).toFixed(0)} %)`):''}${A.s.n?kv('Lectura bajista → bajó a 5 días',`${(A.s.w/A.s.n*100).toFixed(0)} % (media ${((1-VAL.base)*100).toFixed(0)} %)`):''}
+  ${kv('Correlación con el retorno',sg(VAL.icAll))}${T.fill?kv('Entradas simuladas',`${T.fill} · ${(T.w/T.fill*100).toFixed(0)} % objetivo · R ${R>=0?'+':''}${f1(R)}`):''}
+  ${R>0?'':'<div class="note">Usa las entradas y salidas como mapa de niveles, no como órdenes.</div>'}</div>`}
+function viewMercado(slow){if(!$('mk')){$('app').innerHTML=`<div class="grid" id="mk"><div class="sec">Resumen<small>qué está pasando ahora</small></div>
+  ${card('c8','Panorama','<span class="t" id="mk-t"></span>','<div class="cb" id="mk-pan" style="display:flex;flex-direction:column"></div>')}
+  ${card('c4','Sentimiento','<span class="t">6 fuentes</span>','<div class="cb" id="mk-sent"></div>')}
+  <section class="card c3 kpi" id="k1"></section><section class="card c3 kpi" id="k2"></section><section class="card c3 kpi" id="k3"></section><section class="card c3 kpi" id="k4"></section>
+  <div class="sec">Mercados<small>señales y previsión de cada activo</small></div>
+  ${card('c12','Tabla en vivo','<span class="t hide-s">Corto: 1 h y 4 h en vivo · Largo: diario y semanal · Lectura: los 7 factores combinados</span>','<div style="overflow-x:auto;padding-top:6px"><table><thead><tr><th>Activo</th><th>Precio €</th><th>24 h</th><th class="hide-s">12 días</th><th>Corto</th><th>Largo</th><th class="hide-s">Semáforo</th><th>Lectura</th><th class="hide-s">Noticias</th></tr></thead><tbody id="mk-sig"></tbody></table></div>')}
+  <div class="sec">Contexto<small>noticias y agenda macro</small></div>
+  ${card('c7','Lo que mueve el mercado','<button class="btn" data-go="NEWS">Ver noticias</button>','<div id="mk-news" style="flex:1"></div>')}
+  ${card('c5','Agenda macro','<span class="t">Alto y medio impacto</span>','<div id="mk-cal" style="padding-top:8px;flex:1"></div>')}
+  <div class="sec">Posicionamiento y fiabilidad<small>derivados e histórico del sistema</small></div>
+  ${card('c7','Derivados','<span class="t">Binance · Kraken Futures</span>','<div id="mk-der" style="overflow-x:auto;padding-top:6px"></div>')}
+  ${card('c5','¿Funciona el sistema?','<span class="t">Histórico sin información futura</span>','<div id="mk-val"></div>')}
+  </div><p class="foot">Kraken · Coinbase · CoinGecko · Binance · Kraken Futures · alternative.me · ForexFactory · 14 medios. No es asesoramiento financiero.${window.ESTATICO?' · versión publicada: análisis cada 20 min, precios en vivo':' · <a href="/clasica">vista clásica</a>'}</p>`;
+    $('mk').onclick=e=>{const r=e.target.closest('[data-s]');if(r)return go('TRADE',r.dataset.s);const g=e.target.closest('[data-go]');if(g)go(g.dataset.go)};slow=true}
+  $('mk-sig').innerHTML=coins().map(sigRow).join('');
+  const P=panorama();if(slow||!$('mk-pan').dataset.t||Date.now()-$('mk-pan').dataset.t>8000){$('mk-pan').dataset.t=Date.now();$('mk-t').textContent=BAR;
+    $('mk-pan').innerHTML=P?`<div class="headline ${P.head[0]}">${P.head[1]}</div><div class="sub">Síntesis de técnico, sentimiento, derivados, noticias y agenda</div><div class="pts">${P.pts.map(p=>`<div class="pt"><i style="background:${p[0]==='up'?'var(--upb)':p[0]==='dn'?'var(--dnb)':p[0]==='wa'?'var(--wab)':'var(--s3)'};color:${p[0]==='up'?'var(--up)':p[0]==='dn'?'var(--dn)':p[0]==='wa'?'var(--wa)':'var(--mut)'}">${p[1]}</i><div>${p[2]}</div></div>`).join('')}</div>${distBar(P)}`:(ERR?`<div class="dn">${esc(ERR)}</div>`:'<div class="sub">Analizando el mercado…</div>')}
+  const fb=med(coins().filter(s=>s!=='PAXG'&&DERIV[s]).map(s=>DERIV[s].funding)),kp=(id,l,v,s)=>{$(id).innerHTML=`<div class="lbl">${l}</div><div class="v">${v}</div><div class="s">${s}</div>`};
+  kp('k1','Capitalización total',bigEur(CTX.mcap),`<span class="${cls(CTX.mc)}">${pc(CTX.mc,1)} en 24 h</span>`);
+  kp('k2','Dominancia de Bitcoin',CTX.dom!=null?f1(CTX.dom)+' %':'—','<span class="dim">cuota del mercado</span>');
+  kp('k3','Funding mediano',fb!=null?(fb*100).toFixed(4).replace('.',',')+' %':'—',`<span class="${fb>=.00015?'wa':fb<0?'up':'dim'}">${fb==null?'':fb>=.00015?'euforia apalancada':fb<0?'dominan los cortos':'neutral'} · cada 8 h</span>`);
+  kp('k4','Miedo y codicia',CTX.fg?CTX.fg.value:'—',CTX.fg1?`<span class="dim">ayer ${CTX.fg1.value}${CTX.fg7?' · hace 7 días '+CTX.fg7.value:''}</span>`:'');
+  if(slow){$('mk-sent').innerHTML=SENT?`<div class="gauge">${gauge(SENT.valor)}<div style="font:600 22px var(--mono);margin-top:-6px">${f0(SENT.valor)}</div><div class="${SENT.valor>=60?'up':SENT.valor<40?'dn':''}" style="font-weight:600;margin-bottom:10px">${SENT.lectura}</div></div>${SENT.componentes.map(c=>`<div class="cmp"><span>${c.nombre}</span><div class="bar"><i style="left:0;width:${c.valor}%;background:${c.valor>=60?'var(--up)':c.valor<40?'var(--dn)':'var(--mut)'}"></i></div><b>${esc(c.dato)}</b></div>`).join('')}`:'<div class="empty">Calculando…</div>';
+    const top=NEWS.filter(x=>Date.now()-x.t<864e5).map(x=>({x,k:x.fuerza*Math.exp(-(Date.now()-x.t)/36e5/10)})).sort((a,b)=>b.k-a.k).slice(0,5).map(y=>y.x);
+    $('mk-news').innerHTML=`<div class="cb" style="padding-bottom:6px;flex:0">${digest(RNEWS.MERCADO)}</div>${top.map(x=>`<div class="nr"><span class="tm">${ago(x.t)}</span><span class="ti" title="${esc(x.titulo)}">${esc(x.titulo)}</span>${effTag(x)}</div>`).join('')}`;
+    $('mk-cal').innerHTML=calRows(6);$('mk-der').innerHTML=derivTable();$('mk-val').innerHTML=valBody()}}
+/* ---------- ESTUDIO ---------- */
+let CHART=null,CS=null,VS=null,L20=null,L50=null,L200=null,CHK='',PLINES=[],ZK='';const TZ=-new Date().getTimezoneOffset()*60,tsec=t=>Math.floor(t/1000)+TZ;
+function viewEstudio(slow){const s=SEL,o=DATA[s];if(!$('es')){$('app').innerHTML=`<div class="grid" id="es">
+  <section class="card c12" id="es-hero"></section>
+  <div class="sec">Gráfico y proyección<small>la flecha se recalcula en vivo</small></div>
+  <section class="card c8 e8 chartcard"><div class="ch"><h2>Gráfico</h2><div style="display:flex;gap:10px;align-items:center"><div class="seg" id="tfb">${['1m','1h','4h','1d','1w'].map(t=>`<button data-tf="${t}">${t}</button>`).join('')}</div><label class="sw hide-s" style="min-height:0;font-size:12px"><input type="checkbox" id="oema" ${PREF.ema?'checked':''}>Medias</label><label class="sw hide-s" style="min-height:0;font-size:12px"><input type="checkbox" id="ozon" ${PREF.zon?'checked':''}>Niveles</label><label class="sw hide-s" style="min-height:0;font-size:12px" title="Caminos de los momentos pasados más parecidos"><input type="checkbox" id="ocas" ${PREF.cas?'checked':''}>Casos</label></div></div><div id="chart"><div class="leg" id="leg"></div><div class="pchip" id="pchip" hidden></div><svg class="pjs" id="pjsvg" aria-hidden="true"></svg></div></section>
+  ${card('c4 e4','Proyección','<span class="t">la flecha del gráfico</span>','<div class="cb" id="es-proj"></div>')}
+  <div class="sec">Contexto de <span id="es-sn" style="margin-left:4px"></span><small>lectura, niveles, flujo y noticias</small></div>
+  ${card('c4','Lectura de los datos','<span class="t">7 factores, ahora</span>','<div class="cb" id="es-prev"></div>')}
+  ${card('c4','Niveles clave','<span class="t">★ zona más fuerte</span>','<div class="cb" id="es-niv"></div>')}
+  ${card('c4','Libro y flujo','<span class="t">hacia dónde empuja</span>','<div class="cb" id="es-flu"></div>')}
+  ${card('c12','Noticias','<span class="t" id="es-nt"></span>','<div id="es-news" style="flex:1"></div>')}
+  <div class="sec">Detalle<small>técnico, derivados, fiabilidad y tu posición</small></div>
+  <section class="card c12"><div class="btabs" id="btabs">${[['tec','Análisis técnico'],['der','Derivados'],['fia','Fiabilidad'],['pos','Mi posición']].map(t=>`<button data-t="${t[0]}">${t[1]}</button>`).join('')}</div><div id="tabc"></div></section></div>`;
+    $('tfb').onclick=e=>{const b=e.target.closest('button');if(!b)return;TF=PREF.tf=b.dataset.tf;save();CHK='';loadChart();stream()};
+    $('oema').onchange=e=>{PREF.ema=e.target.checked;save();CHK='';loadChart()};$('ozon').onchange=e=>{PREF.zon=e.target.checked;save();ZK='';zoneLines()};$('ocas').onchange=e=>{PREF.cas=e.target.checked;save();projArrow()};
+    $('btabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;TAB=b.dataset.t;$('tabc').innerHTML='';renderTab(true)};slow=true}
+  document.querySelectorAll('#tfb button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tf===TF));document.querySelectorAll('#btabs button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.t===TAB));
+  if(!o||!o.price){$('es-hero').innerHTML=`<div class="hero"><div class="sub">${o&&o.fail?'No se pudo analizar: '+esc(o.fail):o&&o.nopair?'Kraken no lista esta moneda en euros.':'Cargando '+lab(s)+'…'}</div></div>`;return}
+  const k=o.tkv||{},sp=k.ask&&k.bid?(k.ask-k.bid)/((k.ask+k.bid)/2)*100:null,fl=PRV[s]&&o.price!==PRV[s]?(o.price>PRV[s]?'fu':'fd'):'';
+  $('es-hero').innerHTML=`<div class="hero"><div style="display:flex;align-items:center;gap:12px">${ico(s,40)}<div><div style="font:650 18px var(--sans)">${COINS[s].n}</div><div class="tiny">${lab(s)}/EUR${MK[s]&&MK[s].rk?' · #'+MK[s].rk+' por capitalización':''}</div></div></div>
+  <div><div class="px ${fl}">${fp(o.price)} <span style="font-size:15px;color:var(--mut)">€</span></div><div class="m ${cls(o.chg)}" style="font-size:12.5px;margin-top:4px">${pc(o.chg)} en 24 h</div></div>
+  <div class="stats"><div><span>Máx. 24 h</span><b>${fp(k.high)}</b></div><div><span>Mín. 24 h</span><b>${fp(k.low)}</b></div><div class="hide-s"><span>Volumen 24 h</span><b>${cmp(k.volume)}</b></div><div><span>Volatilidad</span><b>${o.d1&&o.d1.atrPct?f1(o.d1.atrPct)+' %/día':'—'}</b></div><div class="hide-s"><span>Spread</span><b>${sp!=null?sp.toFixed(3).replace('.',',')+' %':'—'}</b></div><div><span>Lectura</span><b>${prevTag(o.prev)}</b></div></div></div>${COINS[s].note?`<div class="tiny" style="padding:0 18px 12px">${COINS[s].note}</div>`:''}`;
+  prevCard(o);projCard(o);nivCard(o);fluCard(o);projArrow();$('es-sn').textContent=COINS[s].n;if(slow)newsCard(s);if(!CHART||CHK!==s+TF)loadChart();zoneLines();renderTab(slow)}
+function prevCard(o){const p=o.prev,el=$('es-prev');if(!p){el.innerHTML='<div class="empty">Calculando previsión…</div>';return}
+  const c=DIRC[p.dir],ob=p.objetivo,inv=p.invalidacion,T=o.bt&&o.bt.T,R=T&&T.fill?T.r/T.fill:null;
+  const esc1=p.dir==='lateral'?(ob&&ob.rango?`Lo más probable es que se mueva en rango entre <b>${fp(ob.rango[0])}</b> (${pc(ob.pct[0],1)}) y <b>${fp(ob.rango[1])}</b> (${pc(ob.pct[1],1)}).`:'Sin dirección clara.'):`Escenario más probable: ${p.dir==='bajista'?'caída':'subida'} hacia <b>${ob?fp(ob.precio)+' €':'—'}</b>${ob?` (${pc(ob.pct,1)}, ${ob.nivel})`:''}.${inv?` Pierde validez con ${inv.texto} (<b>${fp(inv.precio)}</b>, ${pc(inv.pct,1)}).`:''}`;
+  el.innerHTML=`<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px"><div class="fdir ${c}">${ARW[p.dir]} ${p.dir[0].toUpperCase()+p.dir.slice(1)}</div><span class="tag ${p.conf==='alta'?'t-pos':p.conf==='media'?'t-wa':'t-ND'}">Confianza ${p.conf}</span></div>
+  <div class="meter"><i style="left:${clamp((p.score+100)/2,0,100)}%"></i></div><div class="ml"><span>bajista</span><span>${p.score>0?'+':''}${f0(p.score)}</span><span>alcista</span></div>
+  <div class="box">${esc1}</div>
+  <div style="margin-top:12px">${p.factores.map(f=>`<div class="fx"><span>${f.nombre}</span><div class="dv"><i style="left:${f.valor<0?50+f.valor*50:50}%;width:${Math.abs(f.valor)*50}%;background:${f.valor>0?'var(--up)':'var(--dn)'}"></i></div><b class="${f.aporte>1?'up':f.aporte<-1?'dn':'dim'}">${f.aporte>0?'+':''}${f0(f.aporte)}</b></div>`).join('')}</div>
+  <div class="tiny" style="margin-top:10px">Síntesis de todos los datos, no una certeza.${R!=null&&T.fill>=10?` En ${lab(o.sym)}, la Entrada 1 histórica tocó el objetivo el ${(T.w/T.fill*100).toFixed(0)} % de las veces.`:''}</div>`}
+const fdate=t=>new Date(t).toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'2-digit'})+(TF==='1m'||TF==='1h'||TF==='4h'?' '+hm(t):'');
+let PJMORE=false;
+function projCard(o){const el=$('es-proj');if(!el)return;if(!el.dataset.w){el.dataset.w=1;el.addEventListener('click',e=>{const sm=e.target.closest('summary'),d=sm&&sm.parentElement;if(d&&d.id==='pj-more')PJMORE=!d.open})}const pr=o.proy&&o.proy[TF];if(!pr){el.innerHTML='<div class="empty">Calibrando la proyección con el histórico…</div>';return}
+  const T=projTxt(pr),v=pr.val,p=o.price,pu=Math.round(pr.p_up*100),r=x=>pc((x/p-1)*100,1);
+  const fia=!v?{c:'t-ND',t:'Histórico corto: se muestra el rango de siempre, sin dirección.'}:v.destreza>0?{c:'t-pos',t:`Acertó la dirección el ${v.acierto!=null?Math.round(v.acierto*100)+' %':'—'} de las veces en datos que no había visto.`}:{c:'t-wa',t:'En el histórico no ha demostrado acertar la dirección: tómalo como rango probable, no como señal.'};
+  const ana=(pr.analogos||[]).slice(0,4).map(a=>`<span class="pill">${fdate(a.t)} <b class="${a.fin>=0?'up':'dn'}">${pc(a.fin,1)}</b></span>`).join(''),ras=(pr.rasgos||[]).slice(0,3).map(x=>`<span class="pill">${esc(x.rasgo)}</span>`).join('');
+  el.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div class="fdir ${T[2]}">${T[0]} ${T[1]}</div><span class="tag t-ac">próximas ${hz(pr.horas)}</span></div>
+  <div class="press" style="height:24px;margin:14px 0 4px"><i style="width:${pu}%;background:var(--upb);color:var(--up)">▲ ${pu} %</i><i style="flex:1;justify-content:flex-end;background:var(--dnb);color:var(--dn)">${100-pu} % ▼</i></div>
+  <div class="tiny" style="margin-bottom:14px">Casos parecidos que subieron frente a los que bajaron</div>
+  <div class="rng"><div class="lbl">Rango más probable</div><div class="rv">${fp(pr.b50[0])} <span class="dim">–</span> ${fp(pr.b50[1])} €</div><div class="tiny">La mitad de los casos parecidos acabó aquí · ${r(pr.b50[0])} / ${r(pr.b50[1])}</div></div>
+  ${kv('Punto central',`<span class="${T[2]}">${fp(pr.centro)} € (${r(pr.centro)})</span>`)}${kv('Rango amplio (80 %)',`<span class="dim">${fp(pr.b80[0])} – ${fp(pr.b80[1])}</span>`)}${pr.nivel?kv('Puede frenarla',`<span class="wa">${pr.nivel.tipo} ${fp(pr.nivel.precio)}</span>`):''}
+  <div class="tag ${fia.c}" style="display:block;white-space:normal;line-height:1.45;padding:8px 10px;margin-top:12px;font-weight:500">${fia.t}</div>
+  <details class="more" id="pj-more"${PJMORE?' open':''}><summary>Cómo se calcula</summary><div class="tiny" style="margin:6px 0 8px;line-height:1.5">Busca los ${pr.k} momentos del histórico de ${lab(o.sym)} en ${TF} más parecidos al actual (de ${pr.n}) y mira qué hizo el precio después, reescalado a la volatilidad de hoy. Se inclina un poco por noticias, derivados, flujo y sentimiento.</div>
+  ${kv('Volatilidad del horizonte',`±${pr.sd_pct.toFixed(1).replace('.',',')} %`)}${v?kv('Cobertura real (50 % · 80 %)',`${Math.round(v.cob50*100)} % · ${Math.round(v.cob80*100)} %`):''}${kv('Inclinación por noticias y mercado',`${pr.inclinacion>0?'+':''}${(pr.inclinacion*100).toFixed(0)}`)}
+  ${ana?`<div class="lbl" style="margin:10px 0 4px">Momentos parecidos y qué pasó después</div>${ana}`:''}${ras?`<div class="lbl" style="margin:10px 0 4px">Rasgos que más pesan</div>${ras}`:''}</details>`}
+
+function projBlock(o){const pr=o.proy&&o.proy[TF];if(!pr)return'';const c=DIRC[pr.dir],v=pr.val,p=o.price,r=x=>pc((x/p-1)*100,1),pu=Math.round(pr.p_up*100);
+  const veredicto=pr.dir==='lateral'?`Sin dirección fiable: lo más probable (50 %) es un cierre entre <b>${fp(pr.b50[0])}</b> y <b>${fp(pr.b50[1])}</b>; el 80 % de los casos parecidos acabó entre ${fp(pr.b80[0])} y ${fp(pr.b80[1])}.`
+    :`${pr.dir==='alcista'?'Subida':'Bajada'} más probable (${Math.round((pr.p_dir||0)*100)} %) hacia <b>${fp(pr.centro)} €</b> (${r(pr.centro)}); la mitad de los casos parecidos quedó entre ${fp(pr.b50[0])} y ${fp(pr.b50[1])}.`;
+  const vtxt=!v?`<p class="sub" style="margin:6px 0 0">Histórico demasiado corto para validar la flecha en ${TF}: se muestra el rango de siempre, sin dirección.</p>`
+    :v.destreza>0?`<p class="sub" style="margin:6px 0 0">Fuera de muestra, las analogías acertaron la dirección el <b>${v.acierto!=null?Math.round(v.acierto*100)+' %':'—'}</b> de las ${v.llamadas} veces que la marcaron y mejoraron la previsión base un <b class="up">${(v.destreza*100).toFixed(1).replace('.',',')} %</b>; por eso pesan un ${Math.round(pr.lam*100)} %.</p>`
+    :`<p class="sub" style="margin:6px 0 0">En el último tramo del histórico (${v.n} comprobaciones sin información futura) las analogías <b>no mejoraron</b> a la previsión base (destreza ${(v.destreza*100).toFixed(1).replace('.',',')} %, acierto ${v.acierto!=null?Math.round(v.acierto*100)+' %':'—'}): la flecha dibuja el rango probable y solo se inclina por noticias, derivados, flujo y sentimiento.</p>`;
+  const cov=v?`${kv('Cobertura real (bandas 50 · 80)',`<span class="${Math.abs(v.cob50-.5)<=.1?'up':'wa'}">${Math.round(v.cob50*100)} %</span> · <span class="${Math.abs(v.cob80-.8)<=.08?'up':'wa'}">${Math.round(v.cob80*100)} %</span>`)}`:'';
+  const ana=(pr.analogos||[]).slice(0,4).map(a=>`<span class="pill" title="estado parecido al actual">${fdate(a.t)} <b class="${a.fin>=0?'up':'dn'}">${pc(a.fin,1)}</b></span>`).join('');
+  const ras=(pr.rasgos||[]).slice(0,3).map(x=>`<span class="pill">${esc(x.rasgo)}</span>`).join('');
+  return`<div class="lbl" style="margin:16px 0 6px">Flecha del gráfico · ${TF} · próximas ${hz(pr.horas)}</div><div class="box" style="margin-top:0">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div class="fdir ${c}" style="font-size:22px">${ARW[pr.dir]} ${pr.dir[0].toUpperCase()+pr.dir.slice(1)}</div><span class="tag ${pr.conf==='alta'?'t-pos':pr.conf==='media'?'t-wa':'t-ND'}">Confianza ${pr.conf}</span></div>
+  <div class="press" style="height:22px;margin-bottom:10px"><i style="width:${pu}%;background:var(--upb);color:var(--up)">${pu} % sube</i><i style="flex:1;justify-content:flex-end;background:var(--dnb);color:var(--dn)">${100-pu} % baja</i></div>
+  <div style="font-size:12.8px;line-height:1.5">${veredicto}</div>
+  <div style="margin-top:8px">${kv('Precio central',`<span class="${c}">${fp(pr.centro)} € (${r(pr.centro)})</span>`)}${kv('Rango 50 %',`${fp(pr.b50[0])} – ${fp(pr.b50[1])}`)}${kv('Rango 80 %',`<span class="dim">${fp(pr.b80[0])} – ${fp(pr.b80[1])}</span>`)}
+  ${kv('Volatilidad del horizonte',`±${pr.sd_pct.toFixed(1).replace('.',',')} %`)}${kv('Casos parecidos',`${pr.k} de ${pr.n} (${pr.n_eff} efectivos)`)}${kv('Inclinación por noticias y mercado',`<span class="${pr.inclinacion>.02?'up':pr.inclinacion<-.02?'dn':'dim'}">${pr.inclinacion>0?'+':''}${(pr.inclinacion*100).toFixed(0)}</span>`)}${cov}${pr.nivel?kv('Nivel en el camino',`<span class="wa">${pr.nivel.tipo} ${fp(pr.nivel.precio)}</span>`):''}</div>
+  ${vtxt}${ana?`<div class="lbl" style="margin:10px 0 4px">Momentos parecidos y qué pasó después</div><div>${ana}</div>`:''}${ras?`<div class="lbl" style="margin:10px 0 4px">Rasgos que más pesan</div><div>${ras}</div>`:''}
+  <div class="tiny" style="margin-top:8px">Analogías con ${pr.n} estados pasados de ${lab(o.sym)} en ${TF} (histórico de Binance/Coinbase empalmado con Kraken), reescaladas a la volatilidad actual y con el cono ajustado para cubrir lo que promete. Sin información futura.</div></div>`}
+function nivCard(o){const z=o.z,el=$('es-niv');if(!z){el.innerHTML='<div class="empty">Sin niveles.</div>';return}const p=o.price,bE=best(z.sup),bX=best(z.res),ar=(o.d1&&o.d1.atr)||0;
+  const row=(c,l,g,star,extra)=>`<div class="lr ${c}"><span class="lb">${l}</span><div style="min-width:0"><div class="lp">${fp(g.mid)}${star?' ★':''}</div><div class="ls" title="${esc(g.t.join(' · '))}">${extra||g.t.slice(0,2).join(' · ')}</div></div><div class="rt ${c==='e'?'up':'dn'}">${pc((g.mid/p-1)*100,1)}<div style="font-size:11px;letter-spacing:2px;color:var(--dim);margin-top:2px">${dots(g)}</div></div></div>`;
+  el.innerHTML=`<div class="lad">${z.res.slice(0,2).reverse().map((g,i,a)=>row('x','SALIDA '+(a.length-i),g,g===bX)).join('')}<div class="lr now"><span class="lb mut">AHORA</span><div class="lp">${fp(p)}</div><div class="rt ${cls(o.chg)}">${pc(o.chg,1)}</div></div>${z.sup.slice(0,2).map((g,i)=>row('e','ENTRADA '+(i+1),g,g===bE,`stop bajo ${fp(g.lo-ar)}`)).join('')}</div>
+  <div class="tiny" style="margin-top:10px">Zonas por confluencia de pivotes, Fibonacci, medias, VWAP, volumen y muros. ●●● = más métodos coinciden.</div>`}
+function fluCard(o){const m=o.micro,el=$('es-flu');if(!m){el.innerHTML='<div class="empty">Esperando datos en vivo…</div>';return}
+  const lb=m.libro_pct,f5=m.flujo_5m&&m.flujo_5m.pct,f15=m.flujo_15m&&m.flujo_15m.pct,f1m=m.flujo_1m&&m.flujo_1m.pct,dirTxt=m.score>=25?'Empujan los compradores':m.score<=-25?'Empujan los vendedores':'Fuerzas equilibradas';
+  const fb=(l,v)=>`<div class="flw"><span>${l}</span><div class="bar">${v!=null?`<i style="left:0;width:${v}%;background:var(--up)"></i><i style="left:${v}%;right:0;background:var(--dn)"></i>`:''}</div><b>${v!=null?f0(v)+'%':'—'}</b></div>`;
+  const w=[];if(m.muro_compra)w.push(`muro de compra en <b class="up">${fp(m.muro_compra.precio)}</b> (${pc(m.muro_compra.pct,2)})`);if(m.muro_venta)w.push(`muro de venta en <b class="dn">${fp(m.muro_venta.precio)}</b> (${pc(m.muro_venta.pct,2)})`);
+  el.innerHTML=`<div class="fdir ${m.score>=25?'up':m.score<=-25?'dn':''}" style="font-size:19px">${dirTxt}</div><div class="tiny" style="margin:2px 0 12px">Próximos minutos · flujo de órdenes, libro y momento</div>
+  <div class="lbl" style="margin-bottom:6px">Libro cerca del precio (±0,5 %)</div>${lb!=null?`<div class="press"><i style="width:${lb}%;background:var(--upb);color:var(--up)">${f0(lb)} % compra</i><i style="flex:1;justify-content:flex-end;background:var(--dnb);color:var(--dn)">${f0(100-lb)} % venta</i></div>`:'<div class="tiny">—</div>'}
+  <div class="lbl" style="margin:14px 0 4px">Operaciones (compras frente a ventas)</div>${fb('1 min',f1m)}${fb('5 min',f5)}${fb('15 min',f15)}
+  <div class="box">${w.length?w.join('; ')[0].toUpperCase()+w.join('; ').slice(1)+'.':'Sin muros relevantes cerca del precio.'} Momento 15 min <b class="${cls(m.mom_15m)}">${pc(m.mom_15m)}</b>, 1 h <b class="${cls(m.mom_60m)}">${pc(m.mom_60m)}</b>.</div>`}
+function newsCard(s){const rn=RNEWS[s],L=NEWS.filter(x=>x.afecta[s]!==undefined||(s!=='PAXG'&&x.afecta.MERCADO!==undefined)).slice(0,4);$('es-nt').textContent=rn&&rn.n?rn.n+' en 24 h':'';
+  $('es-news').innerHTML=`<div class="cb" style="padding-bottom:6px;flex:0">${digest(rn)}</div>${L.map(x=>`<div class="nr" style="grid-template-columns:40px 1fr auto"><span class="tm">${ago(x.t)}</span><span class="ti" title="${esc(x.titulo)}">${esc(x.titulo)}</span>${effTag(x)}</div>`).join('')}<div style="padding:10px 18px"><button class="btn" data-go="NEWS" onclick="NF='${s}';go('NEWS')">Todas las noticias de ${lab(s)}</button></div>`}
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim(),isL=()=>document.documentElement.dataset.theme==='light';
+const TFMS={'1m':6e4,'1h':36e5,'4h':144e5,'1d':864e5,'1w':6048e5},HOR={'1m':60,'1h':24,'4h':12,'1d':7,'1w':4};
+let PJ=null,PU=null,PD=null,PK='',LASTBAR=null;const vcol=up=>isL()?(up?'rgba(10,135,92,.28)':'rgba(201,47,67,.24)'):(up?'rgba(34,197,139,.28)':'rgba(240,78,94,.28)');
+function chartOpts(){const g=isL()?'rgba(15,23,42,.07)':'rgba(255,255,255,.035)',c=isL()?'rgba(16,24,40,.28)':'rgba(255,255,255,.2)';return{layout:{background:{color:'transparent'},textColor:cssv('--mut'),fontFamily:'-apple-system,Inter,sans-serif',fontSize:11},grid:{vertLines:{color:g},horzLines:{color:g}},rightPriceScale:{borderVisible:false},timeScale:{borderVisible:false,timeVisible:true,secondsVisible:false,rightOffset:4},crosshair:{mode:0,vertLine:{color:c},horzLine:{color:c}},localization:{locale:'es-ES',priceFormatter:p=>fp(p)}}}
+function fitChart(){const el=$('chart');if(CHART&&el&&el.clientWidth){CHART.resize(el.clientWidth,el.clientHeight);projArrow()}}
+new ResizeObserver(()=>fitChart()).observe(document.body);addEventListener('resize',fitChart);
+const candleOpts=()=>({upColor:cssv('--up'),downColor:cssv('--dn'),borderVisible:false,wickUpColor:cssv('--up'),wickDownColor:cssv('--dn'),priceLineColor:cssv('--mut')});
+async function loadChart(){const s=SEL,tf=TF,key=s+tf;CHK=key;if(typeof LightweightCharts==='undefined'){$('chart').innerHTML='<div class="empty">No se pudo cargar la librería de gráficos.</div>';return}
+  if(!CHART){const el=$('chart');CHART=LightweightCharts.createChart(el,Object.assign(chartOpts(),{width:el.clientWidth,height:el.clientHeight}));fitChart();CS=CHART.addCandlestickSeries(candleOpts());
+    VS=CHART.addHistogramSeries({priceScaleId:'v',priceFormat:{type:'volume'},lastValueVisible:false,priceLineVisible:false});CHART.priceScale('v').applyOptions({scaleMargins:{top:.84,bottom:0}});
+    const ln=(c,w,st)=>CHART.addLineSeries({color:c,lineWidth:w,lineStyle:st||0,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});L20=ln(COINS[s].a,1.5);L50=ln(cssv('--mut'),1.2);L200=ln('#9b7bff',1.2,2);
+    PJ=ln(cssv('--mut'),2,2);PU=ln('rgba(0,0,0,0)',1);PD=ln('rgba(0,0,0,0)',1);
+    CHART.subscribeCrosshairMove(p=>{const d=p&&p.seriesData&&p.seriesData.get(CS);$('leg').innerHTML=d?`<span>A ${fp(d.open)}</span><span>M ${fp(d.high)}</span><span>m ${fp(d.low)}</span><span class="${d.close>=d.open?'up':'dn'}">C ${fp(d.close)}</span>`:legend()})}
+  try{const d=window.ESTATICO?((await moneda(s)).velas[tf]||{rows:[]}):await (await fetch(`/api/velas?s=${s}&tf=${tf}`,{cache:'no-store'})).json();if(CHK!==key)return;const rows=d.rows,lp=rows.length?rows[rows.length-1][4]:1;
+    CS.setData(rows.map(x=>({time:tsec(x[0]),open:x[1],high:x[2],low:x[3],close:x[4]})));VS.setData(rows.map(x=>({time:tsec(x[0]),value:x[5],color:vcol(x[4]>=x[1])})));
+    const sl=(ser,arr)=>ser.setData(PREF.ema&&arr?arr.map((v,i)=>({time:tsec(rows[i][0]),value:v})).slice(Math.min(30,arr.length-1)):[]);L20.applyOptions({color:COINS[s].a});L50.applyOptions({color:cssv('--mut')});sl(L20,d.e20);sl(L50,d.e50);sl(L200,d.e200);
+    CS.applyOptions({priceFormat:{type:'price',precision:dec(lp),minMove:1/10**dec(lp)}});const lr=rows[rows.length-1];LASTBAR=lr?{t:lr[0]}:null;PJK='';projArrow();
+    CHART.timeScale().setVisibleLogicalRange({from:Math.max(0,rows.length-(tf==='1m'?180:80)),to:rows.length+((o=>o&&o.proy&&o.proy[tf]?o.proy[tf].velas:HOR[tf]))(DATA[s])+6});CHART.timeScale().subscribeVisibleLogicalRangeChange(projArrow);ZK='';zoneLines();$('leg').innerHTML=legend()}catch(e){}}
+/* proyección calibrada: cono de rango probable (50 % y 68 %), recorrido central con flecha y objetivo. Se redibuja en vivo */
+let PJK='',RAF=0;const hz=h=>h<1?Math.round(h*60)+' min':h<24?h+' h':h<168?Math.round(h/24)+(h<48?' día':' días'):Math.round(h/168)+(h<336?' semana':' semanas');
+const projArrow=()=>{if(!RAF)RAF=requestAnimationFrame(()=>{RAF=0;projDraw()})};
+/* abanico de percentiles (10-25-50-75-90) de los casos parecidos, recorrido central con flecha, caminos de los
+   análogos en gris, horizonte, nivel que puede frenar y chip con la probabilidad. Se redibuja en vivo. */
+function projTxt(pr){const lean=pr.conf==='baja';return pr.dir==='lateral'?['◆','Sin dirección clara','']:pr.dir==='alcista'?['▲',lean?'Ligeramente alcista':'Subida probable','up']:['▼',lean?'Ligeramente bajista':'Bajada probable','dn']}
+function projDraw(){const o=DATA[SEL],svg=$('pjsvg'),chip=$('pchip');if(!svg)return;const pr=o&&o.proy&&o.proy[TF];
+  if(!pr||!CHART||!CS||!PJ||!LASTBAR){svg.innerHTML='';if(chip)chip.hidden=true;return}if(!pr.q)return;
+  const up=pr.dir==='alcista',dn=pr.dir==='bajista',col=up?cssv('--up'):dn?cssv('--dn'):cssv('--ac'),tfms=TFMS[TF],N=pr.velas,t0=LASTBAR.t,t1=t0+N*tfms,p=o.price,T=projTxt(pr);
+  const key=TF+t0+N;if(PJK!==key){PJK=key;const pts=[];for(let i=1;i<=N;i++)pts.push({time:tsec(t0+i*tfms)});try{PJ.setData(pts);PJ.setMarkers([])}catch(e){}}
+  const pk=key+'|'+pr.b80[0].toPrecision(5)+pr.b80[1].toPrecision(5);if(PK!==pk&&PU){PK=pk;try{PU.setData(pr.q['90'].map((v,i)=>({time:tsec(t0+(i+1)*tfms),value:v})));PD.setData(pr.q['10'].map((v,i)=>({time:tsec(t0+(i+1)*tfms),value:v})))}catch(e){}}
+  if(chip){chip.hidden=false;chip.style.setProperty('--bo',up?'-3px':dn?'3px':'0');
+    chip.innerHTML=`<span class="a" style="color:${col}">${T[0]}</span><span style="color:${col}">${T[1]}</span><span class="dim">·</span><span class="m hide-s">${fp(pr.b50[0])} – ${fp(pr.b50[1])}</span><span class="dim">${hz(pr.horas)}</span>`}
+  const ts=CHART.timeScale(),W=svg.clientWidth||9999,H=svg.clientHeight||400,x0=ts.timeToCoordinate(tsec(t0)),xr=ts.timeToCoordinate(tsec(t1)),Y=v=>CS.priceToCoordinate(v);
+  if(x0==null||xr==null||Y(p)==null){svg.innerHTML='';return}
+  const x1=Math.min(xr,W-78),X=i=>x0+(x1-x0)*i/N,row=k=>[[X(0),Y(p)]].concat(pr.q[k].map((v,i)=>[X(i+1),Y(v)])),ok=a=>a.every(q=>q[1]!=null),fmt=a=>a.map(q=>q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
+  const q10=row('10'),q25=row('25'),q50=row('50'),q75=row('75'),q90=row('90');if(![q10,q25,q50,q75,q90].every(ok)){svg.innerHTML='';return}
+  const band=(a,b)=>`<polygon points="${fmt(a.concat(b.slice().reverse()))}"`,path='M'+q50.map(q=>q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' L');
+  const e=q50[N],e2=q50[Math.max(0,N-2)],ang=Math.atan2(e[1]-e2[1],e[0]-e2[0]),ah=12,aw=7,tip=[e[0]+Math.cos(ang)*5,e[1]+Math.sin(ang)*5];
+  const l=[tip[0]-ah*Math.cos(ang)+aw*Math.sin(ang),tip[1]-ah*Math.sin(ang)-aw*Math.cos(ang)],r=[tip[0]-ah*Math.cos(ang)-aw*Math.sin(ang),tip[1]-ah*Math.sin(ang)+aw*Math.cos(ang)];
+  const gh=cssv('--mut'),ghosts=PREF.cas?(pr.analogos||[]).slice(0,5).map(a=>{const pts=[[X(0),Y(p)]].concat(a.ret.slice(0,N).map((v,i)=>[X(i+1),Y(p*(1+v/100))]));return ok(pts)?`<polyline points="${fmt(pts)}" fill="none" stroke="${gh}" stroke-opacity=".4" stroke-width="1" stroke-linejoin="round"/>`:''}).join(''):'';
+  const lbl=`${fp(pr.centro)} · ${pc((pr.centro/p-1)*100,1)}`,lw=lbl.length*6.8+20,lx=Math.max(6,Math.min(e[0]-lw/2,W-lw-80)),ly=clamp(dn?Math.max(e[1],q75[N][1])+20:Math.min(e[1],q25[N][1])-20,16,H-30);
+  let lvl='';if(pr.nivel){const yl=Y(pr.nivel.precio);if(yl!=null)lvl=`<line x1="${x0}" x2="${x1}" y1="${yl}" y2="${yl}" stroke="${cssv('--wa')}" stroke-width="1.3" stroke-dasharray="2 4"/><text x="${x0+8}" y="${yl+(dn?14:-6)}" fill="${cssv('--wa')}">${pr.nivel.tipo} ${fp(pr.nivel.precio)}</text>`}
+  svg.innerHTML=`<defs><linearGradient id="pjg" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="${col}" stop-opacity=".30"/><stop offset="1" stop-color="${col}" stop-opacity=".10"/></linearGradient><clipPath id="pjc"><rect x="0" y="0" width="${W-76}" height="${H}"/></clipPath></defs>
+  <g clip-path="url(#pjc)">${band(q10,q90)} fill="url(#pjg)" opacity=".5"/>${band(q25,q75)} fill="url(#pjg)"/>${ghosts}${lvl}
+  <path d="${path}" fill="none" stroke="${col}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 6px ${col}88)"/>
+  <polygon points="${tip.join(',')} ${l.join(',')} ${r.join(',')}" fill="${col}" stroke="${col}" stroke-linejoin="round" stroke-width="2"/></g>
+  <circle class="org" cx="${x0}" cy="${Y(p)}" r="5" fill="${col}"/><circle cx="${x0}" cy="${Y(p)}" r="4.5" fill="${col}" stroke="var(--s1)" stroke-width="2"/>
+  <rect x="${lx}" y="${ly-12}" width="${lw}" height="24" rx="12" fill="${col}"/><text x="${lx+lw/2}" y="${ly+4}" text-anchor="middle" fill="var(--s1)" style="font-weight:700">${lbl}</text>`}
+function chartLive(v){if(!CS||!v||!v[TF]||CHK!==SEL+TF)return;const x=v[TF];try{CS.update({time:tsec(x.t),open:x.o,high:x.h,low:x.l,close:x.c});if(TF==='1m')VS.update({time:tsec(x.t),value:x.v,color:vcol(x.c>=x.o)});if(!LASTBAR||x.t>=LASTBAR.t)LASTBAR={t:x.t};projArrow()}catch(e){}}
+function zoneLines(){const o=DATA[SEL];if(!CS||!o||!o.z)return;const key=PREF.zon+'|'+o.z.sup.map(g=>g.mid.toPrecision(6)).join()+'|'+o.z.res.map(g=>g.mid.toPrecision(6)).join();if(key===ZK)return;ZK=key;
+  PLINES.forEach(l=>{try{CS.removePriceLine(l)}catch(e){}});PLINES=[];if(!PREF.zon)return;
+  o.z.res.slice(0,2).forEach((g,i)=>PLINES.push(CS.createPriceLine({price:g.mid,color:'rgba(240,78,94,.7)',lineWidth:1,lineStyle:2,axisLabelVisible:true,title:'S'+(i+1)})));
+  o.z.sup.slice(0,2).forEach((g,i)=>PLINES.push(CS.createPriceLine({price:g.mid,color:'rgba(34,197,139,.7)',lineWidth:1,lineStyle:2,axisLabelVisible:true,title:'E'+(i+1)})))}
+const cbar=v=>{const w=v==null?0:Math.abs(v)*50,l=v!=null&&v<0?50-w:50;return`<div class="dv"><i style="left:${l}%;width:${w}%;background:${v>0?'var(--up)':'var(--dn)'}"></i></div>`};
+function catAvg(res,ids){const o={};for(const c in CATN){let a=0,b=0;ids.forEach(id=>{const w=TFS.find(x=>x[0]===id)[1];if(res[id]&&res[id].cats&&res[id].cats[c]!=null){a+=res[id].cats[c]*w;b+=w}});o[c]=b?a/b:null}return o}
+function tabTec(o){const vt=(o.vivo&&o.vivo.tf)||{},ids=HZ==='S'?['1h','4h']:['1d','1w'],ca=catAvg(Object.keys(vt).length?vt:o.res,ids),mt=vt[HZ==='S'?'4h':'1d']||o.res[HZ==='S'?'4h':'1d'];
+  const tfc=TFS.map(t=>{const x=vt[t[0]],c=o.res[t[0]],b=x?bias(x.score):'ND';return`<div class="tfc"><b>${t[0]}</b><span class="${b==='AL'?'up':b==='BA'?'dn':'mut'}">${x?SB[b]+' · '+f0(x.score):'—'}</span><div class="tiny">al cierre: ${c?SB[bias(c.score)].toLowerCase():'—'} · RSI ${x?f0(x.rsi):'—'}</div></div>`}).join('');
+  const fa=Object.keys(CATN).filter(c=>ca[c]!=null&&ca[c]>=.2).map(c=>CATN[c].toLowerCase()),ec=Object.keys(CATN).filter(c=>ca[c]!=null&&ca[c]<=-.2).map(c=>CATN[c].toLowerCase());
+  return`<div class="cb"><div class="tfg">${tfc}</div><div class="tiny" style="margin:8px 0 16px">Lectura en vivo con la vela en formación; debajo, la confirmada al cierre. Pesos: 1h ×2 · 4h ×3 · diario ×4 · semanal ×3.</div>
+  <div class="grid" style="gap:24px"><div class="c5"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span class="lbl">Por familias</span><div class="seg" id="hzs"><button data-h="S" aria-pressed="${HZ==='S'}">Corto</button><button data-h="L" aria-pressed="${HZ==='L'}">Largo</button></div></div>
+  ${Object.keys(CATN).map(c=>`<div class="cat"><span>${CATN[c]}</span>${cbar(ca[c])}<span class="${ca[c]>0?'up':ca[c]<0?'dn':'dim'}">${ca[c]==null?'—':(ca[c]>0?'+':'')+ca[c].toFixed(2).replace('.',',')}</span></div>`).join('')}
+  <p class="sub" style="margin:10px 0 0">${fa.length?'A favor: '+fa.join(', ')+'. ':''}${ec.length?'En contra: '+ec.join(', ')+'.':''}${!fa.length&&!ec.length?'Sin señales claras.':''}</p></div>
+  <div class="c7"><div class="lbl" style="margin-bottom:8px">14 indicadores · gráfico ${HZ==='S'?'4 h':'diario'}</div><div class="sigs">${mt?Object.keys(SIGN).map(k=>{const v=mt.v[k];return`<div class="sg"><span>${SIGN[k]}</span><b class="${v>0?'up':v<0?'dn':'dim'}">${v==null?'—':v>0?'▲':v<0?'▼':'·'}</b></div>`}).join(''):''}</div>
+  <div style="margin-top:10px">${o.reg?`<span class="pill">Régimen: ${o.reg}</span>`:''}${o.d1&&o.d1.sq?'<span class="pill w">Volatilidad comprimida</span>':''}${o.filt?`<span class="pill w">Corto limitado por ${o.filt}</span>`:''}${o.short?'<span class="pill w">Historial corto</span>':''}${o.errs.length?`<span class="pill w">Sin datos: ${o.errs.join(', ')}</span>`:''}</div></div></div></div>`}
+function tabDer(s){const d=DERIV[s];if(!d||!d.ok)return'<div class="empty">Sin datos de derivados para este activo.</div>';
+  return`<div class="cb grid" style="gap:24px"><div class="c6">${kv('Funding Binance (cada 8 h)',d.funding!=null?(d.funding*100).toFixed(4).replace('.',',')+' %':'—')}${kv('Funding Kraken Futures (por hora)',d.kraken_funding_h!=null?(d.kraken_funding_h*100).toFixed(4).replace('.',',')+' %':'—')}${kv('Cuentas en largo',f0(d.largos_pct)+' %')}${kv('Top traders en largo',f0(d.top_largos_pct)+' %')}${kv('Interés abierto',d.oi_usd?cmp(d.oi_usd)+' $':'—')}${kv('Interés abierto 24 h',`<span class="${cls(d.oi_24h)}">${pc(d.oi_24h,1)}</span>`)}</div>
+  <div class="c6"><div class="lbl" style="margin-bottom:8px">Lectura</div>${(d.lectura||[]).map(x=>`<div class="box" style="margin-top:6px;${x[0]==='w'?'color:var(--notx)':''}">${esc(x[1])}</div>`).join('')||'<p class="sub">Sin desequilibrios relevantes en derivados.</p>'}</div></div>`}
+function tabFia(o){const n=(o.crit||[]).filter(x=>x[1]).length,bt=o.bt,bl=(l,x,w)=>x.n?kv(l,`${x.n} · ${(x.w/x.n*100).toFixed(0)} % ±${ci(x.w,x.n).toFixed(0)} ${w}`):kv(l,'sin señales');
+  const si=[['Kraken',o.price],['Coinbase',o.cbp],['CoinGecko',o.cgp]].filter(x=>x[1]>0),md=si.map(x=>x[1]).sort((a,b)=>a-b)[Math.floor(si.length/2)];
+  return`<div class="cb grid" style="gap:24px"><div class="c6"><div style="display:flex;align-items:baseline;gap:10px"><b class="${o.conf==='Alta'?'up':o.conf==='Media'?'wa':'dn'}" style="font-size:20px">${o.conf||'—'}</b><span class="sub">${n} de 6 controles</span></div>
+  <div style="margin:10px 0 14px">${(o.crit||[]).map(x=>`<span class="pill ${x[1]?'y':''}">${x[1]?'✓':'✗'} ${x[0]}</span>`).join('')}</div><div class="lbl" style="margin-bottom:4px">Precio en cada fuente</div>${si.map(x=>kv(x[0],`${fp(x[1])} € <span class="dim">${md?pc((x[1]/md-1)*100,2):''}</span>`)).join('')}</div>
+  <div class="c6"><div class="lbl" style="margin-bottom:4px">Histórico a 5 días</div>${bt===undefined?'<p class="sub">Calculando…</p>':bt?`${bl('Lectura alcista',bt.b,'subió')}${bl('Lectura bajista',bt.s,'bajó')}${bl('Compra favorable',bt.cb,'subió')}${bl('Venta favorable',bt.cv,'bajó')}${kv('Base: días que subió',(bt.base*100).toFixed(0)+' %')}<p class="tiny">${bt.tot} días simulados sin información futura</p>`:'<p class="sub">Historial insuficiente.</p>'}</div></div>`}
+/* mi posición */
+const num=x=>{const v=parseFloat(String(x==null?'':x).replace(/\s/g,'').replace(',','.'));return isFinite(v)&&v>0?v:0},mon=v=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(v),sgn=v=>(v>=0?'+':'−')+mon(Math.abs(v));
+const pq=s=>{const P=POS[s]||{};return num(P.qty)||(num(P.inv)&&num(P.ent)?num(P.inv)/num(P.ent):0)},hasPos=s=>!!(pq(s)&&num((POS[s]||{}).inv));
+function touchP(rows,up,dn,N){if(!rows||rows.length<N+60)return null;let a=0,b=0,n=0;for(let i=0;i+N<rows.length;i++){const c=rows[i].c;let mx=0,mn=1e18;for(let k=i+1;k<=i+N;k++){if(rows[k].h>mx)mx=rows[k].h;if(rows[k].l<mn)mn=rows[k].l}n++;if(up!=null&&mx>=c*(1+up))a++;if(dn!=null&&mn<=c*(1-dn))b++}return{up:a/n,dn:b/n,n}}
+function posCalc(s,o){if(!hasPos(s)||!o||!o.price)return null;const P=POS[s],q=pq(s),inv=num(P.inv),gan=num(P.gan),per=num(P.per),p=o.price,avg=inv/q,val=q*p,pl=val-inv,net=x=>q*x-inv,tp=gan?(inv+gan)/q:null,sl=per&&per<inv?(inv-per)/q:null,z=o.z||{sup:[],res:[]},d=o.d1||{},A=d.atrPct||0,tm=o.tm,W=[];
+  const sc=z.res.map((g,i)=>({x:g.mid,l:'Salida '+(i+1),g})).filter(c=>c.x>p);if(tp&&tp>p){const c=sc.find(c=>Math.abs(c.x/tp-1)<.004);if(c)c.me=1;else sc.push({x:tp,l:'Tu objetivo',me:1})}sc.sort((a,b)=>a.x-b.x);sc.forEach(c=>{c.n=net(c.x);c.d=(c.x/p-1)*100});
+  const r1=z.res[0],near=!!r1&&(r1.lo-p)/p<=Math.max(.01,A/100*.6),rs=[];if(tm&&tm.v==='V')rs.push('venta favorable');if(near)rs.push(`junto a la Salida 1 (${eur(r1.mid)})`);if(d.rsi!=null&&d.rsi>=70)rs.push('RSI alto');if(o.bL==='BA')rs.push('largo plazo bajista');
+  let v;if(sl&&p<=sl)v=['BA','Stop alcanzado','Tu plan decía salir aquí.'];else if(tp&&p>=tp)v=['AL','Objetivo alcanzado',o.bL==='AL'&&!near?'Vende todo o parte y sube el stop a tu precio medio.':'Tu plan decía vender.'];else if(pl>0&&(near||(tm&&tm.v==='V')))v=['NE','Buen momento para asegurar parte',rs.join(' · ').replace(/^./,c=>c.toUpperCase())];else if(pl<0&&o.bL==='BA'&&p<avg)v=['BA','Vigila tu stop','Largo plazo bajista y bajo tu precio medio.'+(sl?'':' Sin stop definido.')];else v=['NE','Mantener','Sin señal de salida.'+(r1?` Salida 1: ${eur(r1.mid)} (${pc((r1.mid/p-1)*100,1)}).`:'')];
+  const f=pl>0?inv/val:null,s0=z.sup.find(g=>!g.proj),ts=s0?s0.lo-(d.atr||0):null;if(gan&&per){const rr=gan/per;W.push(`Beneficio/riesgo ${f1(rr)}${rr<1?': arriesgas más de lo que ganas':''}`)}
+  if(sl&&ts&&sl<p){if(sl>ts*1.002)W.push(`Stop sobre el soporte técnico (${eur(ts)}): puede saltar por ruido`);else if(sl<ts*.9)W.push(`Stop muy por debajo del soporte técnico (${eur(ts)})`)}
+  if(tp&&tp>p&&A){const x=(tp/p-1)*100,last=z.res[z.res.length-1];W.push(`Objetivo: ${pc(x,1)} · ${f1(x/A)} veces el movimiento diario medio${!last||tp>last.hi*1.01?' · sin zona de salida que lo respalde':''}`)}
+  if(avg/p>10||p/avg>10)W.push('Revisa monedas e importe: el precio medio difiere más de 10 veces del actual');const hist=o.raw1d?touchP(o.raw1d,tp&&tp>p?tp/p-1:null,sl&&sl<p?1-sl/p:null,30):null;
+  return{q,inv,avg,p,val,pl,pct:pl/inv*100,tp,sl,sc,v,W,f,ts,hist}}
+function posBox(s,o){const c=posCalc(s,o);if(!c)return'<p class="sub" style="margin:12px 0 0">Introduce tus monedas y lo invertido. Se guarda solo en este navegador.</p>';
+  const sr=c.sc.map(x=>`<div class="kv"><span>${x.me?'<b style="color:var(--ink)">Tu objetivo</b>':x.l} · ${eur(x.x)} <span class="dim">${pc(x.d,1)}</span></span><b class="${x.n>=0?'up':'dn'}">${sgn(x.n)}</b></div>`).join(''),h=c.hist;
+  return`<div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="tag t-${c.v[0]}" style="font-size:12.5px">${c.v[1]}</span><span class="sub">${c.v[2]||''}</span></div>
+  <div class="grid" style="gap:24px;margin-top:10px"><div class="c6">${kv('Precio medio',eur(c.avg))}${kv('Valor ahora',mon(c.val))}${kv('Resultado',`<span class="${c.pl>=0?'up':'dn'}">${sgn(c.pl)} · ${pc(c.pct,1)}</span>`)}${c.tp?kv('Tu objetivo',eur(c.tp)+` (${pc((c.tp/c.p-1)*100,1)})`):''}${c.sl?kv('Tu stop',eur(c.sl)+` (${pc((c.sl/c.p-1)*100,1)})`):''}${c.ts&&c.ts<c.p?kv('Stop técnico',eur(c.ts)+` (${pc((c.ts/c.p-1)*100,1)})`):''}</div>
+  <div class="c6">${sr?'<div class="lbl" style="margin-bottom:4px">Si vendes todo en…</div>'+sr:''}${c.f&&c.f<1?`<p class="sub">Vender el <b>${f0(c.f*100)} %</b> recupera lo invertido.</p>`:''}${c.W.map(w=>`<p class="sub" style="margin:4px 0">• ${w}</p>`).join('')}${h&&(c.tp>c.p||c.sl)?`<p class="sub">En 30 días, históricamente: ${c.tp&&c.tp>c.p?`objetivo <b>${(h.up*100).toFixed(0)} %</b>`:''}${c.tp&&c.tp>c.p&&c.sl&&c.sl<c.p?' · ':''}${c.sl&&c.sl<c.p?`stop <b>${(h.dn*100).toFixed(0)} %</b>`:''}</p>`:''}</div></div>`}
+function tabPos(s,first){const el=$('tabc');if(first||!$('pres')){const P=POS[s]||{},fld=(k,l)=>`<label class="pf"><span>${l}</span><input inputmode="decimal" autocomplete="off" data-p="${k}" value="${P[k]!=null?esc(P[k]):''}"></label>`;
+    el.innerHTML=`<div class="cb"><div class="pg">${fld('qty','Monedas ('+lab(s)+')')}${fld('inv','Invertido (€)')}${fld('gan','Quiero ganar (€)')}${fld('per','Pérdida máx. (€)')}</div><div id="pres"></div><button class="btn" id="pdel" style="margin-top:12px">Borrar</button></div>`;
+    el.oninput=e=>{const t=e.target;if(t.dataset.p){(POS[s]=POS[s]||{})[t.dataset.p]=t.value;savePos();$('pres').innerHTML=posBox(s,DATA[s])}};$('pdel').onclick=()=>{delete POS[s];savePos();tabPos(s,true)}}
+  if(!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#tabc')))$('pres').innerHTML=posBox(s,DATA[s])}
+let TABT=0;function renderTab(slow){const s=SEL,o=DATA[s],el=$('tabc');if(!el)return;if(!o||!o.price){el.innerHTML='<div class="empty">Cargando…</div>';return}
+  if(TAB==='pos')return tabPos(s,slow&&!$('pres'));el.oninput=null;if(!slow&&(TAB!=='tec'||Date.now()-TABT<3000)&&el.innerHTML)return;TABT=Date.now();
+  el.innerHTML=TAB==='tec'?tabTec(o):TAB==='der'?tabDer(s):tabFia(o);const hz=$('hzs');if(hz)hz.onclick=e=>{const b=e.target.closest('button');if(b){HZ=b.dataset.h;renderTab(true)}}}
+/* ---------- NOTICIAS ---------- */
+function newsItem(x){const r=x.reac,af=Object.keys(x.afecta).map(a=>`<span class="tag t-ac">${a==='MERCADO'?'Mercado cripto':lab(a)}</span>`).join('');
+  const rc=r?`<span class="tag ${r.conf==='Confirmada'?'t-pos':r.conf==='Contradicha'?'t-wa':'t-ND'}">${lab(x.ref)} ${r.r60!=null?pc(r.r60,1)+' en 1 h':pc(r.ahora,1)+' desde entonces'}${r.conf?' · '+r.conf.toLowerCase():''}</span>`:'';
+  const k=x.titulo.slice(0,60);
+  return`<details class="nw" data-k="${esc(k)}"${OPENN.has(k)?' open':''}><summary><span class="tm">${ago(x.t)}</span><div><div class="ti">${esc(x.titulo)}</div><div class="tiny" style="margin-top:2px">${esc(x.efecto||'')}</div></div>${effTag(x)}</summary>
+  <div class="nd">${x.desc?`<p>${esc(x.desc.slice(0,320))}${x.desc.length>320?'…':''}</p>`:''}<div class="row">${af}${x.temas.map(t=>`<span class="tag t-ND">${t}</span>`).join('')}${rc}</div>
+  <div class="row tiny">${esc(x.fuentes.join(', '))}${x.motivos.length?' · claves: '+esc(x.motivos.join(', ')):''}</div><div class="row"><a class="lk" href="${esc(x.link)}" target="_blank" rel="noopener noreferrer">Leer la noticia completa ↗</a></div></div></details>`}
+function viewNews(){const F=[['all','Todas'],['alto','Impacto alto'],['cripto','Cripto'],['macro','Macro'],...coins().map(s=>[s,lab(s)])];
+  const L=NEWS.filter(x=>NF==='all'||(NF==='alto'?x.nivel==='Alto':NF==='cripto'?x.es_cripto:NF==='macro'?x.tipo==='macro'||!x.es_cripto:x.afecta[NF]!==undefined||(NF!=='PAXG'&&x.afecta.MERCADO!==undefined)));
+  const dgc=a=>{const r=RNEWS[a];if(!r)return'';const c=r.dir==='alcista'?'up':r.dir==='bajista'?'dn':'mut';return`<section class="card dgc" data-f="${a==='MERCADO'?'cripto':a}"><div class="h">${a==='MERCADO'?'<span class="ci" style="--c:var(--ac);--s:20px">◎</span>':ico(a)} ${a==='MERCADO'?'Mercado cripto':lab(a)}<span class="s ${c}">${r.n?(r.score>0?'+':'')+f0(r.score):'—'}</span></div><p><b class="${c}" style="font-weight:600">${esc(r.efecto)}</b>${r.temas.length?' · '+esc(r.temas.map(t=>t.tema.toLowerCase()).join(', ')):''}</p></section>`};
+  const st=SALUD&&SALUD.noticias?Object.values(SALUD.noticias):[];
+  $('app').innerHTML=`<div class="grid" style="margin-bottom:var(--gap)"><div class="sec">Impacto por activo<small>efecto conjunto de las noticias de 24 h en el gráfico</small></div></div><div class="dg" id="dg">${['MERCADO',...coins()].map(dgc).join('')}</div><div class="grid" style="margin-top:var(--gap)"><div class="sec">Noticias<small>ábrelas para ver el detalle</small></div>
+  <section class="card c8"><div class="ch"><h2>Noticias</h2><span class="t">${L.length} historias · ${st.filter(x=>x.ok).length}/${st.length||14} fuentes</span></div><div class="cb" style="flex:0"><div class="seg" id="nf" style="flex-wrap:wrap">${F.map(f=>`<button data-f="${f[0]}" aria-pressed="${NF===f[0]}">${f[1]}</button>`).join('')}</div></div><div id="nwl">${L.length?L.map(newsItem).join(''):'<div class="empty">Sin noticias con este filtro.</div>'}</div></section>
+  <div class="c4" style="display:flex;flex-direction:column;gap:var(--gap)">${card('','Agenda macro','',`<div style="padding-top:8px">${calRows(10)}</div>`)}${card('','Cómo se lee','','<div class="cb sub">Arriba, el efecto conjunto de las noticias de 24 h sobre el gráfico de cada activo. En la lista, cada noticia muestra en una línea su efecto; ábrela para ver el detalle, los temas, la reacción real del precio y el enlace.</div>')}</div></div>`;
+  $('nf').onclick=e=>{const b=e.target.closest('button');if(b){NF=b.dataset.f;viewNews()}};$('dg').onclick=e=>{const c=e.target.closest('[data-f]');if(c){NF=c.dataset.f;viewNews()}};
+  $('nwl').addEventListener('click',e=>{const sm=e.target.closest('summary'),d=sm&&sm.parentElement;if(d&&d.dataset.k){d.open?OPENN.delete(d.dataset.k):OPENN.add(d.dataset.k)}})}
+/* ---------- DATOS ---------- */
+function viewData(){const S=SALUD;if(!S){$('app').innerHTML='<div class="empty">Esperando estado…</div>';return}const w=S.ws||{};
+  const rows=coins().map(s=>{const o=DATA[s]||{},si=[['Kraken',o.price],['Coinbase',o.cbp],['CoinGecko',o.cgp]].filter(x=>x[1]>0),v=si.map(x=>x[1]).sort((a,b)=>a-b),md=v[Math.floor(v.length/2)],dev=md?Math.max(...si.map(x=>Math.abs(x[1]/md-1)))*100:null;
+    return`<tr><td>${ico(s,18)} <b style="font-family:var(--sans);margin-left:6px">${lab(s)}</b></td><td>${fp(o.price)}</td><td>${fp(o.cbp)}</td><td>${fp(o.cgp)}</td><td class="${dev==null?'':dev<=1.5?'up':'wa'}">${dev==null?'—':dev.toFixed(2).replace('.',',')+' %'}</td>${(()=>{const lt=o.tkv&&o.tkv.t,sg=lt?Math.round((Date.now()-lt)/1000):null;return`<td class="${sg==null?'dim':sg>900?'wa':'up'}" title="${sg!=null&&sg>900?'Sin operaciones recientes en Kraken: el precio es el último negociado':''}">${sg==null?'—':sg<60?'hace '+sg+' s':'hace '+ago(lt)}</td>`})()}<td class="${o.errs&&o.errs.length?'wa':'up'}">${o.res?Object.keys(o.res).length+'/4':'—'}</td><td>${o.bt===undefined?'…':o.bt?o.bt.tot+' días':'insuficiente'}</td></tr>`}).join('');
+  const fd=Object.entries(S.noticias||{}).map(([k,v])=>`<tr><td style="font-family:var(--sans)">${esc(k)}</td><td class="${v.ok?'up':'dn'}">${v.ok?'OK':'Fallo'}</td><td>${v.n}</td><td>${v.t?ago(v.t):'—'}</td></tr>`).join('');
+  const HI=S.historico||{},hr=coins().map(s=>{const g=tf=>HI[s+' '+tf],src=['1m','1h','4h','1d'].map(g).find(x=>x&&x.fuente);return`<tr><td>${ico(s,18)} <b style="font-family:var(--sans);margin-left:6px">${lab(s)}</b></td>${['1m','1h','4h','1d'].map(tf=>{const x=g(tf);return`<td class="${x&&x.n?'':'dim'}">${x&&x.n?x.n+' velas':x&&x.error?'<span class="wa" title="'+esc(x.error)+'">fallo</span>':'solo Kraken'}</td>`}).join('')}<td style="font-family:var(--sans)">${src?esc(src.fuente):'—'}</td></tr>`}).join('');
+  const tile=(l,v,c)=>`<section class="card c3 kpi"><div class="lbl">${l}</div><div class="v ${c||''}" style="font-size:18px">${v}</div></section>`;
+  const datosTablas=()=>`${card('c12','Precio contrastado en 3 fuentes','<span class="t">aceptable ≤ 1,5 %</span>',`<div style="overflow-x:auto;padding-top:6px"><table><thead><tr><th>Activo</th><th>Kraken (vivo)</th><th>Coinbase</th><th>CoinGecko</th><th>Desviación</th><th>Última operación</th><th>Gráficos</th><th>Histórico</th></tr></thead><tbody>${rows}</tbody></table></div>`)}
+  ${card('c12','Histórico profundo para la flecha','<span class="t">Binance / Coinbase empalmado con Kraken · velas cerradas</span>',`<div style="overflow-x:auto;padding-top:6px"><table><thead><tr><th>Activo</th><th>1 min</th><th>1 h</th><th>4 h</th><th>1 día</th><th>Fuente</th></tr></thead><tbody>${hr}</tbody></table></div>`)}
+  ${card('c12','Fuentes de noticias','',`<div style="overflow-x:auto;padding-top:6px"><table><thead><tr><th>Fuente</th><th>Estado</th><th>Noticias</th><th>Leída</th></tr></thead><tbody>${fd}</tbody></table></div>`)}`;
+  if(window.ESTATICO){const N=NUBE||{},H=N.salud||{};$('app').innerHTML=`<div class="grid">${tile('Precios en vivo (Kraken)',w.conectado?'Conectado':'Desconectado',w.conectado?'up':'dn')}${tile('Latencia · mensajes',`${w.latencia_ms??'—'} ms · ${f1(w.msg_s)}/s`)}${tile('Análisis en la nube',N.generado?'hace '+ago(N.generado):'—',N.generado&&Date.now()-N.generado<45*6e4?'up':'wa')}${tile('Duración del análisis',N.duracion_s?f0(N.duracion_s)+' s':'—')}${tile('Derivados',`${H.deriv_ok??'—'}/8 activos`)}${tile('Agenda macro',H.cal_ok?'OK':'No disponible',H.cal_ok?'up':'wa')}${tile('Noticias',`${Object.values(H.noticias||{}).filter(x=>x.ok).length}/${Object.keys(H.noticias||{}).length} fuentes`)}${tile('Actualización','cada 20 min')}`+datosTablas();return}
+  $('app').innerHTML=`<div class="grid">${tile('WebSocket de Kraken',w.conectado?'Conectado':'Desconectado',w.conectado?'up':'dn')}${tile('Latencia · mensajes',`${w.latencia_ms??'—'} ms · ${f0(w.msg_s)}/s`)}${tile('Libros verificados (CRC32)',`${w.checksum_ok??0} · ${w.checksum_mal??0} fallos`,w.checksum_mal?'wa':'up')}${tile('Análisis en vivo',S.rt_ms!=null?`${f0(S.rt_ms)} ms / s`:'—')}
+  ${tile('Motor completo',S.last?'hace '+ago(S.last):'cargando')}${tile('Derivados',`${S.deriv_ok}/8 activos`)}${tile('Agenda macro',S.cal_ok?'OK':S.cal_ok===false?'No disponible':'—',S.cal_ok?'up':'wa')}${tile('Servidor activo',Math.round(S.uptime/60)+' min')}
+  ${datosTablas()}</div>`}
+/* ---------- avisos: precisos (al segundo) y con aspecto de iPhone ---------- */
+const CD=new Map(),cool=(k,min)=>{const t=Date.now();if(CD.has(k)&&t-CD.get(k)<min*6e4)return false;CD.set(k,t);return true};
+let AS={},PEND={},SEEN=null,AC=null;
+function chime(){if(!PREF.snd)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime;[[1318.5,0],[1975.5,.11]].forEach(([f,d])=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t+d);g.gain.linearRampToValueAtTime(.06,t+d+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d+.45);o.connect(g);g.connect(AC.destination);o.start(t+d);o.stop(t+d+.5)})}catch(e){}}
+function bubble(title,body,sym){const el=document.createElement('div');el.className='nt';el.setAttribute('role','status');
+  el.innerHTML=`<svg aria-hidden="true"><use href="#logo"/></svg><div><div class="hd"><span>SALTYCRIPTO</span><span>ahora</span></div><div class="tt">${esc(title)}</div><div class="bd">${esc(body)}</div></div>`;
+  const close=()=>{if(el.classList.contains('out'))return;el.classList.add('out');setTimeout(()=>el.remove(),340)};let tm=setTimeout(close,7000);
+  el.onmouseenter=()=>clearTimeout(tm);el.onmouseleave=()=>{tm=setTimeout(close,3000)};el.onclick=()=>{if(sym&&COINS[sym])go('TRADE',sym);else if(sym==='NEWS')go('NEWS');close()};
+  const box=$('nots');box.prepend(el);while(box.children.length>4)box.lastChild.remove()}
+function notify(title,body,sym,key){bubble(title,body,sym);chime();try{if(document.hidden&&'Notification' in window&&Notification.permission==='granted')new Notification(title,{body,icon:'/favicon.svg',tag:key||title})}catch(e){}}
+/* un cambio debe mantenerse unos segundos para avisar (evita falsas alarmas por ruido) */
+function stable(k,val,secs){const p=PEND[k];if(!p||p.v!==val){PEND[k]={v:val,t:Date.now()};return false}return Date.now()-p.t>=secs*1000}
+function alerts(){if(!ALERTS||window.ESTATICO)return;const A=PREF.al,now=Date.now();
+  for(const s of coins()){const o=DATA[s];if(!o||!o.price||!o.z)continue;const L=lab(s),st=AS[s]||(AS[s]={}),p=o.price;
+    if(o.tm){const v=o.tm.v;if(st.v===undefined)st.v=v;else if(v!==st.v&&stable(s+'tm',v,15)){if(A.sig&&v!=='E'&&cool(s+'s',20))notify(`${L} · ${TMV[v].toLowerCase()}`,`El semáforo cambia a ${TMV[v].toLowerCase()} (${v==='C'?o.tm.bn:o.tm.sn}/6 condiciones) a ${eur(p)}.`,s,s+'tm');st.v=v}}
+    if(o.prev){const d=o.prev.dir;if(st.d===undefined)st.d=d;else if(d!==st.d&&stable(s+'pv',d,60)){if(A.prev&&d!=='lateral'&&cool(s+'p',30))notify(`${L} · previsión ${d}`,`La lectura combinada pasa a ${d} (confianza ${o.prev.conf})${o.prev.objetivo&&o.prev.objetivo.precio?`, objetivo ${eur(o.prev.objetivo.precio)}`:''}.`,s,s+'pv');st.d=d}}
+    const e=o.z.sup.find(g=>!g.proj),x=o.z.res.find(g=>!g.proj),inE=!!e&&p<=e.hi*1.001,inX=!!x&&p>=x.lo*.999;
+    if(st.e===undefined){st.e=inE;st.x=inX}else{if(inE&&!st.e&&A.niv&&cool(s+'e',45))notify(`${L} entra en la Entrada 1`,`Precio ${eur(p)} · zona ${fp(e.lo)}–${fp(e.hi)} €.`,s,s+'e');if(inX&&!st.x&&A.niv&&cool(s+'x',45))notify(`${L} llega a la Salida 1`,`Precio ${eur(p)} · zona ${fp(x.lo)}–${fp(x.hi)} €.`,s,s+'x');st.e=inE;st.x=inX}
+    const m=o.micro;if(A.mov&&m){const g=s==='PAXG'?.5:1,c15=m.mom_15m,c60=m.mom_60m;if(c15!=null&&Math.abs(c15)>=2.5*g&&cool(s+'m15',40))notify(`${L} ${c15>0?'se dispara':'se desploma'}`,`${pc(c15,1)} en 15 minutos · ahora ${eur(p)}.`,s,s+'mov');else if(c60!=null&&Math.abs(c60)>=4*g&&cool(s+'m60',90))notify(`${L} ${c60>0?'sube':'cae'} con fuerza`,`${pc(c60,1)} en la última hora · ahora ${eur(p)}.`,s,s+'mov')}
+    if(A.pos&&hasPos(s)){const P=posCalc(s,o);if(P){if(P.tp&&p>=P.tp&&cool(s+'tp',240))notify(`${L} · tu objetivo`,`Alcanzado a ${eur(p)} (objetivo ${eur(P.tp)}).`,s);if(P.sl&&p<=P.sl&&cool(s+'sl',240))notify(`${L} · tu stop`,`Alcanzado a ${eur(p)} (stop ${eur(P.sl)}).`,s)}}}
+  if(SEEN===null){if(NEWS.length)SEEN=new Set(NEWS.map(n=>n.titulo))}else if(A.news){for(const n of NEWS){if(SEEN.has(n.titulo))continue;SEEN.add(n.titulo);if(n.nivel==='Alto'&&now-n.t<=20*6e4)notify(`Noticia · impacto alto`,`${n.efecto}. ${n.titulo}`,'NEWS','n'+n.titulo.slice(0,40))}}
+  if(A.macro)for(const e of CAL){if(e.rel<3)continue;const d=e.t-now;if(d>0&&d<=15*6e4&&cool('c15'+e.t+e.titulo,600))notify(`En ${Math.max(1,Math.round(d/6e4))} min · ${e.titulo}`,`${e.pais} · impacto alto. Previsión ${e.prevision||'—'}, anterior ${e.anterior||'—'}. Suele mover el mercado.`,'NEWS');else if(d<=0&&d>-9e4&&cool('c0'+e.t+e.titulo,600))notify(`Ahora · ${e.titulo}`,`${e.pais} · dato publicándose. Volatilidad probable en los próximos minutos.`,'NEWS')}}
+const BELL_ON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15zM10 20a2 2 0 0 0 4 0"/></svg>',BELL_OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 16V11a6 6 0 0 1 9.5-4.9M18 11v5l1.5 2H8M10 20a2 2 0 0 0 4 0M4 4l16 16"/></svg>';
+function menu(){const A=PREF.al,sw=(k,l,v,sub)=>`<label class="sw"><input type="checkbox" data-k="${k}" ${v?'checked':''}><span>${l}${sub?`<br><span class="tiny">${sub}</span>`:''}</span></label>`,pm='Notification' in window?Notification.permission:'none';
+  $('menu').innerHTML=`<div class="lbl" style="margin:6px 0 4px">Avisos</div>${sw('alerts','Activar avisos',ALERTS,pm==='granted'?'También como notificación del sistema si la pestaña no está a la vista':pm==='denied'?'Bloqueadas por el navegador: solo dentro de la página':'Se pedirá permiso al navegador')}
+  ${ALERTS?`<div class="lbl" style="margin:12px 0 4px">Qué avisar</div>`+sw('al:sig','Semáforo de compra o venta','al instante, tras 15 s estable')+sw('al:prev','Cambio de previsión','tras 1 min estable')+sw('al:niv','Precio entra en entrada o salida','al segundo')+sw('al:mov','Movimiento brusco','2,5 % en 15 min o 4 % en 1 h')+sw('al:news','Noticia de impacto alto','al publicarse')+sw('al:macro','Evento macro importante','15 min antes y al publicarse')+sw('al:pos','Objetivo o stop de mis posiciones',A.pos)+sw('snd','Sonido',PREF.snd):''}
+  <div style="margin-top:12px"><button class="btn" data-a="test">Probar aviso</button></div>`;
+  $('menu').querySelectorAll('[data-k^="al:"]').forEach(i=>i.checked=!!A[i.dataset.k.slice(3)])}
+$('bell').onclick=e=>{const m=$('menu');m.hidden=!m.hidden;if(!m.hidden)menu();e.stopPropagation()};
+$('menu').onchange=e=>{const k=e.target.dataset.k;if(!k)return;if(k==='alerts'){ALERTS=e.target.checked;AS={};PEND={};SEEN=null;try{localStorage.setItem('salty_alerts',ALERTS?'1':'0')}catch(x){}if(ALERTS&&'Notification' in window&&Notification.permission==='default')Notification.requestPermission().then(menu)}else if(k.startsWith('al:'))PREF.al[k.slice(3)]=e.target.checked;else PREF[k]=e.target.checked;save();bellIcon();menu()};
+$('menu').onclick=e=>{e.stopPropagation();if(e.target.dataset.a==='test'){const o=DATA[SEL];notify(`${lab(SEL)} entra en la Entrada 1`,o&&o.z&&o.z.sup[0]?`Ejemplo · zona ${fp(o.z.sup[0].lo)}–${fp(o.z.sup[0].hi)} €.`:'Así se verán tus avisos.',SEL)}};
+document.addEventListener('click',e=>{const m=$('menu');if(!m.hidden&&!m.contains(e.target))m.hidden=true});
+if(window.ESTATICO)$('bell').hidden=true;
+const bellIcon=()=>{$('bell').innerHTML=ALERTS?BELL_ON:BELL_OFF;$('bell').style.color=ALERTS?'var(--ink)':''};bellIcon();
+const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
+function setTheme(t,save){document.documentElement.dataset.theme=t;if(save)try{localStorage.setItem('salty_theme',t)}catch(e){}document.querySelector('meta[name=theme-color]').content=t==='light'?'#e7eaef':'#0a0c10';$('thm').innerHTML=t==='light'?MOON:SUN;$('thm').title=t==='light'?'Modo oscuro':'Modo claro';
+  if(CHART){CHART.applyOptions(chartOpts());CS.applyOptions(candleOpts());CHK='';loadChart()}if(save)renderAll(true)}
+$('thm').onclick=()=>setTheme(isL()?'dark':'light',true);setTheme(document.documentElement.dataset.theme,false);
+$('rf').onclick=()=>{if(window.ESTATICO){SV=-1;poll();return}fetch('/api/refresh',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});BUSY=true;renderStatus()};
+setInterval(renderStatus,1000);
+/* ---------- modo estático (versión publicada): el análisis llega en archivos que GitHub regenera cada 20 min
+   y el navegador se conecta directamente a Kraken para precios, velas, libro y operaciones en vivo ---------- */
+const WSN={BTC:'BTC/EUR',ETH:'ETH/EUR',XRP:'XRP/EUR',SOL:'SOL/EUR',HYPE:'HYPE/EUR',SUI:'SUI/EUR',ZEC:'ZEC/EUR',PAXG:'PAXG/EUR'},SYMWS=Object.fromEntries(Object.entries(WSN).map(([a,b])=>[b,a])),IVL={'1m':1,'1h':60,'4h':240,'1d':1440,'1w':10080};
+let NUBE=null,KW=null,KSEL=null,KRETRY=0,TR=[],BK={a:new Map(),b:new Map()},V1=new Map();const MON={},WSST={conectado:false,n:[],lat:[]};
+const isoMs=t=>Date.parse(String(t).replace(/\.(\d{3})\d*Z$/,'.$1Z'));
+async function moneda(s){if(MON[s]&&MON[s].gen===SV)return MON[s];const r=await fetch(`datos/moneda/${s}.json?${SV}`,{cache:'no-store'}),m=await r.json();m.gen=SV;m.p0=DATA[s]&&DATA[s]._p0;MON[s]=m;
+  V1=new Map((m.velas['1m']&&m.velas['1m'].rows||[]).map(x=>[x[0],x[4]]));return m}
+function krakenWS(){if(KW&&KW.readyState<=1){selSub();return}
+  try{KW=new WebSocket('wss://ws.kraken.com/v2')}catch(e){return}
+  KW.onopen=()=>{WSST.conectado=true;KRETRY=0;KSEL=null;KW.send(JSON.stringify({method:'subscribe',params:{channel:'ticker',symbol:Object.values(WSN)}}));selSub()};
+  KW.onclose=()=>{WSST.conectado=false;KW=null;setTimeout(krakenWS,Math.min(30000,2000*2**KRETRY++))};KW.onerror=()=>{};
+  KW.onmessage=e=>{try{kmsg(JSON.parse(e.data))}catch(x){}}}
+function ksend(method,ch,s,ex){KW.send(JSON.stringify({method,params:Object.assign({channel:ch,symbol:[WSN[s]]},ex||{})}))}
+function selSub(){if(!KW||KW.readyState!==1)return;const want=VIEW==='TRADE'?SEL+'|'+TF:null;if(KSEL===want)return;
+  if(KSEL){const [s,tf]=KSEL.split('|');ksend('unsubscribe','ohlc',s,{interval:IVL[tf]});if(tf!=='1m')ksend('unsubscribe','ohlc',s,{interval:1});ksend('unsubscribe','book',s,{depth:25});ksend('unsubscribe','trade',s)}
+  KSEL=want;TR=[];BK={a:new Map(),b:new Map()};if(!want)return;
+  ksend('subscribe','ohlc',SEL,{interval:IVL[TF]});if(TF!=='1m')ksend('subscribe','ohlc',SEL,{interval:1});ksend('subscribe','book',SEL,{depth:25});ksend('subscribe','trade',SEL,{snapshot:true})}
+function kmsg(m){if(!m.channel||!m.data)return;const now=Date.now();WSST.n.push(now);
+  for(const d of m.data){const s=SYMWS[d.symbol];if(!s)continue;const o=DATA[s];
+    if(m.channel==='ticker'){if(o&&d.last){PRV[s]=o.price;o.price=d.last;o.chg=d.change_pct;o.tkv={bid:d.bid,ask:d.ask,high:d.high,low:d.low,volume:d.volume,vwap:d.vwap,change_pct:d.change_pct,t:now}}continue}
+    if(s!==SEL)continue;
+    if(m.channel==='ohlc'){const c={t:isoMs(d.interval_begin),o:d.open,h:d.high,l:d.low,c:d.close,v:d.volume},tf=Object.keys(IVL).find(k=>IVL[k]===d.interval);if(d.interval===1)V1.set(c.t,c.c);if(tf)chartLive({[tf]:c})}
+    else if(m.channel==='trade'){const ts=isoMs(d.timestamp);TR.push({p:d.price,q:d.qty,side:d.side,t:ts});if(m.type==='update')WSST.lat.push(now-ts)}
+    else if(m.channel==='book'){if(m.type==='snapshot')BK={a:new Map(),b:new Map()};for(const [k,mp] of [['asks',BK.a],['bids',BK.b]]){for(const lv of d[k]||[])lv.qty===0?mp.delete(lv.price):mp.set(lv.price,lv.qty);if(mp.size>25){const ks=[...mp.keys()].sort((x,y)=>k==='asks'?x-y:y-x);for(const x of ks.slice(25))mp.delete(x)}}}}
+  if(TR.length>3000)TR.splice(0,TR.length-3000);if(WSST.lat.length>100)WSST.lat.splice(0,WSST.lat.length-100);while(WSST.n.length&&now-WSST.n[0]>10000)WSST.n.shift()}
+/* misma lectura de microestructura que el motor en Python (cripto/envivo.py) */
+function microJS(s){const o=DATA[s];if(!o||!o.price)return null;const now=Date.now(),out={};
+  for(const [lab,ms] of [['1m',6e4],['5m',3e5],['15m',9e5]]){let b=0,v=0;for(const t of TR)if(now-t.t<=ms){const n=t.p*t.q;t.side==='buy'?b+=n:v+=n}out['flujo_'+lab]={compra:b,venta:v,pct:b+v>0?b/(b+v)*100:null}}
+  const a=[...BK.a].sort((x,y)=>x[0]-y[0]).slice(0,25),b=[...BK.b].sort((x,y)=>y[0]-x[0]).slice(0,25);out.libro_pct=null;
+  if(a.length&&b.length){const md=(a[0][0]+b[0][0])/2;let nb=0,na=0;for(const [p,q] of b)if(p>=md*.995)nb+=p*q;for(const [p,q] of a)if(p<=md*1.005)na+=p*q;out.libro_pct=nb+na>0?nb/(nb+na)*100:null;out.spread_pct=(a[0][0]-b[0][0])/md*100;
+    for(const [arr,k] of [[b,'muro_compra'],[a,'muro_venta']])if(arr.length>=5){const nots=arr.map(x=>x[0]*x[1]).sort((x,y)=>x-y),med=nots[Math.floor(nots.length/2)],mx=arr.reduce((m,x)=>x[0]*x[1]>m[0]*m[1]?x:m);if(med>0&&mx[0]*mx[1]>=3*med)out[k]={precio:mx[0],eur:mx[0]*mx[1],pct:(mx[0]/md-1)*100}}}
+  if(V1.size){const ks=[...V1.keys()].sort((x,y)=>x-y),at=ms=>{const t=now-ms;let c=null;for(let i=ks.length-1;i>=0;i--)if(ks[i]<=t){c=V1.get(ks[i]);break}return c};for(const [lab,k] of [['1m',1],['5m',5],['15m',15],['60m',60]]){const c=at(k*6e4);out['mom_'+lab]=c?(o.price/c-1)*100:null}}
+  const parts=[],f5=out.flujo_5m.pct;if(f5!=null)parts.push([(f5-50)/25,1.2]);if(out.libro_pct!=null)parts.push([(out.libro_pct-50)/25,.8]);if(out.mom_5m!=null)parts.push([out.mom_5m/.5,1]);if(out.mom_15m!=null)parts.push([out.mom_15m,1]);
+  if(parts.length){const sc=parts.reduce((t,[v,w])=>t+Math.max(-1,Math.min(1,v))*w,0)/parts.reduce((t,[,w])=>t+w,0)*100;out.score=sc;out.lectura=sc>=25?'Presión compradora':sc<=-25?'Presión vendedora':'Equilibrio'}
+  return out}
+/* la proyección se calculó con el precio de la foto: se reescala al precio en vivo para que salga de él */
+function escP(pr,f){if(!pr)return pr;const o=Object.assign({},pr);o.centro=pr.centro*f;o.b50=pr.b50.map(v=>v*f);o.b80=pr.b80.map(v=>v*f);if(pr.q){o.q={};for(const k in pr.q)o.q[k]=pr.q[k].map(v=>v*f)}return o}
+function vivoEstatico(){const s=SEL,o=DATA[s];if(VIEW==='TRADE'&&o&&o.price){const m=MON[s];if(m&&m.p0){const f=o.price/m.p0,out={};for(const tf in m.proy)out[tf]=escP(m.proy[tf],f);o.proy=out}
+    if(WSST.conectado&&(TR.length||BK.a.size)){const mi=microJS(s);if(mi)o.micro=mi}}
+  const lat=WSST.lat.slice().sort((a,b)=>a-b);SALUD=Object.assign({},NUBE&&NUBE.salud,{ws:{conectado:WSST.conectado,msg_s:WSST.n.length/10,latencia_ms:lat.length?Math.round(lat[lat.length>>1]):null}});
+  LASTT=WSST.conectado?Date.now():0;renderAll(false)}
+if(window.ESTATICO){setInterval(vivoEstatico,1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){poll();if(!KW)krakenWS()}})}
+
+/* ---------- arranque ---------- */
+document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===VIEW));stream();poll();
+</script></body></html>

@@ -1,0 +1,9 @@
+# entorno y cachés locales
+.venv/
+__pycache__/
+.pytest_cache/
+.DS_Store
+# lo genera nube.py en cada ejecución (GitHub lo publica, no se guarda en el repositorio)
+publico/
+# datos locales: histórico, registros y cachés (en GitHub se conservan con actions/cache)
+datos/
