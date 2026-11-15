@@ -24,3 +24,11 @@ Normas para Claude:
 - Binance bloquea los servidores de GitHub (EE. UU.): `SALTY_SIN_BINANCE=1` → derivados desde Kraken Futures e histórico desde Coinbase.
 - La web vive en `/saltycripto/`: las rutas de recursos deben ser **relativas** (`vendor/…`, no `/vendor/…`).
 - Motor técnico v21 con prueba de paridad: no tocar `cripto/motor.py` ni `cripto/indicadores.py` sin actualizar `tests/test_paridad.py`.
+
+## Si la carpeta saltycripto-nube se mueve dentro de ~/Desktop/claude
+Siguen siendo **proyectos separados** aunque uno quede dentro del otro:
+- Recrear el `.venv` de saltycripto-nube (tiene grabada la ruta antigua): `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt pytest`.
+- Actualizar las rutas de esta tabla en los dos `CLAUDE.md`.
+- En el proyecto del Mac, cualquier búsqueda, copia o limpieza recursiva (`grep -r`, `find`, `rsync`, `rm`) debe **excluir** la subcarpeta `saltycripto-nube/`.
+- No hacer nunca `git init` en `~/Desktop/claude`: el repositorio de saltycripto-nube quedaría dentro de otro.
+- GitHub y la web publicada no se ven afectados por mover la carpeta.
