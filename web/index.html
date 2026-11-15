@@ -497,8 +497,9 @@ setInterval(renderStatus,1000);
 const WSN={BTC:'BTC/EUR',ETH:'ETH/EUR',XRP:'XRP/EUR',SOL:'SOL/EUR',HYPE:'HYPE/EUR',SUI:'SUI/EUR',ZEC:'ZEC/EUR',PAXG:'PAXG/EUR'},SYMWS=Object.fromEntries(Object.entries(WSN).map(([a,b])=>[b,a])),IVL={'1m':1,'1h':60,'4h':240,'1d':1440,'1w':10080};
 let NUBE=null,KW=null,KSEL=null,KRETRY=0,TR=[],BK={a:new Map(),b:new Map()},V1=new Map();const MON={},WSST={conectado:false,n:[],lat:[]};
 const isoMs=t=>Date.parse(String(t).replace(/\.(\d{3})\d*Z$/,'.$1Z'));
-async function moneda(s){if(MON[s]&&MON[s].gen===SV)return MON[s];const r=await fetch(`datos/moneda/${s}.json?${SV}`,{cache:'no-store'}),m=await r.json();m.gen=SV;m.p0=DATA[s]&&DATA[s]._p0;MON[s]=m;
-  V1=new Map((m.velas['1m']&&m.velas['1m'].rows||[]).map(x=>[x[0],x[4]]));return m}
+const MONP={};
+function moneda(s){if(MON[s]&&MON[s].gen===SV)return Promise.resolve(MON[s]);const k=s+SV;if(MONP[k])return MONP[k];  /* una sola descarga aunque la pidan el gráfico y la proyección a la vez */
+  return MONP[k]=fetch(`datos/moneda/${s}.json?${SV}`,{cache:'no-store'}).then(r=>r.json()).then(m=>{m.gen=SV;m.p0=DATA[s]&&DATA[s]._p0;MON[s]=m;V1=new Map((m.velas['1m']&&m.velas['1m'].rows||[]).map(x=>[x[0],x[4]]));delete MONP[k];return m}).catch(e=>{delete MONP[k];throw e})}
 function krakenWS(){if(KW&&KW.readyState<=1){selSub();return}
   try{KW=new WebSocket('wss://ws.kraken.com/v2')}catch(e){return}
   KW.onopen=()=>{WSST.conectado=true;KRETRY=0;KSEL=null;KW.send(JSON.stringify({method:'subscribe',params:{channel:'ticker',symbol:Object.values(WSN)}}));selSub()};
