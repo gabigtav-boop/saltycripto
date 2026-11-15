@@ -33,7 +33,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{o
 .hr{display:flex;align-items:center;justify-content:flex-end;gap:8px}
 .pillst{display:flex;align-items:center;gap:7px;height:30px;padding:0 11px;border-radius:99px;background:var(--s1);border:1px solid var(--ln);font:500 11.5px var(--mono);color:var(--mut);white-space:nowrap}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--dim);flex:none}.dot.on{background:var(--up);box-shadow:0 0 0 3px rgba(34,197,139,.18)}.dot.bad{background:var(--dn)}
-.ib{display:grid;place-items:center;width:30px;height:30px;border-radius:99px;background:var(--s1);border:1px solid var(--ln);color:var(--mut)}.ib:hover{color:var(--ink);background:var(--s2)}.ib svg{width:15px;height:15px}
+.ib[hidden]{display:none!important}.ib{display:grid;place-items:center;width:30px;height:30px;border-radius:99px;background:var(--s1);border:1px solid var(--ln);color:var(--mut)}.ib:hover{color:var(--ink);background:var(--s2)}.ib svg{width:15px;height:15px}
 /* ---------- cinta de monedas ---------- */
 .tape{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:10px 20px;border-bottom:1px solid var(--ln)}.tape::-webkit-scrollbar{display:none}
 .tp{display:flex;align-items:center;gap:8px;flex:none;padding:6px 12px 6px 7px;border-radius:99px;background:var(--s1);border:1px solid var(--ln);font:500 12px var(--mono);transition:border-color .15s,background .15s}.tp:hover{background:var(--s2)}
@@ -99,8 +99,30 @@ details.nw .ti{font-size:13px;font-weight:550;line-height:1.35}details.nw .tm{fo
 .nt .hd{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--nsub);margin-bottom:1px}.nt .tt{color:var(--ink);font-weight:600;font-size:13.5px;line-height:1.3}.nt .bd{font-size:13px;line-height:1.35;color:var(--ntx);margin-top:1px}
 @keyframes nin{from{opacity:0;transform:translateY(-28px) scale(.94)}to{opacity:1;transform:none}}@keyframes nout{to{opacity:0;transform:translateY(-22px) scale(.96)}}
 .foot{margin-top:22px;text-align:center;color:var(--dim);font-size:11.5px}.foot a{color:var(--mut);text-decoration:underline}
+.tabbar{display:none;position:fixed;left:0;right:0;bottom:0;z-index:35;justify-content:space-around;padding:6px 10px calc(6px + env(safe-area-inset-bottom));background:var(--hdr);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--ln)}
+.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0 2px;font:600 10.5px var(--sans);color:var(--dim);letter-spacing:.01em}.tabbar svg{width:24px;height:24px}.tabbar button[aria-pressed=true]{color:var(--ac)}
+.mlist{display:none}.mrow{display:grid;grid-template-columns:34px 1fr auto;grid-template-areas:"i n p" "i c c";column-gap:12px;row-gap:6px;align-items:center;width:100%;text-align:left;padding:13px 16px;border-top:1px solid var(--ln)}.mrow:first-child{border-top:0}
+.mrow .ci{grid-area:i;align-self:start;margin-top:2px}.mrow .mn{grid-area:n;min-width:0}.mrow .mn b{display:block;font:650 15px var(--sans)}.mrow .mn span{font-size:12px;color:var(--dim)}.mrow .mp{grid-area:p;text-align:right}.mrow .mp b{display:block;font:600 15px var(--mono)}.mrow .mp span{font:500 12.5px var(--mono)}.mrow .mc{grid-area:c;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.ctl{display:inline-flex;align-items:center;gap:5px;min-height:28px;padding:0 11px;border-radius:99px;border:1px solid var(--ln2);font:600 11.5px var(--sans);color:var(--mut);cursor:pointer;user-select:none;-webkit-user-select:none}.ctl input{position:absolute;opacity:0;width:0;height:0}.ctl:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--dim)}.ctl:has(input:checked){color:var(--ink);border-color:rgba(108,140,255,.5);background:var(--acb)}.ctl:has(input:checked):before{background:var(--ac)}.ctl:has(input:focus-visible){outline:2px solid var(--ac);outline-offset:2px}.chartcard .ch{flex-wrap:wrap;row-gap:10px}
+.cres{display:grid;grid-template-columns:1fr 1.2fr 1.4fr;gap:22px;align-items:start}.cbig{font:650 26px var(--mono);letter-spacing:-.02em;margin:4px 0 2px}.cbig span{font:500 12.5px var(--sans);color:var(--mut);letter-spacing:0}
+.rgo{margin:10px 0 6px}.rgb{position:relative;height:10px;border-radius:5px;background:var(--s3)}.rgb i{position:absolute;top:0;bottom:0;border-radius:5px}.rgb .r80{left:0;right:0;background:var(--acb)}.rgb .r50{background:rgba(108,140,255,.45)}.rgb .r0{width:3px;top:-4px;bottom:-4px;background:var(--ink);transform:translateX(-1px);border-radius:2px}.rgb .rm{width:12px;height:12px;top:-1px;background:var(--ac);border:2px solid var(--s1);transform:translateX(-6px);border-radius:50%}
+.rgl{display:flex;justify-content:space-between;font:500 11.5px var(--mono);color:var(--dim);margin-top:6px}.rgl b{color:var(--ink)}
+.casos{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.caso{padding:10px 12px;border-radius:12px;background:var(--s2)}.caso .ct{display:flex;flex-direction:column;gap:1px;font-size:11px;color:var(--dim)}.caso .ct b{font:650 16px var(--mono);letter-spacing:-.01em}
+.cmini{display:block;width:100%;height:34px;margin:6px 0}.cp{height:3px;border-radius:2px;background:var(--s3);overflow:hidden;margin-bottom:4px}.cp i{display:block;height:100%;background:var(--ac)}
+@media(max-width:1180px){.casos{grid-template-columns:repeat(3,minmax(0,1fr))}.cres{grid-template-columns:1fr 1fr}.cres>div:last-child{grid-column:1/-1}}
 @media(max-width:1180px){.c8,.c7,.c5,.c4{grid-column:span 6}.e8{grid-column:span 12!important}.e4{grid-column:span 12!important}.c3{grid-column:span 6}}
-@media(max-width:860px){.grid>*{grid-column:span 12!important}.hdr{grid-template-columns:auto 1fr;height:auto;padding:10px 14px;row-gap:8px}.hdr .nav{grid-column:1/-1;grid-row:2;justify-self:stretch}.nav button{flex:1;padding:5px 6px}.hr{grid-column:2;grid-row:1}.pts{grid-template-columns:1fr}.pg{grid-template-columns:1fr 1fr}#chart{height:340px}main{padding:12px 12px 40px}.tape{padding:8px 12px}.hide-s{display:none}.stats{margin-left:0;gap:16px}.pillst .tx{display:none}}
+@media(max-width:860px){
+ :root{--gap:12px}.grid>*{grid-column:span 12!important}.grid>.kpi{grid-column:span 6!important}
+ .hdr{grid-template-columns:1fr auto;height:auto;padding:calc(8px + env(safe-area-inset-top)) 16px 8px}.hdr .nav{display:none}.brand span{display:none}.pillst .tx{display:none}.pillst{padding:0 10px}
+ .tabbar{display:flex}main{padding:12px 14px calc(96px + env(safe-area-inset-bottom))}body[data-v=ALL] .tape,body[data-v=NEWS] .tape,body[data-v=DATA] .tape{display:none}.tape{padding:8px 14px}
+ .card{border-radius:18px}.ch{padding:14px 16px 0}.cb{padding:12px 16px 16px}.kpi{padding:14px 16px}.kpi .v{font-size:19px}.kpi .s{font-size:11.5px}
+ .sec{margin:18px 4px 2px;font-size:15.5px}.sec small{display:none}.headline{font-size:24px}.pts{grid-template-columns:1fr;gap:10px}
+ .mtab{display:none}.mlist{display:block}#chart,.chartcard #chart{height:330px;min-height:330px}.hide-s{display:none}
+ .hero{gap:14px;padding:16px}.hero .px{font-size:30px}.stats{margin-left:0;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:12px 14px}
+ .pg{grid-template-columns:1fr 1fr}.cres{grid-template-columns:1fr;gap:16px}.casos{grid-template-columns:repeat(2,minmax(0,1fr))}.foot{padding:0 6px}
+ .chartcard .ch h2{display:none}.chartcard .ch>div{width:100%;gap:8px!important}#tfb{display:flex;flex:1 0 100%}#tfb button{flex:1;padding:6px 0}
+ .lr{grid-template-columns:70px 1fr auto;padding:11px 12px}.dg{grid-template-columns:1fr 1fr}.dg>.card:first-child{grid-column:span 2}
+}
 @media(prefers-reduced-motion:reduce){.fu,.fd,.nt,.nt.out{animation:none}}
 </style></head><body>
 <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6c8cff"/><stop offset="1" stop-color="#40d3c9"/></linearGradient>
@@ -115,6 +137,7 @@ details.nw .ti{font-size:13px;font-weight:550;line-height:1.35}details.nw .tm{fo
 </header>
 <div class="tape" id="tape" aria-label="Monedas"></div>
 <main id="app"><div class="empty">Conectando con el motor…</div></main>
+<nav class="tabbar" id="tabbar" aria-label="Secciones"><button data-v="ALL"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg>Mercado</button><button data-v="TRADE"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-6 4 3 6-8M14 6h4v4"/></svg>Estudio</button><button data-v="NEWS"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h11v14H6a1 1 0 0 1-1-1zM16 9h3v9a1 1 0 0 1-1 1M8 9h5M8 13h5"/></svg>Noticias</button><button data-v="DATA"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9M12 7v5l3 2M17 3l4 0 0 4"/></svg>Datos</button></nav>
 <div class="menu" id="menu" hidden></div><div class="nots" id="nots" aria-live="polite"></div>
 <script src="vendor/lightweight-charts.js"></script>
 <script>
@@ -147,7 +170,7 @@ let DATA={},CTX={},MK={},ORDER=Object.keys(COINS),VAL,NEWS=[],PULSO={},RNEWS={},
 let VIEW='ALL',SEL='BTC',TF='4h',TAB='tec',NF='all',ES=null,PRV={},ALERTS=false,HZ='S',OPENN=new Set();
 let PREF={tf:'4h',ema:true,zon:true,snd:true,al:{sig:true,prev:true,niv:true,mov:true,news:true,macro:true,pos:true}},POS={};
 try{const p=JSON.parse(localStorage.getItem('salty_pref')||'{}');Object.assign(PREF,p);PREF.al=Object.assign({sig:true,prev:true,niv:true,mov:true,news:true,macro:true,pos:true},p.al||{});ALERTS=localStorage.getItem('salty_alerts')==='1';POS=JSON.parse(localStorage.getItem('ci_pos')||'{}')||{};const h=location.hash.slice(1).split('/');if(['ALL','TRADE','NEWS','DATA'].includes(h[0]))VIEW=h[0];if(COINS[h[1]])SEL=h[1]}catch(e){}
-if(typeof POS!=='object'||Array.isArray(POS))POS={};TF=PREF.tf||'4h';
+if(typeof POS!=='object'||Array.isArray(POS))POS={};if(PREF.cas===undefined)PREF.cas=true;TF=PREF.tf||'4h';
 const save=()=>{try{localStorage.setItem('salty_pref',JSON.stringify(PREF))}catch(e){}},savePos=()=>{try{localStorage.setItem('ci_pos',JSON.stringify(POS))}catch(e){}};
 const coins=()=>ORDER.filter(s=>COINS[s]);
 /* ---------- conexión con el motor ---------- */
@@ -174,9 +197,9 @@ function renderStatus(){const w=SALUD&&SALUD.ws,live=w&&w.conectado&&Date.now()-
   $('rf').disabled=BUSY;$('rf').style.opacity=BUSY?.4:1}
 function renderTape(){$('tape').innerHTML=coins().map(s=>{const o=DATA[s],p=o&&o.price,fl=p&&PRV[s]&&p!==PRV[s]?(p>PRV[s]?'fu':'fd'):'';return`<button class="tp" data-s="${s}" aria-pressed="${VIEW==='TRADE'&&SEL===s}">${ico(s,20)}<b>${lab(s)}</b><span class="${fl}">${p?fp(p):'…'}</span><span class="${cls(o&&o.chg)}">${o&&o.chg!=null?pc(o.chg,1):''}</span></button>`}).join('')}
 $('tape').onclick=e=>{const b=e.target.closest('[data-s]');if(b)go('TRADE',b.dataset.s)};
-function go(v,s){const prevSel=SEL;if(s)SEL=s;const ch=v!==VIEW||(v==='TRADE'&&s&&s!==prevSel);VIEW=v;history.replaceState(null,'','#'+v+(v==='TRADE'?'/'+SEL:''));document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===VIEW));
+function go(v,s){const prevSel=SEL;if(s)SEL=s;const ch=v!==VIEW||(v==='TRADE'&&s&&s!==prevSel);VIEW=v;history.replaceState(null,'','#'+v+(v==='TRADE'?'/'+SEL:''));document.querySelectorAll('#tabs button,#tabbar button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===VIEW));document.body.dataset.v=VIEW;
   if(ch){if(CHART){CHART.remove();CHART=null;PJ=PU=PD=null;PK='';LASTBAR=null}CHK='';$('app').innerHTML='';stream();window.scrollTo({top:0})}renderAll(true)}
-$('tabs').onclick=e=>{const b=e.target.closest('button');if(b)go(b.dataset.v,b.dataset.v==='TRADE'?SEL:null)};
+$('tabs').onclick=$('tabbar').onclick=e=>{const b=e.target.closest('button');if(b)go(b.dataset.v,b.dataset.v==='TRADE'?SEL:null)};
 const liveB=o=>o&&o.vivo?{s:o.vivo.bS,l:o.vivo.bL,ts:o.vivo.ts,tl:o.vivo.tl}:{s:o&&o.bS,l:o&&o.bL,ts:o&&o.ts,tl:o&&o.tl};
 const prevTag=p=>p?`<span class="${DIRC[p.dir]}" style="font-weight:600">${ARW[p.dir]} ${p.dir[0].toUpperCase()+p.dir.slice(1)}</span> <span class="dim">· ${p.conf}</span>`:'<span class="dim">—</span>';
 /* ---------- MERCADO ---------- */
@@ -201,6 +224,10 @@ function panorama(){const ids=coins().filter(s=>DATA[s]&&DATA[s].bL&&DATA[s].bL!
   const head=sc>=.3?['up','Mercado alcista']:sc>=.1?['up','Sesgo alcista']:sc<=-.3?['dn','Mercado bajista']:sc<=-.1?['dn','Sesgo bajista']:['','Mercado mixto'];
   return{head,pts,pa,pb,pl:pv.length-pa-pb}}
 function distBar(P){const n=P.pa+P.pb+P.pl;if(!n)return'';const w=x=>(x/n*100).toFixed(1)+'%';return`<div style="margin-top:auto;padding-top:18px"><div class="lbl" style="margin-bottom:6px">Lectura de los ${n} activos</div><div class="press" style="height:22px">${P.pb?`<i style="width:${w(P.pb)};background:var(--dnb);color:var(--dn)">${P.pb}${P.pb/n>=.25?' bajistas':''}</i>`:''}${P.pl?`<i style="width:${w(P.pl)};background:var(--s3);color:var(--mut)">${P.pl}${P.pl/n>=.25?' laterales':''}</i>`:''}${P.pa?`<i style="width:${w(P.pa)};background:var(--upb);color:var(--up)">${P.pa}${P.pa/n>=.25?' alcistas':''}</i>`:''}</div></div>`}
+function mRow(s){const o=DATA[s];if(!o||!o.price)return`<div class="mrow">${ico(s,30)}<div class="mn"><b>${lab(s)}</b><span>${o&&o.fail?'sin datos':'cargando…'}</span></div></div>`;
+  const fl=PRV[s]&&o.price!==PRV[s]?(o.price>PRV[s]?'fu':'fd'):'',L=liveB(o);
+  return`<button class="mrow" data-s="${s}">${ico(s,30)}<div class="mn"><b>${lab(s)}</b><span>${COINS[s].n}</span></div><div class="mp"><b class="${fl}">${fp(o.price)} €</b><span class="${cls(o.chg)}">${pc(o.chg)}</span></div>
+  <div class="mc">${o.prev?`<span class="tag t-${o.prev.dir==='alcista'?'pos':o.prev.dir==='bajista'?'neg':'neu'}">${ARW[o.prev.dir]} ${o.prev.dir[0].toUpperCase()+o.prev.dir.slice(1)}</span>`:''}${o.tm?`<span class="tag t-${o.tm.v}">${TMV[o.tm.v]}</span>`:''}<span class="tag t-${L.s||'ND'}">Corto ${SB[L.s||'ND'].toLowerCase()}</span></div></button>`}
 function sigRow(s){const o=DATA[s];if(!o||!o.price)return`<tr><td>${ico(s)} <b style="font-family:var(--sans);margin-left:6px">${lab(s)}</b></td><td colspan="8" class="dim" style="text-align:left">${o&&o.fail?'Sin datos: '+esc(o.fail):'Cargando…'}</td></tr>`;
   const L=liveB(o),fl=PRV[s]&&o.price!==PRV[s]?(o.price>PRV[s]?'fu':'fd'):'',rn=RNEWS[s];
   return`<tr class="cl" data-s="${s}"><td><span style="display:inline-flex;align-items:center;gap:10px">${ico(s,24)}<span><b style="font:600 13px var(--sans)">${lab(s)}</b><span class="dim hide-s" style="display:block;font:400 11px var(--sans)">${COINS[s].n}</span></span></span></td>
@@ -226,7 +253,7 @@ function viewMercado(slow){if(!$('mk')){$('app').innerHTML=`<div class="grid" id
   ${card('c4','Sentimiento','<span class="t">6 fuentes</span>','<div class="cb" id="mk-sent"></div>')}
   <section class="card c3 kpi" id="k1"></section><section class="card c3 kpi" id="k2"></section><section class="card c3 kpi" id="k3"></section><section class="card c3 kpi" id="k4"></section>
   <div class="sec">Mercados<small>señales y previsión de cada activo</small></div>
-  ${card('c12','Tabla en vivo','<span class="t hide-s">Corto: 1 h y 4 h en vivo · Largo: diario y semanal · Lectura: los 7 factores combinados</span>','<div style="overflow-x:auto;padding-top:6px"><table><thead><tr><th>Activo</th><th>Precio €</th><th>24 h</th><th class="hide-s">12 días</th><th>Corto</th><th>Largo</th><th class="hide-s">Semáforo</th><th>Lectura</th><th class="hide-s">Noticias</th></tr></thead><tbody id="mk-sig"></tbody></table></div>')}
+  ${card('c12','Activos','<span class="t hide-s">Corto: 1 h y 4 h en vivo · Largo: diario y semanal · Lectura: los 7 factores combinados</span>','<div class="mlist" id="mk-list"></div><div class="mtab" style="overflow-x:auto;padding-top:6px"><table><thead><tr><th>Activo</th><th>Precio €</th><th>24 h</th><th class="hide-s">12 días</th><th>Corto</th><th>Largo</th><th class="hide-s">Semáforo</th><th>Lectura</th><th class="hide-s">Noticias</th></tr></thead><tbody id="mk-sig"></tbody></table></div>')}
   <div class="sec">Contexto<small>noticias y agenda macro</small></div>
   ${card('c7','Lo que mueve el mercado','<button class="btn" data-go="NEWS">Ver noticias</button>','<div id="mk-news" style="flex:1"></div>')}
   ${card('c5','Agenda macro','<span class="t">Alto y medio impacto</span>','<div id="mk-cal" style="padding-top:8px;flex:1"></div>')}
@@ -235,12 +262,12 @@ function viewMercado(slow){if(!$('mk')){$('app').innerHTML=`<div class="grid" id
   ${card('c5','¿Funciona el sistema?','<span class="t">Histórico sin información futura</span>','<div id="mk-val"></div>')}
   </div><p class="foot">Kraken · Coinbase · CoinGecko · Binance · Kraken Futures · alternative.me · ForexFactory · 14 medios. No es asesoramiento financiero.${window.ESTATICO?' · versión publicada: análisis cada 20 min, precios en vivo':' · <a href="/clasica">vista clásica</a>'}</p>`;
     $('mk').onclick=e=>{const r=e.target.closest('[data-s]');if(r)return go('TRADE',r.dataset.s);const g=e.target.closest('[data-go]');if(g)go(g.dataset.go)};slow=true}
-  $('mk-sig').innerHTML=coins().map(sigRow).join('');
+  $('mk-sig').innerHTML=coins().map(sigRow).join('');$('mk-list').innerHTML=coins().map(mRow).join('');
   const P=panorama();if(slow||!$('mk-pan').dataset.t||Date.now()-$('mk-pan').dataset.t>8000){$('mk-pan').dataset.t=Date.now();$('mk-t').textContent=BAR;
     $('mk-pan').innerHTML=P?`<div class="headline ${P.head[0]}">${P.head[1]}</div><div class="sub">Síntesis de técnico, sentimiento, derivados, noticias y agenda</div><div class="pts">${P.pts.map(p=>`<div class="pt"><i style="background:${p[0]==='up'?'var(--upb)':p[0]==='dn'?'var(--dnb)':p[0]==='wa'?'var(--wab)':'var(--s3)'};color:${p[0]==='up'?'var(--up)':p[0]==='dn'?'var(--dn)':p[0]==='wa'?'var(--wa)':'var(--mut)'}">${p[1]}</i><div>${p[2]}</div></div>`).join('')}</div>${distBar(P)}`:(ERR?`<div class="dn">${esc(ERR)}</div>`:'<div class="sub">Analizando el mercado…</div>')}
   const fb=med(coins().filter(s=>s!=='PAXG'&&DERIV[s]).map(s=>DERIV[s].funding)),kp=(id,l,v,s)=>{$(id).innerHTML=`<div class="lbl">${l}</div><div class="v">${v}</div><div class="s">${s}</div>`};
-  kp('k1','Capitalización total',bigEur(CTX.mcap),`<span class="${cls(CTX.mc)}">${pc(CTX.mc,1)} en 24 h</span>`);
-  kp('k2','Dominancia de Bitcoin',CTX.dom!=null?f1(CTX.dom)+' %':'—','<span class="dim">cuota del mercado</span>');
+  kp('k1','Capitalización',bigEur(CTX.mcap),`<span class="${cls(CTX.mc)}">${pc(CTX.mc,1)} en 24 h</span>`);
+  kp('k2','Dominancia BTC',CTX.dom!=null?f1(CTX.dom)+' %':'—','<span class="dim">cuota del mercado</span>');
   kp('k3','Funding mediano',fb!=null?(fb*100).toFixed(4).replace('.',',')+' %':'—',`<span class="${fb>=.00015?'wa':fb<0?'up':'dim'}">${fb==null?'':fb>=.00015?'euforia apalancada':fb<0?'dominan los cortos':'neutral'} · cada 8 h</span>`);
   kp('k4','Miedo y codicia',CTX.fg?CTX.fg.value:'—',CTX.fg1?`<span class="dim">ayer ${CTX.fg1.value}${CTX.fg7?' · hace 7 días '+CTX.fg7.value:''}</span>`:'');
   if(slow){$('mk-sent').innerHTML=SENT?`<div class="gauge">${gauge(SENT.valor)}<div style="font:600 22px var(--mono);margin-top:-6px">${f0(SENT.valor)}</div><div class="${SENT.valor>=60?'up':SENT.valor<40?'dn':''}" style="font-weight:600;margin-bottom:10px">${SENT.lectura}</div></div>${SENT.componentes.map(c=>`<div class="cmp"><span>${c.nombre}</span><div class="bar"><i style="left:0;width:${c.valor}%;background:${c.valor>=60?'var(--up)':c.valor<40?'var(--dn)':'var(--mut)'}"></i></div><b>${esc(c.dato)}</b></div>`).join('')}`:'<div class="empty">Calculando…</div>';
@@ -252,8 +279,10 @@ let CHART=null,CS=null,VS=null,L20=null,L50=null,L200=null,CHK='',PLINES=[],ZK='
 function viewEstudio(slow){const s=SEL,o=DATA[s];if(!$('es')){$('app').innerHTML=`<div class="grid" id="es">
   <section class="card c12" id="es-hero"></section>
   <div class="sec">Gráfico y proyección<small>la flecha se recalcula en vivo</small></div>
-  <section class="card c8 e8 chartcard"><div class="ch"><h2>Gráfico</h2><div style="display:flex;gap:10px;align-items:center"><div class="seg" id="tfb">${['1m','1h','4h','1d','1w'].map(t=>`<button data-tf="${t}">${t}</button>`).join('')}</div><label class="sw hide-s" style="min-height:0;font-size:12px"><input type="checkbox" id="oema" ${PREF.ema?'checked':''}>Medias</label><label class="sw hide-s" style="min-height:0;font-size:12px"><input type="checkbox" id="ozon" ${PREF.zon?'checked':''}>Niveles</label><label class="sw hide-s" style="min-height:0;font-size:12px" title="Caminos de los momentos pasados más parecidos"><input type="checkbox" id="ocas" ${PREF.cas?'checked':''}>Casos</label></div></div><div id="chart"><div class="leg" id="leg"></div><div class="pchip" id="pchip" hidden></div><svg class="pjs" id="pjsvg" aria-hidden="true"></svg></div></section>
+  <section class="card c8 e8 chartcard"><div class="ch"><h2>Gráfico</h2><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><div class="seg" id="tfb">${['1m','1h','4h','1d','1w'].map(t=>`<button data-tf="${t}">${t}</button>`).join('')}</div><label class="ctl"><input type="checkbox" id="oema" ${PREF.ema?'checked':''}>Medias</label><label class="ctl"><input type="checkbox" id="ozon" ${PREF.zon?'checked':''}>Niveles</label><label class="ctl" title="Caminos de los momentos pasados más parecidos"><input type="checkbox" id="ocas" ${PREF.cas?'checked':''}>Casos</label></div></div><div id="chart"><div class="leg" id="leg"></div><div class="pchip" id="pchip" hidden></div><svg class="pjs" id="pjsvg" aria-hidden="true"></svg></div></section>
   ${card('c4 e4','Proyección','<span class="t">la flecha del gráfico</span>','<div class="cb" id="es-proj"></div>')}
+  <div class="sec">Casos parecidos<small>en qué se basa la flecha</small></div>
+  ${card('c12','En qué se basa la flecha','<span class="t" id="es-ct"></span>','<div class="cb" id="es-casos"></div>')}
   <div class="sec">Contexto de <span id="es-sn" style="margin-left:4px"></span><small>lectura, niveles, flujo y noticias</small></div>
   ${card('c4','Lectura de los datos','<span class="t">7 factores, ahora</span>','<div class="cb" id="es-prev"></div>')}
   ${card('c4','Niveles clave','<span class="t">★ zona más fuerte</span>','<div class="cb" id="es-niv"></div>')}
@@ -270,7 +299,7 @@ function viewEstudio(slow){const s=SEL,o=DATA[s];if(!$('es')){$('app').innerHTML
   $('es-hero').innerHTML=`<div class="hero"><div style="display:flex;align-items:center;gap:12px">${ico(s,40)}<div><div style="font:650 18px var(--sans)">${COINS[s].n}</div><div class="tiny">${lab(s)}/EUR${MK[s]&&MK[s].rk?' · #'+MK[s].rk+' por capitalización':''}</div></div></div>
   <div><div class="px ${fl}">${fp(o.price)} <span style="font-size:15px;color:var(--mut)">€</span></div><div class="m ${cls(o.chg)}" style="font-size:12.5px;margin-top:4px">${pc(o.chg)} en 24 h</div></div>
   <div class="stats"><div><span>Máx. 24 h</span><b>${fp(k.high)}</b></div><div><span>Mín. 24 h</span><b>${fp(k.low)}</b></div><div class="hide-s"><span>Volumen 24 h</span><b>${cmp(k.volume)}</b></div><div><span>Volatilidad</span><b>${o.d1&&o.d1.atrPct?f1(o.d1.atrPct)+' %/día':'—'}</b></div><div class="hide-s"><span>Spread</span><b>${sp!=null?sp.toFixed(3).replace('.',',')+' %':'—'}</b></div><div><span>Lectura</span><b>${prevTag(o.prev)}</b></div></div></div>${COINS[s].note?`<div class="tiny" style="padding:0 18px 12px">${COINS[s].note}</div>`:''}`;
-  prevCard(o);projCard(o);nivCard(o);fluCard(o);projArrow();$('es-sn').textContent=COINS[s].n;if(slow)newsCard(s);if(!CHART||CHK!==s+TF)loadChart();zoneLines();renderTab(slow)}
+  prevCard(o);projCard(o);casosCard(o);nivCard(o);fluCard(o);projArrow();$('es-sn').textContent=COINS[s].n;if(slow)newsCard(s);if(!CHART||CHK!==s+TF)loadChart();zoneLines();renderTab(slow)}
 function prevCard(o){const p=o.prev,el=$('es-prev');if(!p){el.innerHTML='<div class="empty">Calculando previsión…</div>';return}
   const c=DIRC[p.dir],ob=p.objetivo,inv=p.invalidacion,T=o.bt&&o.bt.T,R=T&&T.fill?T.r/T.fill:null;
   const esc1=p.dir==='lateral'?(ob&&ob.rango?`Lo más probable es que se mueva en rango entre <b>${fp(ob.rango[0])}</b> (${pc(ob.pct[0],1)}) y <b>${fp(ob.rango[1])}</b> (${pc(ob.pct[1],1)}).`:'Sin dirección clara.'):`Escenario más probable: ${p.dir==='bajista'?'caída':'subida'} hacia <b>${ob?fp(ob.precio)+' €':'—'}</b>${ob?` (${pc(ob.pct,1)}, ${ob.nivel})`:''}.${inv?` Pierde validez con ${inv.texto} (<b>${fp(inv.precio)}</b>, ${pc(inv.pct,1)}).`:''}`;
@@ -281,6 +310,23 @@ function prevCard(o){const p=o.prev,el=$('es-prev');if(!p){el.innerHTML='<div cl
   <div class="tiny" style="margin-top:10px">Síntesis de todos los datos, no una certeza.${R!=null&&T.fill>=10?` En ${lab(o.sym)}, la Entrada 1 histórica tocó el objetivo el ${(T.w/T.fill*100).toFixed(0)} % de las veces.`:''}</div>`}
 const fdate=t=>new Date(t).toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'2-digit'})+(TF==='1m'||TF==='1h'||TF==='4h'?' '+hm(t):'');
 let PJMORE=false;
+/* casos parecidos: en qué se basa la flecha. Momentos del histórico con un estado de mercado parecido al actual
+   y qué hizo el precio después (reescalado a la volatilidad de hoy) */
+function miniCamino(ret,col){const W=120,H=34,v=[0].concat(ret),mn=Math.min(...v),mx=Math.max(...v),r=mx-mn||1,P=v.map((x,i)=>(i*W/(v.length-1)).toFixed(1)+','+(H-3-(x-mn)/r*(H-6)).toFixed(1)).join(' '),y0=(H-3-(0-mn)/r*(H-6)).toFixed(1);
+  return`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" class="cmini" aria-hidden="true"><line x1="0" x2="${W}" y1="${y0}" y2="${y0}" stroke="var(--ln2)" stroke-dasharray="2 3"/><polyline points="${P}" fill="none" stroke="${col}" stroke-width="1.8" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`}
+function casosCard(o){const el=$('es-casos');if(!el)return;const pr=o.proy&&o.proy[TF];if(!pr||!pr.analogos||!pr.analogos.length){el.innerHTML='<div class="empty">Sin casos parecidos para esta temporalidad.</div>';return}
+  const p=o.price,k=pr.k,pa=pr.p_up_ana!=null?pr.p_up_ana:pr.p_up,sube=Math.round(pa*k),baja=k-sube,r=x=>pc((x/p-1)*100,1),mx=Math.max(...pr.analogos.map(a=>a.peso||0))||1;
+  const lo=pr.b80[0],hi=pr.b80[1],pos=v=>clamp((v-lo)/(hi-lo)*100,0,100);
+  const casos=pr.analogos.slice(0,6).map(a=>{const c=a.fin>=0?'var(--up)':'var(--dn)';return`<div class="caso"><div class="ct"><b class="${a.fin>=0?'up':'dn'}">${pc(a.fin,1)}</b><span>${fdate(a.t)}</span></div>${miniCamino(a.ret,c)}<div class="cp"><i style="width:${Math.round((a.peso||0)/mx*100)}%"></i></div><div class="tiny">parecido ${Math.round((a.peso||0)/mx*100)} %</div></div>`}).join('');
+  const ras=(pr.rasgos||[]).slice(0,4).map(x=>`<span class="pill">${esc(x.rasgo)}</span>`).join('');
+  el.innerHTML=`<div class="cres"><div><div class="lbl">Casos analizados</div><div class="cbig">${k}<span> de ${new Intl.NumberFormat('es-ES').format(pr.n)} momentos</span></div><div class="tiny">del histórico de ${lab(o.sym)} en ${TF}, los más parecidos a ahora</div></div>
+  <div><div class="lbl">Qué pasó después (en ${hz(pr.horas)})</div><div class="press" style="height:26px;margin-top:6px"><i style="width:${Math.max(8,Math.round(pa*100))}%;background:var(--upb);color:var(--up)">▲ ${sube} subieron</i><i style="flex:1;justify-content:flex-end;background:var(--dnb);color:var(--dn)">${baja} bajaron ▼</i></div></div>
+  <div><div class="lbl">Resultado típico</div><div class="rgo"><div class="rgb"><i class="r80"></i><i class="r50" style="left:${pos(pr.b50[0])}%;width:${pos(pr.b50[1])-pos(pr.b50[0])}%"></i><i class="r0" style="left:${pos(p)}%" title="precio actual"></i><i class="rm" style="left:${pos(pr.centro)}%"></i></div>
+   <div class="rgl"><span>${r(lo)}</span><b>${r(pr.centro)}</b><span>${r(hi)}</span></div></div><div class="tiny">La mitad acabó entre ${r(pr.b50[0])} y ${r(pr.b50[1])}; la marca blanca es el precio de ahora.</div></div></div>
+  <div class="lbl" style="margin:16px 0 8px">Los más parecidos y su recorrido</div><div class="casos">${casos}</div>
+  ${ras?`<div class="lbl" style="margin:16px 0 6px">En qué se parecen a ahora</div><div>${ras}</div>`:''}
+  <div class="tiny" style="margin-top:12px;line-height:1.5">En el gráfico, cada línea fina es uno de estos casos dibujado desde el precio actual (verde si subió, rojo si bajó). Lo que pasó entonces no garantiza lo que pasará ahora.</div>`}
+
 function projCard(o){const el=$('es-proj');if(!el)return;if(!el.dataset.w){el.dataset.w=1;el.addEventListener('click',e=>{const sm=e.target.closest('summary'),d=sm&&sm.parentElement;if(d&&d.id==='pj-more')PJMORE=!d.open})}const pr=o.proy&&o.proy[TF];if(!pr){el.innerHTML='<div class="empty">Calibrando la proyección con el histórico…</div>';return}
   const T=projTxt(pr),v=pr.val,p=o.price,pu=Math.round(pr.p_up*100),r=x=>pc((x/p-1)*100,1);
   const fia=!v?{c:'t-ND',t:'Histórico corto: se muestra el rango de siempre, sin dirección.'}:v.destreza>0?{c:'t-pos',t:`Acertó la dirección el ${v.acierto!=null?Math.round(v.acierto*100)+' %':'—'} de las veces en datos que no había visto.`}:{c:'t-wa',t:'En el histórico no ha demostrado acertar la dirección: tómalo como rango probable, no como señal.'};
@@ -329,7 +375,7 @@ function newsCard(s){const rn=RNEWS[s],L=NEWS.filter(x=>x.afecta[s]!==undefined|
 const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim(),isL=()=>document.documentElement.dataset.theme==='light';
 const TFMS={'1m':6e4,'1h':36e5,'4h':144e5,'1d':864e5,'1w':6048e5},HOR={'1m':60,'1h':24,'4h':12,'1d':7,'1w':4};
 let PJ=null,PU=null,PD=null,PK='',LASTBAR=null;const vcol=up=>isL()?(up?'rgba(10,135,92,.28)':'rgba(201,47,67,.24)'):(up?'rgba(34,197,139,.28)':'rgba(240,78,94,.28)');
-function chartOpts(){const g=isL()?'rgba(15,23,42,.07)':'rgba(255,255,255,.035)',c=isL()?'rgba(16,24,40,.28)':'rgba(255,255,255,.2)';return{layout:{background:{color:'transparent'},textColor:cssv('--mut'),fontFamily:'-apple-system,Inter,sans-serif',fontSize:11},grid:{vertLines:{color:g},horzLines:{color:g}},rightPriceScale:{borderVisible:false},timeScale:{borderVisible:false,timeVisible:true,secondsVisible:false,rightOffset:4},crosshair:{mode:0,vertLine:{color:c},horzLine:{color:c}},localization:{locale:'es-ES',priceFormatter:p=>fp(p)}}}
+function chartOpts(){const g=isL()?'rgba(15,23,42,.07)':'rgba(255,255,255,.035)',c=isL()?'rgba(16,24,40,.28)':'rgba(255,255,255,.2)';return{layout:{background:{color:'transparent'},textColor:cssv('--mut'),fontFamily:'-apple-system,Inter,sans-serif',fontSize:11},grid:{vertLines:{color:g},horzLines:{color:g}},rightPriceScale:{borderVisible:false},timeScale:{borderVisible:false,timeVisible:true,secondsVisible:false,rightOffset:4},crosshair:{mode:0,vertLine:{color:c},horzLine:{color:c}},handleScroll:{vertTouchDrag:false,mouseWheel:innerWidth>=860},handleScale:{mouseWheel:innerWidth>=860},localization:{locale:'es-ES',priceFormatter:p=>fp(p)}}}
 function fitChart(){const el=$('chart');if(CHART&&el&&el.clientWidth){CHART.resize(el.clientWidth,el.clientHeight);projArrow()}}
 new ResizeObserver(()=>fitChart()).observe(document.body);addEventListener('resize',fitChart);
 const candleOpts=()=>({upColor:cssv('--up'),downColor:cssv('--dn'),borderVisible:false,wickUpColor:cssv('--up'),wickDownColor:cssv('--dn'),priceLineColor:cssv('--mut')});
@@ -343,7 +389,7 @@ async function loadChart(){const s=SEL,tf=TF,key=s+tf;CHK=key;if(typeof Lightwei
     CS.setData(rows.map(x=>({time:tsec(x[0]),open:x[1],high:x[2],low:x[3],close:x[4]})));VS.setData(rows.map(x=>({time:tsec(x[0]),value:x[5],color:vcol(x[4]>=x[1])})));
     const sl=(ser,arr)=>ser.setData(PREF.ema&&arr?arr.map((v,i)=>({time:tsec(rows[i][0]),value:v})).slice(Math.min(30,arr.length-1)):[]);L20.applyOptions({color:COINS[s].a});L50.applyOptions({color:cssv('--mut')});sl(L20,d.e20);sl(L50,d.e50);sl(L200,d.e200);
     CS.applyOptions({priceFormat:{type:'price',precision:dec(lp),minMove:1/10**dec(lp)}});const lr=rows[rows.length-1];LASTBAR=lr?{t:lr[0]}:null;PJK='';projArrow();
-    CHART.timeScale().setVisibleLogicalRange({from:Math.max(0,rows.length-(tf==='1m'?180:80)),to:rows.length+((o=>o&&o.proy&&o.proy[tf]?o.proy[tf].velas:HOR[tf]))(DATA[s])+6});CHART.timeScale().subscribeVisibleLogicalRangeChange(projArrow);ZK='';zoneLines();$('leg').innerHTML=legend()}catch(e){}}
+    CHART.timeScale().setVisibleLogicalRange({from:Math.max(0,rows.length-(innerWidth<600?(tf==='1m'?80:34):(tf==='1m'?180:80))),to:rows.length+((o=>o&&o.proy&&o.proy[tf]?o.proy[tf].velas:HOR[tf]))(DATA[s])+6});CHART.timeScale().subscribeVisibleLogicalRangeChange(projArrow);ZK='';zoneLines();$('leg').innerHTML=legend()}catch(e){}}
 /* proyección calibrada: cono de rango probable (50 % y 68 %), recorrido central con flecha y objetivo. Se redibuja en vivo */
 let PJK='',RAF=0;const hz=h=>h<1?Math.round(h*60)+' min':h<24?h+' h':h<168?Math.round(h/24)+(h<48?' día':' días'):Math.round(h/168)+(h<336?' semana':' semanas');
 const projArrow=()=>{if(!RAF)RAF=requestAnimationFrame(()=>{RAF=0;projDraw()})};
@@ -364,7 +410,7 @@ function projDraw(){const o=DATA[SEL],svg=$('pjsvg'),chip=$('pchip');if(!svg)ret
   const band=(a,b)=>`<polygon points="${fmt(a.concat(b.slice().reverse()))}"`,path='M'+q50.map(q=>q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' L');
   const e=q50[N],e2=q50[Math.max(0,N-2)],ang=Math.atan2(e[1]-e2[1],e[0]-e2[0]),ah=12,aw=7,tip=[e[0]+Math.cos(ang)*5,e[1]+Math.sin(ang)*5];
   const l=[tip[0]-ah*Math.cos(ang)+aw*Math.sin(ang),tip[1]-ah*Math.sin(ang)-aw*Math.cos(ang)],r=[tip[0]-ah*Math.cos(ang)-aw*Math.sin(ang),tip[1]-ah*Math.sin(ang)+aw*Math.cos(ang)];
-  const gh=cssv('--mut'),ghosts=PREF.cas?(pr.analogos||[]).slice(0,5).map(a=>{const pts=[[X(0),Y(p)]].concat(a.ret.slice(0,N).map((v,i)=>[X(i+1),Y(p*(1+v/100))]));return ok(pts)?`<polyline points="${fmt(pts)}" fill="none" stroke="${gh}" stroke-opacity=".4" stroke-width="1" stroke-linejoin="round"/>`:''}).join(''):'';
+  const gh=cssv('--mut'),cU=cssv('--up'),cD=cssv('--dn'),ghosts=PREF.cas?(pr.analogos||[]).slice(0,6).map(a=>{const pts=[[X(0),Y(p)]].concat(a.ret.slice(0,N).map((v,i)=>[X(i+1),Y(p*(1+v/100))]));if(!ok(pts))return'';const c=a.fin>=0?cU:cD,z=pts[pts.length-1];return`<polyline points="${fmt(pts)}" fill="none" stroke="${c}" stroke-opacity=".42" stroke-width="1.2" stroke-linejoin="round"/><circle cx="${z[0].toFixed(1)}" cy="${z[1].toFixed(1)}" r="2.6" fill="${c}" fill-opacity=".75"/>`}).join(''):'';
   const lbl=`${fp(pr.centro)} · ${pc((pr.centro/p-1)*100,1)}`,lw=lbl.length*6.8+20,lx=Math.max(6,Math.min(e[0]-lw/2,W-lw-80)),ly=clamp(dn?Math.max(e[1],q75[N][1])+20:Math.min(e[1],q25[N][1])-20,16,H-30);
   let lvl='';if(pr.nivel){const yl=Y(pr.nivel.precio);if(yl!=null)lvl=`<line x1="${x0}" x2="${x1}" y1="${yl}" y2="${yl}" stroke="${cssv('--wa')}" stroke-width="1.3" stroke-dasharray="2 4"/><text x="${x0+8}" y="${yl+(dn?14:-6)}" fill="${cssv('--wa')}">${pr.nivel.tipo} ${fp(pr.nivel.precio)}</text>`}
   svg.innerHTML=`<defs><linearGradient id="pjg" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="${col}" stop-opacity=".30"/><stop offset="1" stop-color="${col}" stop-opacity=".10"/></linearGradient><clipPath id="pjc"><rect x="0" y="0" width="${W-76}" height="${H}"/></clipPath></defs>
@@ -537,5 +583,5 @@ function vivoEstatico(){const s=SEL,o=DATA[s];if(VIEW==='TRADE'&&o&&o.price){con
 if(window.ESTATICO){setInterval(vivoEstatico,1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){poll();if(!KW)krakenWS()}})}
 
 /* ---------- arranque ---------- */
-document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===VIEW));stream();poll();
+document.querySelectorAll('#tabs button,#tabbar button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===VIEW));document.body.dataset.v=VIEW;stream();poll();
 </script></body></html>

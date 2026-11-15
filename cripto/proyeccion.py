@@ -411,7 +411,7 @@ def proyectar(price, tf, calib, prev=None, z=None):
            "p_up": float(p_up), "p_dir": None if p_dir is None else float(p_dir), "centro": centro,
            "b50": [px(q[1]), px(q[3])], "b80": [px(q[0]), px(q[4])], "sd_pct": esc * 100,
            "q": {str(int(a * 100)): [px(v) for v in qp[:, j]] for j, a in enumerate(QS)},
-           "analogos": [{"t": a["t"], "ret": [(math.exp(r * esc) - 1) * 100 for r in a["ret"]], "fin": (math.exp(a["fin"] * esc) - 1) * 100} for a in calib["analogos"]],
+           "analogos": [{"t": a["t"], "ret": [(math.exp(r * esc) - 1) * 100 for r in a["ret"]], "fin": (math.exp(a["fin"] * esc) - 1) * 100, "peso": a.get("peso")} for a in calib["analogos"]],
            "val": val, "n": calib["muestras"], "k": calib["k"], "n_eff": round(calib["n_eff"], 1), "rasgos": calib["rasgos"],
            "inclinacion": nt, "recorrido": d, "nivel": None, "t_calib": calib["t_ultima"], "score21": calib.get("score21"),
            "lam": calib["lam"], "p_up_ana": calib["p_up_ana"]}
