@@ -2,6 +2,7 @@
 miedo y codicia, amplitud técnica, impulso y pulso de noticias, combinados en un índice 0-100
 con todos sus componentes visibles."""
 import os
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 
@@ -82,15 +83,34 @@ def bybit_moneda(s):
     return out
 
 
+_okx_lock = threading.Lock()
+
+
+def _okx_get(url):
+    """OKX limita las peticiones por IP (las estadísticas, a unas pocas por segundo): se hacen de una en una,
+    espaciadas, y con un reintento."""
+    for i in range(2):
+        with _okx_lock:
+            try:
+                d = fuentes.jget(url, 8)
+            except Exception:  # noqa: BLE001
+                d = None
+            time.sleep(.3)
+        if d and d.get("code") == "0":
+            return d["data"]
+        time.sleep(1.2)
+    return None
+
+
 def okx_moneda(s):
     """Segundo respaldo: OKX (reparto largo/corto e interés abierto por moneda; funding del perpetuo USDT)."""
     out = {"ok": False}
     try:
-        f = fuentes.jget(f"{OKX}/api/v5/public/funding-rate?instId={s}-USDT-SWAP", 8)["data"]
+        f = _okx_get(f"{OKX}/api/v5/public/funding-rate?instId={s}-USDT-SWAP")
         if f:
             out["funding"] = _f(f[0].get("fundingRate"))
         try:
-            ls = fuentes.jget(f"{OKX}/api/v5/rubik/stat/contracts/long-short-account-ratio?ccy={s}&period=1H", 8)["data"]
+            ls = _okx_get(f"{OKX}/api/v5/rubik/stat/contracts/long-short-account-ratio?ccy={s}&period=1H")
             r = _f(ls[0][1]) if ls else None
             if r is not None:
                 out["largos_pct"] = r / (1 + r) * 100
@@ -98,7 +118,7 @@ def okx_moneda(s):
         except Exception:  # noqa: BLE001
             pass
         try:
-            oi = fuentes.jget(f"{OKX}/api/v5/rubik/stat/contracts/open-interest-volume?ccy={s}&period=1H", 8)["data"]
+            oi = _okx_get(f"{OKX}/api/v5/rubik/stat/contracts/open-interest-volume?ccy={s}&period=1H")
             if oi and len(oi) >= 2:
                 b = _f(oi[0][1])
                 a = _f(oi[min(24, len(oi) - 1)][1])
