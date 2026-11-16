@@ -348,8 +348,11 @@ def calibrar(rows, tf, cache=None):
     qpb = np.quantile(P, QS, axis=0).T
     qpb = _ensanchar(qpb - qpb[:, 2:3], *fb)
     # cuánto se escuchan las analogías: solo en la medida en que demostraron destreza fuera de muestra
-    lam = _lam(destreza, n_eff) if destreza is not None else 0.0
-    fiable = destreza is not None and destreza > 0
+    # la dirección solo se escucha si, además de mejorar la anchura del cono, acertó al menos la mitad de las veces
+    # que la marcó fuera de muestra: con un acierto por debajo del 50 % las analogías van peor que lanzar una moneda
+    dir_ok = direccion_valida(val)
+    lam = _lam(destreza, n_eff) if (destreza is not None and dir_ok) else 0.0
+    fiable = destreza is not None and destreza > 0 and dir_ok
     orden = np.argsort(-ic)
     top = [{"rasgo": RASGOS[j], "ic": float(ic[j])} for j in orden[:4] if ic[j] > 0]
     o_sel = sel[np.argsort(-pw)][:6]
@@ -360,6 +363,14 @@ def calibrar(rows, tf, cache=None):
             "q": _mezcla(q, qb, lam), "qp": _mezcla(qp, qpb, lam), "p_up": _mezcla(p_up, .5, lam),
             "q_ana": q, "p_up_ana": float(p_up), "val": val, "fiable": fiable, "rasgos": top, "analogos": analogos,
             "score21": s21[n - 1], "estado_z": [float(x) for x in zq[:12]]}
+
+
+def direccion_valida(val, minimas=10):
+    """¿Respalda la validación fuera de muestra la dirección? Sin validación o con pocas llamadas no se descarta
+    (la destreza ya decide); con suficientes llamadas, el acierto debe ser al menos del 50 %."""
+    if not val or val.get("llamadas", 0) < minimas or val.get("acierto") is None:
+        return True
+    return val["acierto"] >= .5
 
 
 def _lam(destreza, n_eff):

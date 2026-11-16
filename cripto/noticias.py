@@ -41,9 +41,9 @@ COIN_WORDS = {
     "BTC": [r"bitcoin", r"btc", r"satoshi"],
     "ETH": [r"ethereum", r"ether", r"eth", r"vitalik"],
     "XRP": [r"xrp", r"ripple"],
-    "SOL": [r"solana", r"sol"],
-    "HYPE": [r"hyperliquid", r"hype"],
-    "SUI": [r"sui"],
+    "SOL": [r"solana", r"(?-i:\$?SOL)"],          # "sol" (el astro) y "hype" (exageración) son palabras corrientes:
+    "HYPE": [r"hyperliquid", r"(?-i:\$?HYPE)"],   # el ticker solo cuenta escrito en mayúsculas
+    "SUI": [r"(?-i:\$?SUI|Sui)"],
     "ZEC": [r"zcash", r"zec"],
     "PAXG": [r"gold", r"oro", r"paxg", r"bullion", r"xau"],
 }

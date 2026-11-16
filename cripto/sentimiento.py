@@ -53,6 +53,13 @@ def binance_moneda(s):
     return s, out
 
 
+def a_8h(tasa, horas):
+    """Funding por periodo → equivalente a 8 h (Binance cobra cada 8 h; otros contratos, cada 1, 2 o 4 h)."""
+    if tasa is None:
+        return None
+    return tasa * 8 / horas if horas and 0 < horas <= 24 else tasa
+
+
 def bybit_moneda(s):
     """Respaldo cuando Binance no responde (p. ej. desde los servidores de GitHub): Bybit publica funding,
     reparto de cuentas en largo e interés abierto (con histórico) para los mismos perpetuos USDT."""
@@ -60,7 +67,7 @@ def bybit_moneda(s):
     out = {"ok": False}
     try:
         t = fuentes.jget(f"{BYBIT}/v5/market/tickers?category=linear&symbol={sym}", 8)["result"]["list"][0]
-        out["funding"] = _f(t.get("fundingRate"))                # por 8 h
+        out["funding"] = a_8h(_f(t.get("fundingRate")), _f(t.get("fundingIntervalHour")))
         out["mark"] = _f(t.get("markPrice"))
         out["oi_usd"] = _f(t.get("openInterestValue"))
         try:
@@ -108,7 +115,8 @@ def okx_moneda(s):
     try:
         f = _okx_get(f"{OKX}/api/v5/public/funding-rate?instId={s}-USDT-SWAP")
         if f:
-            out["funding"] = _f(f[0].get("fundingRate"))
+            t0, t1 = _f(f[0].get("fundingTime")), _f(f[0].get("nextFundingTime"))
+            out["funding"] = a_8h(_f(f[0].get("fundingRate")), (t1 - t0) / 3.6e6 if (t0 and t1 and t1 > t0) else None)
         try:
             ls = _okx_get(f"{OKX}/api/v5/rubik/stat/contracts/long-short-account-ratio?ccy={s}&period=1H")
             r = _f(ls[0][1]) if ls else None

@@ -12,7 +12,7 @@
 --fx:radial-gradient(820px 360px at 50% -140px,rgba(63,214,179,.12),transparent 70%),linear-gradient(rgba(63,214,179,.028) 1px,transparent 1px) 0 0/100% 36px,linear-gradient(90deg,rgba(63,214,179,.028) 1px,transparent 1px) 0 0/36px 100%;
 --r:14px;--gap:14px;--mono:"SF Mono",SFMono-Regular,ui-monospace,Menlo,monospace;--sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Helvetica Neue",Arial,sans-serif}
 *{box-sizing:border-box}html,body{margin:0}
-body{transition:background .25s,color .25s;background:var(--fx,none),var(--bg);background-attachment:fixed;color:var(--ink);font:13.5px/1.5 var(--sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:var(--fx,none)}body{-webkit-tap-highlight-color:transparent;transition:background .25s,color .25s;background:var(--bg);color:var(--ink);font:13.5px/1.5 var(--sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}a{color:inherit;text-decoration:none}
 button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--ac);outline-offset:2px;border-radius:6px}
 .m{font-family:var(--mono)}.up{color:var(--up)}.dn{color:var(--dn)}.wa{color:var(--wa)}.mut{color:var(--mut)}.dim{color:var(--dim)}
@@ -84,7 +84,7 @@ details.more{margin-top:12px}details.more summary{cursor:pointer;font-size:12.5p
 .tfg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.tfc{border-radius:10px;padding:10px;text-align:center;background:var(--s2)}.tfc b{display:block;font:600 12px var(--mono);color:var(--mut)}.tfc span{font:600 13px var(--sans)}
 .cat{display:grid;grid-template-columns:100px 1fr 54px;gap:12px;align-items:center;padding:5px 0;font-size:12.5px}.cat span:last-child{text-align:right;font:500 11.5px var(--mono)}
 .sigs{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px}.sg{display:flex;justify-content:space-between;gap:6px;padding:7px 10px;border-radius:8px;background:var(--s2);font-size:12px}.sg b{font:500 11px var(--mono)}
-.pg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.pf{display:grid;gap:4px;font-size:11.5px;color:var(--mut)}.pf input{height:38px;border-radius:9px;border:1px solid var(--ln2);background:var(--bg);color:var(--ink);padding:0 11px;font:500 13px var(--mono)}.pf input:focus{border-color:var(--ac);outline:0}
+.pg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.pf{display:grid;gap:4px;font-size:11.5px;color:var(--mut);min-width:0}.pf input{width:100%;min-width:0;height:38px;border-radius:9px;border:1px solid var(--ln2);background:var(--bg);color:var(--ink);padding:0 11px;font:500 13px var(--mono)}.pf input:focus{border-color:var(--ac);outline:0}
 .btn{border:1px solid var(--ln2);border-radius:9px;padding:6px 13px;font-weight:550;font-size:12.5px;color:var(--mut)}.btn:hover{color:var(--ink);background:var(--s2)}
 /* ---------- noticias ---------- */
 .dg{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--gap)}.dg>.card:first-child{grid-row:span 2;justify-content:center;background:linear-gradient(160deg,var(--s2),var(--s1))}.dg>.card:first-child .h{font-size:15px}.dg>.card:first-child p{font-size:13px}@media(max-width:1180px){.dg{grid-template-columns:repeat(3,minmax(0,1fr))}.dg>.card:first-child{grid-row:auto;grid-column:span 3}}@media(max-width:860px){.dg{grid-template-columns:1fr 1fr}.dg>.card:first-child{grid-column:span 2}}.dgc{padding:14px 16px;cursor:pointer;transition:border-color .15s}.dgc:hover{border-color:var(--ln2)}.dgc .h{display:flex;align-items:center;gap:8px;font-weight:600}.dgc .s{font:600 12px var(--mono);margin-left:auto}.dgc p{margin:8px 0 0;font-size:12px;color:var(--mut);line-height:1.45}
@@ -129,9 +129,11 @@ details.nw .ti{font-size:13px;font-weight:550;line-height:1.35}details.nw .tm{fo
 .cases .cc{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 4px;border-radius:99px;background:var(--pop);border:1px solid var(--ln2);font:600 11px var(--mono);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:opacity .15s,border-color .15s;pointer-events:auto}
 .cases .cc i,.pill.cp i{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--c);color:#07090c;font:700 10px var(--sans);font-style:normal;margin-right:5px}.cases .cc i{margin:0}
 .cases .cc.on,.pill.cp.on{border-color:var(--c);box-shadow:0 0 0 1px var(--c)}.cases .cc.dim{opacity:.4}.pill.cp{cursor:pointer;border:1px solid transparent;display:inline-flex;align-items:center}.pill.cp:hover{border-color:var(--c)}
-.pg.p5{grid-template-columns:repeat(5,1fr)}
-@media(max-width:860px){.pchip{left:10px;right:auto;max-width:calc(100% - 100px)}.leg{top:34px;font-size:10.5px}.cases{top:56px;flex-wrap:nowrap;max-width:calc(100% - 96px);overflow:hidden}.cases .cap{display:none}.cases{gap:4px}.cases .cc{padding:3px 7px 3px 3px;gap:4px;font-size:10.5px;white-space:nowrap}.pg.p5{grid-template-columns:1fr 1fr}.rsb{display:none}}
+.pg.p5{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:860px){.pchip{left:10px;right:auto;max-width:calc(100% - 100px)}.leg{top:34px;font-size:10.5px}.cases{top:56px;flex-wrap:nowrap;max-width:calc(100% - 84px);overflow-x:auto;overflow-y:hidden;pointer-events:auto;touch-action:pan-x;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-right:18px;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 26px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 26px),transparent)}.cases::-webkit-scrollbar{display:none}.cases .cap{display:none}.cases{gap:4px}.cases .cc{flex:none;padding:3px 7px 3px 3px;gap:4px;font-size:10.5px;white-space:nowrap}.pg.p5{grid-template-columns:repeat(2,minmax(0,1fr))}.rsb{display:none}}
 .tfg .tfc{padding:9px 6px}details.more .sigs{margin-top:8px}
+.warnbar{margin:0;padding:8px 20px;background:var(--wab);color:var(--notx);font-size:12px;line-height:1.4;border-bottom:1px solid var(--ln)}.warnbar[hidden]{display:none}
+@media(max-width:860px){.pf input{font-size:16px;height:44px}.ib{width:38px;height:38px}.ctl{min-height:34px}.btabs{overflow-x:auto;scrollbar-width:none}.btabs::-webkit-scrollbar{display:none}.btabs button{flex:none;padding:9px 13px}.seg button{padding:7px 12px}.warnbar{padding:8px 16px}main{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}.hdr{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}.btn{min-height:36px}}
 @media(prefers-reduced-motion:reduce){.fu,.fd,.nt,.nt.out,.ib.spin svg{animation:none}}
 </style></head><body>
 <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3fd6b3"/><stop offset="1" stop-color="#6c8cff"/></linearGradient>
@@ -145,6 +147,7 @@ details.nw .ti{font-size:13px;font-weight:550;line-height:1.35}details.nw .tm{fo
    <button class="ib" id="rf" aria-label="Recargar todo el análisis" title="Recargar todo el análisis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button></div>
 </header>
 <div class="tape" id="tape" aria-label="Monedas"></div>
+<div class="warnbar" id="warn" role="status" hidden></div>
 <main id="app"><div class="empty">Conectando con el motor…</div></main>
 <nav class="tabbar" id="tabbar" aria-label="Secciones"><button data-v="ALL"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg>Mercado</button><button data-v="TRADE"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-6 4 3 6-8M14 6h4v4"/></svg>Estudio</button><button data-v="NEWS"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h11v14H6a1 1 0 0 1-1-1zM16 9h3v9a1 1 0 0 1-1 1M8 9h5M8 13h5"/></svg>Noticias</button><button data-v="DATA"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9M12 7v5l3 2M17 3l4 0 0 4"/></svg>Datos</button></nav>
 <div class="menu" id="menu" hidden></div><div class="nots" id="nots" aria-live="polite"></div>
@@ -174,7 +177,17 @@ const kv=(k,v)=>`<div class="kv"><span>${k}</span><b>${v}</b></div>`,bTag=(b,txt
 const best=a=>(a||[]).reduce((m,g)=>!m||g.s>m.s?g:m,null),dots=g=>{const l=g.s>=5?3:g.s>=3?2:1;return'●'.repeat(l)+'○'.repeat(3-l)};
 const DIRC={alcista:'up',bajista:'dn',lateral:'',neutral:''},ARW={alcista:'▲',bajista:'▼',lateral:'◆',neutral:'◆'};
 const card=(cl,title,right,body,id)=>`<section class="card ${cl}"${id?` id="${id}"`:''}><div class="ch"><h2>${title}</h2>${right||''}</div>${body}</section>`;
-const memoH=el=>{if(!el||el._m)return;el._m=1;const D=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');Object.defineProperty(el,'innerHTML',{get(){return D.get.call(this)},set(h){if(this._h!==h){this._h=h;D.set.call(this,h)}}})};
+/* Repintado en el sitio: en vez de reconstruir el contenido (se pierde el desplazamiento horizontal, el toque en curso, los
+   desplegables abiertos y las animaciones), se compara con lo que ya hay y solo se tocan los textos y atributos que cambian. */
+function morph(a,b){if(a.nodeType!==b.nodeType||a.nodeName!==b.nodeName)return false;
+  if(a.nodeType!==1){if(a.nodeValue!==b.nodeValue)a.nodeValue=b.nodeValue;return true}
+  const det=a.nodeName==='DETAILS';
+  for(const at of [...a.attributes])if(!b.hasAttribute(at.name)&&!(det&&at.name==='open'))a.removeAttribute(at.name);
+  for(const at of b.attributes){if(det&&at.name==='open')continue;if(a.getAttribute(at.name)!==at.value)a.setAttribute(at.name,at.value)}
+  if(a.nodeName==='INPUT')return true;morphKids(a,b);return true}
+function morphKids(a,b){const y=b.childNodes;for(let i=0;i<y.length;i++){const o=a.childNodes[i];if(!o)a.appendChild(y[i].cloneNode(true));else if(!morph(o,y[i]))a.replaceChild(y[i].cloneNode(true),o)}while(a.childNodes.length>y.length)a.removeChild(a.lastChild)}
+const morphInto=(el,h)=>{const t=document.createElement('template');t.innerHTML=h;morphKids(el,t.content)};
+const memoH=el=>{if(!el||el._m)return;el._m=1;const D=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');Object.defineProperty(el,'innerHTML',{get(){return D.get.call(this)},set(h){if(this._h!==h){this._h=h;if(this.firstChild&&h)morphInto(this,h);else D.set.call(this,h)}}})};
 /* ---------- estado ---------- */
 let DATA={},CTX={},MK={},ORDER=Object.keys(COINS),VAL,NEWS=[],PULSO={},RNEWS={},CAL=[],DERIV={},SENT=null,SALUD=null,BAR='',BUSY=false,ERR=null,SV=-1,LASTT=0;
 let VIEW='ALL',SEL='BTC',TF='4h',TAB='tec',NF='all',ES=null,PRV={},ALERTS=false,HZ='S',OPENN=new Set();
@@ -192,7 +205,7 @@ function apply(st){SV=st.v;const D={};for(const s in st.data){const o=hydrate(st
   renderAll(true);alerts()}
 let polling=false;async function poll(){if(polling)return;polling=true;try{
   if(window.ESTATICO){const r=await fetch('datos/estado.json',{cache:'no-cache'});if(!r.ok)throw new Error(r.status);const st=await r.json();  /* no-cache: GitHub devuelve 304 (unos bytes) si no hay análisis nuevo */if(st.nube&&st.nube.generado!==SV){NUBE=st.nube;st.v=st.nube.generado;CC.clear();apply(st);if(VIEW==='TRADE'){await moneda(SEL);CHK='';loadChart()}}}
-  else{const r=await fetch('/api/state?v='+SV,{cache:'no-store'});if(r.status===200)apply(await r.json())}}catch(e){}polling=false}
+  else{const r=await fetch('/api/state?v='+SV,{cache:'no-store'});if(r.status===200)apply(await r.json())}}catch(e){if(!Object.keys(DATA).length){const f=$('app').firstElementChild;if(f&&f.classList.contains('empty'))f.textContent='No se pudo cargar el análisis. Reintentando…';setTimeout(poll,5000)}}polling=false}
 setInterval(poll,window.ESTATICO?60000:5000);
 function stream(){if(window.ESTATICO)return krakenWS();if(ES)ES.close();ES=new EventSource('/api/stream'+(VIEW==='TRADE'?'?sel='+SEL+'&tf='+TF:''));ES.onmessage=e=>onTick(JSON.parse(e.data));ES.onerror=()=>{LASTT=0;renderStatus()}}
 function onTick(t){LASTT=Date.now();if(t.salud)SALUD=t.salud;BAR=t.bar;BUSY=t.busy;
@@ -204,14 +217,19 @@ function renderAll(slow){renderTape();renderStatus();
   if(VIEW==='ALL')viewMercado(slow);else if(VIEW==='TRADE')viewEstudio(slow);else if(VIEW==='NEWS'){if(slow||!$('nwl'))viewNews()}else if(VIEW==='DATA')viewData()}
 function renderStatus(){const w=SALUD&&SALUD.ws,live=w&&w.conectado&&Date.now()-LASTT<5000;
   $('stt').innerHTML=window.ESTATICO?`<i class="dot ${WSST.conectado?'on':'bad'}"></i><span class="tx">${BUSY?'Actualizando…':WSST.conectado?'Precios en vivo':'Conectando…'}${NUBE&&!BUSY?' · análisis '+ago(NUBE.generado):''}</span><span>${hm(Date.now())}</span>`:`<i class="dot ${live?'on':LASTT?'bad':''}"></i><span class="tx">${BUSY?esc(BAR):live?`En vivo · ${w.latencia_ms!=null?w.latencia_ms+' ms':''}`:LASTT?'Reconectando…':'Conectando…'}</span><span>${hm(Date.now())}</span>`;
-  $('rf').disabled=BUSY;$('rf').classList.toggle('spin',!!BUSY)}
+  $('rf').disabled=BUSY;$('rf').classList.toggle('spin',!!BUSY);
+  if(window.ESTATICO){const w=[],edad=NUBE?(Date.now()-NUBE.generado)/6e4:0;if(edad>90)w.push(`El análisis tiene ${edad<180?Math.round(edad)+' min':Math.round(edad/60)+' h'}: se renueva solo, pero las señales pueden haber cambiado. Los precios siguen en vivo.`);
+    if(!WSST.conectado&&Date.now()-T0>15000)w.push('Sin conexión con Kraken: los precios que ves pueden no ser los actuales.');
+    const b=$('warn');b.textContent=w.join(' ');b.hidden=!w.length}}
 memoH($('tape'));memoH($('stt'));function renderTape(){const tp=$('tape'),sx=tp.scrollLeft;tp.innerHTML=coins().map(s=>{const o=DATA[s],p=o&&o.price,fl=p&&PRV[s]&&p!==PRV[s]?(p>PRV[s]?'fu':'fd'):'';return`<button class="tp" data-s="${s}" aria-pressed="${VIEW==='TRADE'&&SEL===s}">${ico(s,20)}<b>${lab(s)}</b><span class="${fl}">${p?fp(p):'…'}</span><span class="${cls(o&&o.chg)}">${o&&o.chg!=null?pc(o.chg,1):''}</span></button>`}).join('');tp.scrollLeft=sx}
 $('tape').onclick=e=>{const b=e.target.closest('[data-s]');if(b)go('TRADE',b.dataset.s)};
-function go(v,s){const prevSel=SEL;if(s)SEL=s;const ch=v!==VIEW||(v==='TRADE'&&s&&s!==prevSel);VIEW=v;history.replaceState(null,'','#'+v+(v==='TRADE'?'/'+SEL:''));document.querySelectorAll('#tabs button,#tabbar button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===VIEW));document.body.dataset.v=VIEW;
+function go(v,s,noPush){const prevSel=SEL;if(s)SEL=s;const ch=v!==VIEW||(v==='TRADE'&&s&&s!==prevSel);VIEW=v;{const h='#'+v+(v==='TRADE'?'/'+SEL:'');if(location.hash!==h){if(ch&&!noPush)history.pushState(null,'',h);else history.replaceState(null,'',h)}}document.querySelectorAll('#tabs button,#tabbar button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===VIEW));document.body.dataset.v=VIEW;
   if(ch){if(CHART){try{CHART.remove()}catch(e){}CHART=null;PJ=PU=PD=null;PK='';PJK='';PSIG='';LASTBAR=null;LASTD=null;LASTX=null;FW=FH=0;USERMOVED=false}CASEPIN=null;CASEHOV=null;CHK='';$('app').innerHTML='';stream();window.scrollTo({top:0})}renderAll(true)}
+addEventListener('popstate',()=>{const h=location.hash.slice(1).split('/');if(['ALL','TRADE','NEWS','DATA'].includes(h[0]))go(h[0],h[0]==='TRADE'?(COINS[h[1]]?h[1]:SEL):null,true)});
 $('tabs').onclick=$('tabbar').onclick=e=>{const b=e.target.closest('button');if(b)go(b.dataset.v,b.dataset.v==='TRADE'?SEL:null)};
 const liveB=o=>o&&o.vivo?{s:o.vivo.bS,l:o.vivo.bL,ts:o.vivo.ts,tl:o.vivo.tl}:{s:o&&o.bS,l:o&&o.bL,ts:o&&o.ts,tl:o&&o.tl};
-const prevTag=p=>p?`<span class="${DIRC[p.dir]}" style="font-weight:600">${ARW[p.dir]} ${p.dir[0].toUpperCase()+p.dir.slice(1)}</span> <span class="dim">· ${p.conf}</span>`:'<span class="dim">—</span>';
+const ACU={alta:'alto',media:'medio',baja:'bajo'};
+const prevTag=p=>p?`<span class="${DIRC[p.dir]}" style="font-weight:600">${ARW[p.dir]} ${p.dir[0].toUpperCase()+p.dir.slice(1)}</span> <span class="dim">· acuerdo ${ACU[p.conf]||p.conf}</span>`:'<span class="dim">—</span>';
 /* ---------- MERCADO ---------- */
 function gauge(v){const R=56,cx=75,cy=68,pt=(a,r)=>[cx+r*Math.cos(Math.PI*(1-a/100)),cy-r*Math.sin(Math.PI*(1-a/100))],cols=['#f04e5e','#f2a93b','#6b7280','#7fd6ac','#22c58b'];
   const sg=cols.map((c,i)=>{const a=pt(i*20+1.8,R),b=pt(i*20+18.2,R);return`<path d="M${a[0].toFixed(1)} ${a[1].toFixed(1)}A${R} ${R} 0 0 1 ${b[0].toFixed(1)} ${b[1].toFixed(1)}" stroke="${c}" stroke-width="8" stroke-linecap="round" fill="none"/>`}).join(''),n=pt(clamp(v,0,100),R-15);
@@ -273,7 +291,7 @@ function viewMercado(slow){if(!$('mk')){$('app').innerHTML=`<div class="grid" id
   <div class="sec">Posicionamiento y fiabilidad<small>derivados e histórico del sistema</small></div>
   ${card('c7','Derivados','<span class="t" id="mk-dsrc"></span>','<div id="mk-der" style="overflow-x:auto;padding-top:6px"></div>')}
   ${card('c5','¿Funciona el sistema?','<span class="t">Histórico sin información futura</span>','<div id="mk-val"></div>')}
-  </div><p class="foot">Kraken · Coinbase · CoinGecko · Binance / Bybit · Kraken Futures · alternative.me · ForexFactory · 14 medios. No es asesoramiento financiero.${window.ESTATICO?' · versión publicada: análisis nuevo cada 20-30 min, precios en vivo':' · <a href="/clasica">vista clásica</a>'}</p>`;
+  </div><p class="foot">Kraken · Coinbase · CoinGecko · Binance / Bybit · Kraken Futures · alternative.me · ForexFactory · 14 medios. No es asesoramiento financiero.${window.ESTATICO?' · versión publicada: análisis nuevo cada 20-40 min, precios en vivo':' · <a href="/clasica">vista clásica</a>'}</p>`;
     $('mk').onclick=e=>{const r=e.target.closest('[data-s]');if(r)return go('TRADE',r.dataset.s);const g=e.target.closest('[data-go]');if(g)go(g.dataset.go)};['mk-sig','mk-list','mk-pan','mk-sent','mk-news','mk-cal','mk-der','mk-val','k1','k2','k3','k4'].forEach(id=>memoH($(id)));slow=true}
   $('mk-sig').innerHTML=coins().map(sigRow).join('');$('mk-list').innerHTML=coins().map(mRow).join('');
   const P=panorama();if(slow||!$('mk-pan').dataset.t||Date.now()-$('mk-pan').dataset.t>8000){$('mk-pan').dataset.t=Date.now();$('mk-t').textContent=BAR;
@@ -317,7 +335,7 @@ function viewEstudio(slow){const s=SEL,o=DATA[s];if(!$('es')){$('app').innerHTML
 function prevCard(o){const p=o.prev,el=$('es-prev');if(!p){el.innerHTML='<div class="empty">Calculando previsión…</div>';return}
   const c=DIRC[p.dir],ob=p.objetivo,inv=p.invalidacion,T=o.bt&&o.bt.T,R=T&&T.fill?T.r/T.fill:null;
   const esc1=p.dir==='lateral'?(ob&&ob.rango?`Lo más probable es que se mueva en rango entre <b>${fp(ob.rango[0])}</b> (${pc(ob.pct[0],1)}) y <b>${fp(ob.rango[1])}</b> (${pc(ob.pct[1],1)}).`:'Sin dirección clara.'):`Escenario más probable: ${p.dir==='bajista'?'caída':'subida'} hacia <b>${ob?fp(ob.precio)+' €':'—'}</b>${ob?` (${pc(ob.pct,1)}, ${ob.nivel})`:''}.${inv?` Pierde validez con ${inv.texto} (<b>${fp(inv.precio)}</b>, ${pc(inv.pct,1)}).`:''}`;
-  el.innerHTML=`<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px"><div class="fdir ${c}">${ARW[p.dir]} ${p.dir[0].toUpperCase()+p.dir.slice(1)}</div><span class="tag ${p.conf==='alta'?'t-pos':p.conf==='media'?'t-wa':'t-ND'}">Confianza ${p.conf}</span></div>
+  el.innerHTML=`<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px"><div class="fdir ${c}">${ARW[p.dir]} ${p.dir[0].toUpperCase()+p.dir.slice(1)}</div><span class="tag ${p.conf==='alta'?'t-pos':p.conf==='media'?'t-wa':'t-ND'}" title="Cuánto coinciden los 7 factores entre sí. No es un acierto medido.">Acuerdo ${ACU[p.conf]||p.conf}</span></div>
   <div class="meter"><i style="left:${clamp((p.score+100)/2,0,100)}%"></i></div><div class="ml"><span>bajista</span><span>${p.score>0?'+':''}${f0(p.score)}</span><span>alcista</span></div>
   <div class="box">${esc1}</div>
   <div style="margin-top:12px">${p.factores.map(f=>`<div class="fx"><span>${f.nombre}</span><div class="dv"><i style="left:${f.valor<0?50+f.valor*50:50}%;width:${Math.abs(f.valor)*50}%;background:${f.valor>0?'var(--up)':'var(--dn)'}"></i></div><b class="${f.aporte>1?'up':f.aporte<-1?'dn':'dim'}">${f.aporte>0?'+':''}${f0(f.aporte)}</b></div>`).join('')}</div>
@@ -331,22 +349,27 @@ document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.datas
 /* casos parecidos: al pasar el cursor (o tocar) un caso en la lista o en el gráfico se resalta su camino; un clic lo fija */
 document.addEventListener('mouseover',e=>{const c=e.target.closest&&e.target.closest('[data-c]'),v=c?+c.dataset.c:null;if(v!==CASEHOV){CASEHOV=v;projArrow()}});
 document.addEventListener('click',e=>{const c=e.target.closest&&e.target.closest('[data-c]');if(c){const v=+c.dataset.c;CASEPIN=CASEPIN===v?null:v;projArrow()}});
-function projCard(o){let el=$('es-proj');if(!el)return;const pr=o.proy&&o.proy[TF];if(!pr){el.innerHTML='<div class="empty">Calibrando la proyección con el histórico…</div>';return}
+function projCard(o){let el=$('es-proj');if(!el)return;const pr=o.proy&&o.proy[TF];if(!pr){const sin=window.ESTATICO&&MON[o.sym]&&MON[o.sym].proy&&!MON[o.sym].proy[TF];el.innerHTML=sin?'<div class="empty">Sin histórico suficiente para proyectar esta temporalidad en este activo.</div>':'<div class="empty">Calibrando la proyección con el histórico…</div>';return}
   if(!$('pj-top')){el.innerHTML='<div id="pj-top"></div><div id="pj-det"></div>';memoH($('pj-top'));memoH($('pj-det'))}
   const dt=$('pj-det');el=$('pj-top');
   const T=projTxt(pr),v=pr.val,p=o.price,pu=Math.round(pr.p_up*100),r=x=>pc((x/p-1)*100,1);
-  const fia=!v?{c:'t-ND',t:'Histórico corto: se muestra el rango de siempre, sin dirección.'}:v.destreza>0?{c:'t-pos',t:`Acertó la dirección el ${v.acierto!=null?Math.round(v.acierto*100)+' %':'—'} de las veces en datos que no había visto.`}:{c:'t-wa',t:'En el histórico no ha demostrado acertar la dirección: tómalo como rango probable, no como señal.'};
+  const ac=v&&v.acierto!=null?Math.round(v.acierto*100):null;
+  const fia=!v?{c:'t-ND',t:'Histórico corto: se muestra el rango de siempre, sin dirección.'}
+    :(v.destreza>.02&&ac!=null&&ac>=55&&v.llamadas>=8)?{c:'t-pos',t:`En datos que no había visto acertó la dirección el ${ac} % de las ${v.llamadas} veces que la marcó.`}
+    :(v.destreza>0&&(ac==null||ac>=50))?{c:'t-ND',t:`El rango mejora algo la estimación de siempre, pero la dirección no está demostrada${ac!=null?' (acierto '+ac+' %)':''}: tómalo como rango probable, no como señal.`}
+    :{c:'t-wa',t:`En datos que no había visto, la dirección acertó el ${ac!=null?ac+' %':'—'} de las veces, menos que lanzar una moneda: tómalo como rango probable, no como señal.`};
+  const sube=Math.round((pr.p_up_ana!=null?pr.p_up_ana:pr.p_up)*pr.k);
   const ana=(pr.analogos||[]).slice(0,4).map((a,i)=>`<span class="pill cp" data-c="${i}" style="--c:${a.fin>=0?'var(--up)':'var(--dn)'}"><i>${i+1}</i>${fdate(a.t)} <b class="${a.fin>=0?'up':'dn'}">${pc(a.fin,1)}</b></span>`).join(''),ras=(pr.rasgos||[]).slice(0,3).map(x=>`<span class="pill">${esc(x.rasgo)}</span>`).join('');
   el.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div class="fdir ${T[2]}">${T[0]} ${T[1]}</div><span class="tag t-ac">próximas ${hz(pr.horas)}</span></div>
   <div class="press" style="height:24px;margin:14px 0 4px"><i style="width:${pu}%;background:var(--upb);color:var(--up)">▲ ${pu} %</i><i style="flex:1;justify-content:flex-end;background:var(--dnb);color:var(--dn)">${100-pu} % ▼</i></div>
-  <div class="tiny" style="margin-bottom:14px">Casos parecidos que subieron frente a los que bajaron</div>
-  <div class="rng"><div class="lbl">Rango más probable</div><div class="rv">${fp(pr.b50[0])} <span class="dim">–</span> ${fp(pr.b50[1])} €</div><div class="tiny">La mitad de los casos parecidos acabó aquí · ${r(pr.b50[0])} / ${r(pr.b50[1])}</div></div>
+  <div class="tiny" style="margin-bottom:14px">${pr.lam<.1?'Sin ventaja demostrada: es casi cara o cruz, ajustada por noticias y mercado':'Probabilidad estimada con los casos parecidos, las noticias y el mercado'}</div>
+  <div class="rng"><div class="lbl">Rango más probable</div><div class="rv">${fp(pr.b50[0])} <span class="dim">–</span> ${fp(pr.b50[1])} €</div><div class="tiny">${pr.lam<.1?'Históricamente, la mitad de las veces el precio acabó aquí':'La mitad de los casos parecidos acabó aquí'} · ${r(pr.b50[0])} / ${r(pr.b50[1])}</div></div>
   ${kv('Punto central',`<span class="${T[2]}">${fp(pr.centro)} € (${r(pr.centro)})</span>`)}${kv('Rango amplio (80 %)',`<span class="dim">${fp(pr.b80[0])} – ${fp(pr.b80[1])}</span>`)}${pr.nivel?kv('Puede frenarla',`<span class="wa">${pr.nivel.tipo} ${fp(pr.nivel.precio)}</span>`):''}
   <div class="tag ${fia.c}" style="display:block;white-space:normal;line-height:1.45;padding:8px 10px;margin-top:12px;font-weight:500">${fia.t}</div>
   `;
   dt.innerHTML=det('pj','Casos y cálculo',`${ana?`<div class="lbl" style="margin:8px 0 5px">Casos parecidos y qué pasó después</div><div>${ana}</div><div class="tiny" style="margin:4px 0 0">Pasa el cursor o toca un caso para verlo en el gráfico; un clic lo deja fijo. «Casos» en el gráfico los muestra todos.</div>`:''}
   <div class="tiny" style="margin:10px 0 8px;line-height:1.5">Busca los ${pr.k} momentos del histórico de ${lab(o.sym)} en ${TF} más parecidos al actual (de ${pr.n}) y mira qué hizo el precio después, reescalado a la volatilidad de hoy. Se inclina un poco por noticias, derivados, flujo y sentimiento.</div>
-  ${kv('Volatilidad del horizonte',`±${pr.sd_pct.toFixed(1).replace('.',',')} %`)}${v?kv('Cobertura real (50 % · 80 %)',`${Math.round(v.cob50*100)} % · ${Math.round(v.cob80*100)} %`):''}${kv('Inclinación por noticias y mercado','<span id="pj-inc"></span>')}
+  ${kv(`De los ${pr.k} casos parecidos`,`${sube} subieron · ${pr.k-sube} bajaron`)}${kv('Volatilidad del horizonte',`±${pr.sd_pct.toFixed(1).replace('.',',')} %`)}${v?kv('Cobertura real (50 % · 80 %)',`${Math.round(v.cob50*100)} % · ${Math.round(v.cob80*100)} %`):''}${kv('Inclinación por noticias y mercado','<span id="pj-inc"></span>')}
   ${ras?`<div class="lbl" style="margin:10px 0 4px">Rasgos que más pesan</div>${ras}`:''}`);const ic=$('pj-inc');if(ic)ic.textContent=(pr.inclinacion>0?'+':'')+(pr.inclinacion*100).toFixed(0);syncDet();markCases()}
 /* el resaltado de casos se aplica sin reconstruir nada (así los clics y el cursor no se interrumpen) */
 function markCases(){const hi=caseHi();document.querySelectorAll('.cp').forEach(e=>e.classList.toggle('on',+e.dataset.c===hi))}
@@ -524,7 +547,8 @@ function viewNews(){const F=[['all','Todas'],['alto','Impacto alto'],['cripto','
 /* ---------- DATOS ---------- */
 /* Datos se repinta cada segundo: se conserva el desplazamiento horizontal de cada tabla */
 function viewData(){const sc=[...document.querySelectorAll('#app .tw')].map(e=>e.scrollLeft);viewData0();document.querySelectorAll('#app .tw').forEach((e,i)=>{if(sc[i])e.scrollLeft=sc[i]})}
-function viewData0(){const S=SALUD;if(!S){$('app').innerHTML='<div class="empty">Esperando estado…</div>';return}const w=S.ws||{};
+const APP={set innerHTML(h){morphInto($('app'),h)}};
+function viewData0(){const S=SALUD;if(!S){APP.innerHTML='<div class="empty">Esperando estado…</div>';return}const w=S.ws||{};
   const rows=coins().map(s=>{const o=DATA[s]||{},si=[['Kraken',o.price],['Coinbase',o.cbp],['CoinGecko',o.cgp]].filter(x=>x[1]>0),v=si.map(x=>x[1]).sort((a,b)=>a-b),md=v[Math.floor(v.length/2)],dev=md?Math.max(...si.map(x=>Math.abs(x[1]/md-1)))*100:null;
     return`<tr><td>${ico(s,18)} <b style="font-family:var(--sans);margin-left:6px">${lab(s)}</b></td><td>${fp(o.price)}</td><td>${fp(o.cbp)}</td><td>${fp(o.cgp)}</td><td class="${dev==null?'':dev<=1.5?'up':'wa'}">${dev==null?'—':dev.toFixed(2).replace('.',',')+' %'}</td>${(()=>{const lt=o.tkv&&o.tkv.t,sg=lt?Math.round((Date.now()-lt)/1000):null;return`<td class="${sg==null?'dim':sg>900?'wa':'up'}" title="${sg!=null&&sg>900?'Sin operaciones recientes en Kraken: el precio es el último negociado':''}">${sg==null?'—':sg<60?'hace '+sg+' s':'hace '+ago(lt)}</td>`})()}<td class="${o.errs&&o.errs.length?'wa':'up'}">${o.res?Object.keys(o.res).length+'/4':'—'}</td><td>${o.bt===undefined?'…':o.bt?o.bt.tot+' días':'insuficiente'}</td></tr>`}).join('');
   const fd=Object.entries(S.noticias||{}).map(([k,v])=>`<tr><td style="font-family:var(--sans)">${esc(k)}</td><td class="${v.ok?'up':'dn'}">${v.ok?'OK':'Fallo'}</td><td>${v.n}</td><td>${v.t?ago(v.t):'—'}</td></tr>`).join('');
@@ -533,8 +557,8 @@ function viewData0(){const S=SALUD;if(!S){$('app').innerHTML='<div class="empty"
   const datosTablas=()=>`${card('c12','Precio contrastado en 3 fuentes','<span class="t">aceptable ≤ 1,5 %</span>',`<div class="tw" style="overflow-x:auto;padding-top:6px"><table><thead><tr><th>Activo</th><th>Kraken (vivo)</th><th>Coinbase</th><th>CoinGecko</th><th>Desviación</th><th>Última operación</th><th>Gráficos</th><th>Histórico</th></tr></thead><tbody>${rows}</tbody></table></div>`)}
   ${card('c12','Histórico profundo para la flecha','<span class="t">Binance / Coinbase empalmado con Kraken · velas cerradas</span>',`<div class="tw" style="overflow-x:auto;padding-top:6px"><table><thead><tr><th>Activo</th><th>1 min</th><th>1 h</th><th>4 h</th><th>1 día</th><th>Fuente</th></tr></thead><tbody>${hr}</tbody></table></div>`)}
   ${card('c12','Fuentes de noticias','',`<div class="tw" style="overflow-x:auto;padding-top:6px"><table><thead><tr><th>Fuente</th><th>Estado</th><th>Noticias</th><th>Leída</th></tr></thead><tbody>${fd}</tbody></table></div>`)}`;
-  if(window.ESTATICO){const N=NUBE||{},H=N.salud||{};$('app').innerHTML=`<div class="grid">${tile('Precios en vivo (Kraken)',w.conectado?'Conectado':'Desconectado',w.conectado?'up':'dn')}${tile('Latencia · mensajes',`${w.latencia_ms??'—'} ms · ${f1(w.msg_s)}/s`)}${tile('Análisis en la nube',N.generado?'hace '+ago(N.generado):'—',N.generado&&Date.now()-N.generado<45*6e4?'up':'wa')}${tile('Duración del análisis',N.duracion_s?f0(N.duracion_s)+' s':'—')}${tile('Derivados',`${H.deriv_ok??'—'}/8 activos`)}${tile('Agenda macro',H.cal_ok?'OK':'No disponible',H.cal_ok?'up':'wa')}${tile('Noticias',`${Object.values(H.noticias||{}).filter(x=>x.ok).length}/${Object.keys(H.noticias||{}).length} fuentes`)}${tile('Actualización','cada 20-30 min')}`+datosTablas();return}
-  $('app').innerHTML=`<div class="grid">${tile('WebSocket de Kraken',w.conectado?'Conectado':'Desconectado',w.conectado?'up':'dn')}${tile('Latencia · mensajes',`${w.latencia_ms??'—'} ms · ${f0(w.msg_s)}/s`)}${tile('Libros verificados (CRC32)',`${w.checksum_ok??0} · ${w.checksum_mal??0} fallos`,w.checksum_mal?'wa':'up')}${tile('Análisis en vivo',S.rt_ms!=null?`${f0(S.rt_ms)} ms / s`:'—')}
+  if(window.ESTATICO){const N=NUBE||{},H=N.salud||{};APP.innerHTML=`<div class="grid">${tile('Precios en vivo (Kraken)',w.conectado?'Conectado':'Desconectado',w.conectado?'up':'dn')}${tile('Latencia · mensajes',`${w.latencia_ms??'—'} ms · ${f1(w.msg_s)}/s`)}${tile('Análisis en la nube',N.generado?'hace '+ago(N.generado):'—',N.generado&&Date.now()-N.generado<45*6e4?'up':'wa')}${tile('Duración del análisis',N.duracion_s?f0(N.duracion_s)+' s':'—')}${tile('Derivados',`${H.deriv_ok??'—'}/8 activos`)}${tile('Agenda macro',H.cal_ok?'OK':'No disponible',H.cal_ok?'up':'wa')}${tile('Noticias',`${Object.values(H.noticias||{}).filter(x=>x.ok).length}/${Object.keys(H.noticias||{}).length} fuentes`)}${tile('Actualización','cada 20-40 min')}`+datosTablas();return}
+  APP.innerHTML=`<div class="grid">${tile('WebSocket de Kraken',w.conectado?'Conectado':'Desconectado',w.conectado?'up':'dn')}${tile('Latencia · mensajes',`${w.latencia_ms??'—'} ms · ${f0(w.msg_s)}/s`)}${tile('Libros verificados (CRC32)',`${w.checksum_ok??0} · ${w.checksum_mal??0} fallos`,w.checksum_mal?'wa':'up')}${tile('Análisis en vivo',S.rt_ms!=null?`${f0(S.rt_ms)} ms / s`:'—')}
   ${tile('Motor completo',S.last?'hace '+ago(S.last):'cargando')}${tile('Derivados',`${S.deriv_ok}/8 activos`)}${tile('Agenda macro',S.cal_ok?'OK':S.cal_ok===false?'No disponible':'—',S.cal_ok?'up':'wa')}${tile('Servidor activo',Math.round(S.uptime/60)+' min')}
   ${datosTablas()}</div>`}
 /* ---------- avisos: precisos (al segundo) y con aspecto de iPhone ---------- */
@@ -579,22 +603,22 @@ $('rf').onclick=async()=>{if(BUSY)return;if(!window.ESTATICO){fetch('/api/refres
   BUSY=true;renderStatus();const antes=SV;try{const r=await fetch('datos/estado.json?r='+Date.now(),{cache:'no-store'});if(!r.ok)throw new Error(r.status);const st=await r.json();
     if(st.nube&&st.nube.generado!==SV){NUBE=st.nube;st.v=st.nube.generado;CC.clear();apply(st);if(VIEW==='TRADE'){await moneda(SEL);CHK='';await loadChart()}}
     if(!KW||KW.readyState>1)krakenWS();else selSub();
-    const nuevo=SV!==antes,g=NUBE?NUBE.generado:0,prox=g+25*6e4;
-    bubble(nuevo?'Análisis nuevo':'Ya tienes lo último',nuevo?`Publicado hace ${ago(g)}. Los precios y el libro siguen en vivo.`:`El análisis es de hace ${ago(g)}; el siguiente se publica hacia las ${hm(Math.max(prox,Date.now()+6e4))}. Los precios ya van en vivo desde Kraken.`,null)}
+    const nuevo=SV!==antes,g=NUBE?NUBE.generado:0;
+    bubble(nuevo?'Análisis nuevo':'Ya tienes lo último',nuevo?`Publicado hace ${ago(g)}. Los precios y el libro siguen en vivo.`:`El análisis es de hace ${ago(g)}; el siguiente suele llegar entre 20 y 40 min después de cada publicación. Los precios ya van en vivo desde Kraken.`,null)}
   catch(e){bubble('Sin conexión','No se pudo descargar el análisis. Comprueba la conexión e inténtalo de nuevo.',null)}
   BUSY=false;renderStatus()};
 setInterval(renderStatus,1000);
 /* ---------- modo estático (versión publicada): el análisis llega en archivos que GitHub regenera cada 20 min
    y el navegador se conecta directamente a Kraken para precios, velas, libro y operaciones en vivo ---------- */
 const WSN={BTC:'BTC/EUR',ETH:'ETH/EUR',XRP:'XRP/EUR',SOL:'SOL/EUR',HYPE:'HYPE/EUR',SUI:'SUI/EUR',ZEC:'ZEC/EUR',PAXG:'PAXG/EUR'},SYMWS=Object.fromEntries(Object.entries(WSN).map(([a,b])=>[b,a])),IVL={'1m':1,'1h':60,'4h':240,'1d':1440,'1w':10080};
-let NUBE=null,KW=null,KSEL=null,KRETRY=0,TR=[],BK={a:new Map(),b:new Map()},V1=new Map();const MON={},WSST={conectado:false,n:[],lat:[]};
+const T0=Date.now();let WSOPEN=0,NUBE=null,KW=null,KSEL=null,KRETRY=0,TR=[],BK={a:new Map(),b:new Map()},V1=new Map();const MON={},WSST={conectado:false,n:[],lat:[]};
 const isoMs=t=>Date.parse(String(t).replace(/\.(\d{3})\d*Z$/,'.$1Z'));
 const MONP={};
 function moneda(s){if(MON[s]&&MON[s].gen===SV)return Promise.resolve(MON[s]);const k=s+SV;if(MONP[k])return MONP[k];  /* una sola descarga aunque la pidan el gráfico y la proyección a la vez */
   return MONP[k]=fetch(`datos/moneda/${s}.json?${SV}`,{cache:'no-store'}).then(r=>r.json()).then(m=>{m.gen=SV;m.p0=DATA[s]&&DATA[s]._p0;MON[s]=m;V1=new Map((m.velas['1m']&&m.velas['1m'].rows||[]).map(x=>[x[0],x[4]]));delete MONP[k];return m}).catch(e=>{delete MONP[k];throw e})}
 function krakenWS(){if(KW&&KW.readyState<=1){selSub();return}
   try{KW=new WebSocket('wss://ws.kraken.com/v2')}catch(e){return}
-  KW.onopen=()=>{WSST.conectado=true;KRETRY=0;KSEL=null;KW.send(JSON.stringify({method:'subscribe',params:{channel:'ticker',symbol:Object.values(WSN)}}));selSub()};
+  KW.onopen=()=>{WSOPEN=Date.now();WSST.conectado=true;KRETRY=0;KSEL=null;KW.send(JSON.stringify({method:'subscribe',params:{channel:'ticker',symbol:Object.values(WSN)}}));selSub()};
   KW.onclose=()=>{WSST.conectado=false;KW=null;setTimeout(krakenWS,Math.min(30000,2000*2**KRETRY++))};KW.onerror=()=>{};
   KW.onmessage=e=>{try{kmsg(JSON.parse(e.data))}catch(x){}}}
 function ksend(method,ch,s,ex){KW.send(JSON.stringify({method,params:Object.assign({channel:ch,symbol:[WSN[s]]},ex||{})}))}
@@ -602,11 +626,11 @@ function selSub(){if(!KW||KW.readyState!==1)return;const want=VIEW==='TRADE'?SEL
   if(KSEL){const [s,tf]=KSEL.split('|');ksend('unsubscribe','ohlc',s,{interval:IVL[tf]});if(tf!=='1m')ksend('unsubscribe','ohlc',s,{interval:1});ksend('unsubscribe','book',s,{depth:25});ksend('unsubscribe','trade',s)}
   KSEL=want;TR=[];BK={a:new Map(),b:new Map()};if(!want)return;
   ksend('subscribe','ohlc',SEL,{interval:IVL[TF]});if(TF!=='1m')ksend('subscribe','ohlc',SEL,{interval:1});ksend('subscribe','book',SEL,{depth:25});ksend('subscribe','trade',SEL,{snapshot:true})}
-function kmsg(m){if(!m.channel||!m.data)return;const now=Date.now();WSST.n.push(now);
+function kmsg(m){if(!m.channel)return;const now=Date.now();WSST.n.push(now);if(!m.data)return;
   for(const d of m.data){const s=SYMWS[d.symbol];if(!s)continue;const o=DATA[s];
     if(m.channel==='ticker'){if(o&&d.last){PRV[s]=o.price;o.price=d.last;o.chg=d.change_pct;o.tkv={bid:d.bid,ask:d.ask,high:d.high,low:d.low,volume:d.volume,vwap:d.vwap,change_pct:d.change_pct,t:now}}continue}
     if(s!==SEL)continue;
-    if(m.channel==='ohlc'){const c={t:isoMs(d.interval_begin),o:d.open,h:d.high,l:d.low,c:d.close,v:d.volume},tf=Object.keys(IVL).find(k=>IVL[k]===d.interval);if(d.interval===1)V1.set(c.t,c.c);if(tf){LIVEC[s+'|'+tf]=c;chartLive({[tf]:c})}}
+    if(m.channel==='ohlc'){const c={t:isoMs(d.interval_begin),o:d.open,h:d.high,l:d.low,c:d.close,v:d.volume},tf=Object.keys(IVL).find(k=>IVL[k]===d.interval);if(d.interval===1)V1.set(c.t,c.c);if(tf){if(!LIVEC[s+'|'+tf]||c.t>=LIVEC[s+'|'+tf].t)LIVEC[s+'|'+tf]=c;chartLive({[tf]:c})}}
     else if(m.channel==='trade'){const ts=isoMs(d.timestamp);TR.push({p:d.price,q:d.qty,side:d.side,t:ts});if(m.type==='update')WSST.lat.push(now-ts)}
     else if(m.channel==='book'){if(m.type==='snapshot')BK={a:new Map(),b:new Map()};for(const [k,mp] of [['asks',BK.a],['bids',BK.b]]){for(const lv of d[k]||[])lv.qty===0?mp.delete(lv.price):mp.set(lv.price,lv.qty);if(mp.size>25){const ks=[...mp.keys()].sort((x,y)=>k==='asks'?x-y:y-x);for(const x of ks.slice(25))mp.delete(x)}}}}
   if(TR.length>3000)TR.splice(0,TR.length-3000);if(WSST.lat.length>100)WSST.lat.splice(0,WSST.lat.length-100);while(WSST.n.length&&now-WSST.n[0]>10000)WSST.n.shift()}
@@ -622,7 +646,8 @@ function microJS(s){const o=DATA[s];if(!o||!o.price)return null;const now=Date.n
   return out}
 /* la proyección se calculó con el precio de la foto: se reescala al precio en vivo para que salga de él */
 function escP(pr,f){if(!pr)return pr;const o=Object.assign({},pr);o.centro=pr.centro*f;o.b50=pr.b50.map(v=>v*f);o.b80=pr.b80.map(v=>v*f);if(pr.q){o.q={};for(const k in pr.q)o.q[k]=pr.q[k].map(v=>v*f)}return o}
-function vivoEstatico(){const s=SEL,o=DATA[s];if(VIEW==='TRADE'&&o&&o.price){const m=MON[s];if(m&&m.p0){const f=o.price/m.p0,out={};for(const tf in m.proy)out[tf]=escP(m.proy[tf],f);o.proy=out}
+function vivoEstatico(){{const nw=Date.now(),ult=WSST.n.length?WSST.n[WSST.n.length-1]:0;if(WSST.conectado&&KW&&nw-WSOPEN>15000&&nw-ult>15000){try{KW.close()}catch(e){}}}
+  const s=SEL,o=DATA[s];if(VIEW==='TRADE'&&o&&o.price){const m=MON[s];if(m&&m.p0){const f=o.price/m.p0,out={};for(const tf in m.proy)out[tf]=escP(m.proy[tf],f);o.proy=out}
     if(WSST.conectado&&(TR.length||BK.a.size)){const mi=microJS(s);if(mi)o.micro=mi}}
   const lat=WSST.lat.slice().sort((a,b)=>a-b);SALUD=Object.assign({},NUBE&&NUBE.salud,{ws:{conectado:WSST.conectado,msg_s:WSST.n.length/10,latencia_ms:lat.length?Math.round(lat[lat.length>>1]):null}});
   LASTT=WSST.conectado?Date.now():0;renderAll(false)}
