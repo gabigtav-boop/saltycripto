@@ -185,14 +185,14 @@ def test_efecto_y_resumen_noticias():
     assert resumen_impacto([], "SOL", {})["n"] == 0
 
 
-# ---------- proyección por analogías (la flecha del gráfico) ----------
+# ---------- proyección por volatilidad: rango y probabilidad de tocar niveles ----------
 import json as _json  # noqa: E402
 
 import numpy as _np  # noqa: E402
 
 from cripto import fuentes as _f  # noqa: E402
 from cripto.historico import agregar, empalmar  # noqa: E402
-from cripto.proyeccion import HOR, QS, calibrar, compacto, proyectar, rasgos  # noqa: E402
+from cripto.proyeccion import HOR, QS, calibrar, compacto, p_tocar, proyectar, volatilidad  # noqa: E402
 
 
 def _raw(key, m):
@@ -200,62 +200,108 @@ def _raw(key, m):
     return _f.parse_ohlc(fx["ohlc"][f"{key}|{m}"])[:-1]
 
 
-def test_rasgos_sin_escala():
-    """Los rasgos no cambian si el precio se multiplica por 1000 (sirven para empalmar mercados)."""
+def _sintetica(n=6000, seed=3, cambio=250, vols=(.004, .02)):
+    """Serie con rachas de volatilidad (como los mercados reales) y sin ninguna deriva: la respuesta correcta se conoce."""
+    rng = _np.random.default_rng(seed)
+    sig = _np.repeat(rng.choice(vols, n // cambio + 1), cambio)[:n]
+    c = 100 * _np.exp(_np.cumsum(rng.standard_normal(n) * sig))
+    o = _np.concatenate([[100.0], c[:-1]])
+    return [{"t": i * 14400000, "o": float(o[i]), "h": float(max(o[i], c[i]) * (1 + abs(rng.standard_normal()) * sig[i] * .4)),
+             "l": float(min(o[i], c[i]) * (1 - abs(rng.standard_normal()) * sig[i] * .4)), "c": float(c[i]), "v": 1.0} for i in range(n)]
+
+
+def test_volatilidad_no_depende_de_la_escala():
     raw = _raw("XXBTZEUR", 240)
-    a = rasgos(raw, "4h")["F"]
-    b = rasgos([dict(r, o=r["o"] * 1000, h=r["h"] * 1000, l=r["l"] * 1000, c=r["c"] * 1000) for r in raw], "4h")["F"]
-    assert _np.allclose(a, b, atol=1e-6)
+    a, _ = volatilidad(_np.array([r["c"] for r in raw]))
+    b, _ = volatilidad(_np.array([r["c"] * 1000 for r in raw]))
+    assert _np.allclose(a, b, atol=1e-12) and (a > 0).all()
 
 
 def test_calibracion_real_sin_futuro():
     raw = _raw("XXBTZEUR", 240)
     c = calibrar(raw, "4h")
-    assert c and c["H"] == HOR["4h"] and c["muestras"] >= 150 and c["val"] and c["val"]["n"] >= 24
+    assert c and c["H"] == HOR["4h"] and c["muestras"] >= 150 and c["val"] and c["val"]["n"] >= 12
     # añadir velas futuras absurdas no cambia nada de lo calculado hasta la última vela conocida
     loca = raw + [dict(raw[-1], t=raw[-1]["t"] + 1, c=raw[-1]["c"] * 10)]
     assert calibrar(loca[:-1], "4h")["q"].tolist() == c["q"].tolist()
-    # los cuantiles están ordenados y el recorrido acaba donde el resultado final
-    assert all(c["q"][i] <= c["q"][i + 1] for i in range(4))
+    # cuantiles ordenados, sin deriva (mediana cero) y el recorrido acaba en el cuantil final
+    assert all(c["q"][i] <= c["q"][i + 1] for i in range(4)) and abs(c["q"][2]) < 1e-12
     assert _np.allclose(c["qp"][-1], c["q"])
+    # las probabilidades de llegar a un nivel bajan al alejarse el nivel
+    assert (_np.diff(c["F_up"]) <= 1e-12).all() and (_np.diff(c["F_dn"]) <= 1e-12).all() and c["F_up"][0] == 1.0
 
 
-def test_proyeccion_coherente():
+def test_proyeccion_coherente_y_sin_direccion():
     c = calibrar(_raw("XXBTZEUR", 1440), "1d")
-    pr = proyectar(100.0, "1d", c, None, Z)
-    assert pr["b80"][0] < pr["b50"][0] < pr["centro"] < pr["b50"][1] < pr["b80"][1]
-    assert 0 < pr["p_up"] < 1 and len(pr["q"]["50"]) == HOR["1d"] and pr["q"]["50"][-1] == pr["centro"]
-    assert all(len(a["ret"]) == HOR["1d"] for a in pr["analogos"])
-    # los factores no técnicos inclinan la flecha, pero de forma acotada (±0,35 σ)
+    z = {"res": [{"lo": 101.0, "hi": 101.5, "mid": 101.2}, {"lo": 105.0, "hi": 106.0, "mid": 105.5}],
+         "sup": [{"lo": 98.0, "hi": 99.0, "mid": 98.5}, {"lo": 93.0, "hi": 94.0, "mid": 93.5}]}
+    pr = proyectar(100.0, "1d", c, None, z)
+    assert pr["b80"][0] < pr["b50"][0] < pr["centro"] < pr["b50"][1] < pr["b80"][1] and pr["centro"] == 100.0
+    assert len(pr["q"]["50"]) == HOR["1d"] and pr["q"]["50"][-1] == pr["centro"] and pr["dir"] == "lateral"
+    # más lejos, menos probable (en ambos lados), y todo en [0, 1]
+    p = {g["id"]: g["p"] for g in pr["niveles"]}
+    assert p["S1"] > p["S2"] and p["E1"] > p["E2"] and all(0 <= v <= 1 for v in p.values())
+    # un nivel que el precio ya ha alcanzado tiene probabilidad 1
+    assert p_tocar(c, 102.0, 101.0, "sube") == 1.0 and p_tocar(c, 100.0, 101.0, "baja") == 1.0
+    # las noticias, el sentimiento y demás factores NO inclinan el rango: no tienen ventaja demostrada
     neg = {"factores": [{"nombre": "Noticias 24 h", "aporte": -40}]}
     posi = {"factores": [{"nombre": "Noticias 24 h", "aporte": 40}]}
     a, b = proyectar(100.0, "1d", c, neg), proyectar(100.0, "1d", c, posi)
-    assert a["centro"] < b["centro"] and b["p_up"] > a["p_up"]
-    assert abs(_np.log(b["centro"] / a["centro"])) <= .7 * c["sigma"] * HOR["1d"] ** .5 + 1e-9
-    # el pronóstico se ancla al precio actual: el centro relativo no depende de lo recorrido en la vela en curso
+    assert a["b50"] == b["b50"] and a["centro"] == b["centro"]
+    # el rango es proporcional al precio (se ancla al precio actual)
     alto = proyectar(c["c_ultima"] * 1.03, "1d", c)
-    bajo = proyectar(c["c_ultima"] * .97, "1d", c)
-    assert abs(alto["centro"] / (c["c_ultima"] * 1.03) - bajo["centro"] / (c["c_ultima"] * .97)) < 1e-9
-    assert alto["recorrido"] > 0 > bajo["recorrido"]
-    assert "q" not in compacto(pr) and compacto(pr)["dir"] == pr["dir"]
-
-
-def test_analogias_solo_pesan_con_destreza():
-    """Sin destreza fuera de muestra, la flecha no inventa dirección: la distribución base no tiene deriva."""
-    c = calibrar(_raw("XXBTZEUR", 60), "1h")
-    assert c["val"] is not None
-    if c["val"]["destreza"] <= 0:
-        assert c["lam"] == 0 and abs(c["q"][2]) < 1e-9 and c["p_up"] == .5
-        assert proyectar(c["c_ultima"], "1h", c)["dir"] == "lateral"
-    else:
-        assert 0 < c["lam"] <= 1
+    assert abs(alto["b50"][1] / (c["c_ultima"] * 1.03) - pr["b50"][1] / 100.0) < 1e-9
+    assert "q" not in compacto(pr) and compacto(pr)["niveles"] == pr["niveles"]
 
 
 def test_cobertura_validada():
-    """La validación mide la cobertura real del cono; tras el ajuste conformal queda cerca de lo prometido."""
+    """La validación mide la cobertura real del rango (50 % y 80 %) con datos que el método no había visto."""
     c = calibrar(_raw("XXBTZEUR", 1440), "1d")
     v = c["val"]
     assert .3 <= v["cob50"] <= .7 and .6 <= v["cob80"] <= .95
+
+
+def test_sintetica_con_rachas_de_volatilidad():
+    """Con volatilidad que agrupa y sin deriva, el rango cubre lo prometido y la volatilidad actual mejora las probabilidades."""
+    c = calibrar(_sintetica(), "4h")
+    v = c["val"]
+    assert .4 <= v["cob50"] <= .6 and .7 <= v["cob80"] <= .9, v
+    assert v["brier_mejora"] > .03, v
+
+
+def test_sintetica_con_volatilidad_constante_no_inventa_ventaja():
+    """Sin rachas de volatilidad no hay nada que aprender: la mejora de las probabilidades es nula (no se inventa ventaja)."""
+    c = calibrar(_sintetica(vols=(.01, .01)), "4h")
+    assert abs(c["val"]["brier_mejora"]) < .03, c["val"]
+
+
+def test_casos_son_reales_representativos_y_sin_futuro():
+    rows = _sintetica()
+    c = calibrar(rows, "4h")
+    cs = c["casos"]
+    assert cs and cs["k"] == 50 and len(cs["rep"]) == 5 and "nube" not in cs
+    # sin futuro: cada caso, con todo su recorrido, terminó antes de la última vela conocida
+    assert (cs["t"] + HOR["4h"] * 14400000 <= rows[-1]["t"]).all()
+    # los 5 están ordenados por resultado y no se repiten
+    fin = cs["y"][cs["rep"]]
+    assert (_np.diff(fin) >= 0).all() and len(set(cs["rep"])) == 5
+    # representativos: su dispersión se parece a la de los 50 (los 4 más parecidos la subestiman)
+    assert .8 < fin.std() / cs["y"].std() < 1.3
+    pr = proyectar(rows[-1]["c"], "4h", c)
+    assert len(pr["analogos"]) == 5 and [a["rep"] for a in pr["analogos"]] == [1, 2, 3, 4, 5]
+    assert all(len(a["ret"]) == HOR["4h"] for a in pr["analogos"])
+    assert pr["casos"]["sube"] + pr["casos"]["baja"] == 50
+    assert "analogos" not in compacto(pr) and "q" not in compacto(pr)
+
+
+def test_casos_validados_fuera_de_muestra():
+    """Con volatilidad que agrupa, la envolvente de los casos reproduce la dispersión real (no se queda corta)."""
+    v = calibrar(_sintetica(), "4h")["val_casos"]
+    assert v["n"] >= 12 and .35 <= v["env50"] <= .65 and .65 <= v["env80"] <= .95 and .8 <= v["razon"] <= 1.25, v
+
+
+def test_historico_demasiado_corto_no_calibra():
+    assert calibrar(_sintetica(n=150), "4h") is None
 
 
 def test_empalme_ajusta_escala():

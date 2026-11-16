@@ -24,6 +24,20 @@ def _f(x):
         return None
 
 
+_INTERVALOS = {"t": 0, "d": {}}
+
+
+def intervalos_funding():
+    """Horas entre cobros de funding de los contratos de Binance que no usan las 8 h habituales (cache de 1 h)."""
+    if time.time() - _INTERVALOS["t"] > 3600:
+        try:
+            _INTERVALOS["d"] = {x["symbol"]: _f(x.get("fundingIntervalHours")) for x in fuentes.jget(f"{BINANCE}/fapi/v1/fundingInfo", 8)}
+            _INTERVALOS["t"] = time.time()
+        except Exception:  # noqa: BLE001
+            _INTERVALOS["t"] = time.time() - 3000     # reintenta en unos minutos
+    return _INTERVALOS["d"]
+
+
 def binance_moneda(s):
     sym = s + "USDT"
     out = {"ok": False}
@@ -32,7 +46,7 @@ def binance_moneda(s):
         return s, out
     try:
         p = fuentes.jget(f"{BINANCE}/fapi/v1/premiumIndex?symbol={sym}", 8)
-        out["funding"] = _f(p.get("lastFundingRate"))          # por 8 h
+        out["funding"] = a_8h(_f(p.get("lastFundingRate")), intervalos_funding().get(sym))   # equivalente a 8 h
         out["mark"] = _f(p.get("markPrice"))
         out["next_funding"] = p.get("nextFundingTime")
         ls = fuentes.jget(f"{BINANCE}/futures/data/globalLongShortAccountRatio?symbol={sym}&period=1h&limit=1", 8)

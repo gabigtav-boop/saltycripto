@@ -1,5 +1,6 @@
-"""Pruebas de la versión nube: cadena de fuentes de derivados, honestidad de la flecha, noticias y parte de la web.
+"""Pruebas de la versión nube: cadena de fuentes de derivados, noticias y parte de la web.
 Todo sin red: las fuentes se sustituyen por respuestas simuladas con el formato real de cada servidor."""
+import json
 import pathlib
 import re
 import shutil
@@ -9,7 +10,6 @@ import pytest
 
 from cripto import sentimiento
 from cripto.noticias import analizar
-from cripto.proyeccion import direccion_valida
 
 RAIZ = pathlib.Path(__file__).resolve().parent.parent
 HTML = (RAIZ / "web" / "index.html").read_text()
@@ -77,14 +77,6 @@ def test_a_8h():
     assert sentimiento.a_8h(1e-4, None) == 1e-4 and sentimiento.a_8h(None, 8) is None
 
 
-# ---------- flecha: la dirección solo cuenta si la validación la respalda ----------
-def test_direccion_valida():
-    assert direccion_valida(None)                                   # sin validación: decide la destreza
-    assert direccion_valida({"llamadas": 5, "acierto": .2})          # pocas llamadas: no se descarta
-    assert direccion_valida({"llamadas": 60, "acierto": .55})
-    assert not direccion_valida({"llamadas": 60, "acierto": .42})    # peor que lanzar una moneda
-
-
 # ---------- noticias: tickers que son palabras corrientes ----------
 @pytest.mark.parametrize("titulo,esperado", [
     ("Solana (SOL) jumps 8% as traders pile in", ["SOL"]),
@@ -115,3 +107,22 @@ def test_web_tiene_las_protecciones_de_iphone():
     assert "overflow-x:auto" in HTML and "touch-action:pan-x" in HTML  # tira de casos deslizable
     assert "function morph" in HTML                                  # repintado que conserva el desplazamiento
     assert "popstate" in HTML                                        # gesto de atrás
+
+
+# ---------- web estática: el abanico y las probabilidades siguen al precio en vivo ----------
+@pytest.mark.skipif(shutil.which("node") is None, reason="necesita Node.js")
+def test_escp_reescala_el_abanico_y_recalcula_las_probabilidades_de_los_niveles():
+    a = HTML.index("const ZG_STEP")
+    b = HTML.index("return o}", a) + len("return o}")
+    js = HTML[a:b] + """
+const F=Array.from({length:101},(_,i)=>Math.max(0,1-i/100));   // 1 en 0 σ, 0 en 5 σ
+const pr={centro:100,b50:[98,102],b80:[96,104],sd_pct:5,q:{"50":[100,100]},F_up:F,F_dn:F,
+  niveles:[{id:'S1',lado:'sube',precio:110,borde:109,pct:9,p:.5},{id:'E1',lado:'baja',precio:90,borde:91,pct:-9,p:.5}]};
+const o=escP(pr,1.1,110),s=escP(pr,1,100);
+console.log(JSON.stringify({c:o.centro,b:o.b50,q:o.q["50"],p1:o.niveles[0].p,p2:s.niveles[0].p,pct:o.niveles[1].pct,sin:escP(Object.assign({},pr,{F_up:null}),1,100).niveles[0].p}))"""
+    out = json.loads(subprocess.run(["node", "-e", js], capture_output=True, text=True, check=True).stdout)
+    assert out["c"] == pytest.approx(110) and out["b"] == pytest.approx([107.8, 112.2]) and out["q"] == pytest.approx([110, 110])
+    assert out["p1"] == 1                                              # el precio ya superó el borde del nivel: probabilidad 1
+    assert 0 < out["p2"] < 1 and out["p2"] == pytest.approx(1 - abs(__import__("math").log(109 / 100)) / .05 / 5 * 1, abs=.05)
+    assert out["pct"] == pytest.approx((90 / 110 - 1) * 100)
+    assert out["sin"] == .5                                            # sin curvas guardadas se deja lo calculado

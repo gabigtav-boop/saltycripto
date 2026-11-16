@@ -32,7 +32,12 @@ CGID = {"BTC": "bitcoin", "ETH": "ethereum", "XRP": "ripple", "SOL": "solana", "
 TTL = {1: 60, 60: 120, 240: 300, 1440: 600, 10080: 1800}  # segundos de caché de velas
 TF_MS = {t[0]: t[1] * 60000 for t in TFS}
 CHART_N = 75
-S21_DIR = pathlib.Path(__file__).resolve().parent.parent / "datos" / "historico"
+DERIV_LOG = pathlib.Path(__file__).resolve().parent.parent / "datos" / "derivados_historial.jsonl"
+DERIV_LOG_MAX = 5_000_000      # al superar 5 MB se guarda como .old y se empieza otro
+# Un dato de una fuente externa que lleva mucho sin renovarse no se usa como si fuera de ahora
+EDAD_PRECIO_EXTERNO = 15 * 60          # precio de Coinbase o CoinGecko usado para contrastar el de Kraken
+EDAD_DERIVADOS = 30 * 60               # derivados que entran en la previsión y en el sentimiento
+EDAD_TICKER = 20                       # precio de Kraken de la carga completa: se pide de nuevo si es más viejo
 
 
 def now_ms():
@@ -56,6 +61,18 @@ def clean(x):
     if isinstance(x, (list, tuple)):
         return [clean(v) for v in x]
     return x
+
+
+# lo calculado en vivo se conserva mientras se recarga la moneda (si no, el rango y la lectura desaparecían
+# cerca de un minuto cada 10 minutos, hasta que terminaba de recalibrarse)
+CONSERVAR = ("vivo", "micro", "tkv", "calib", "proy", "prev")
+
+
+def heredar(nuevo, viejo):
+    for k in CONSERVAR:
+        if k in viejo:
+            nuevo[k] = viejo[k]
+    return nuevo
 
 
 ZK_WEB = ("lo", "hi", "mid", "t", "s", "proj", "weak")
@@ -132,18 +149,20 @@ class Servicio:
         self.net = net
         # tiempo real y capas nuevas
         self.flujo = None
-        self.con_ws = True      # False en la versión nube: sin conexión en vivo (todo por REST)
         self.fund = Fundamental()
         self.noticias = []
         self.pulso = {}
         self.deriv = {}
         self.deriv_t = 0
+        self._reg_t = 0
+        self.con_ws = True      # False en la versión nube: sin conexión en vivo (todo por REST)
+        self._main_lock = threading.Lock()   # una sola carga completa a la vez (antes, un plazo de 300 s dejaba entrar a otra)
+        self.cbp_t, self.cbc_t, self.tk_t = {}, 0, 0
         self.sent = None
         self.rt_ms = None
         self.rt_t = 0
         self.inicio = time.time()
         self.rnews = {}
-        self.s21 = {}
         self.calib = {}          # (moneda, tf) -> (clave de la última vela cerrada, calibración)
         self.hist = Historico(net=net)
         self._ciclo = 0
@@ -180,14 +199,19 @@ class Servicio:
         return r
 
     def tick(self, key):
-        if key in self.tk:
+        """Último precio de Kraken. La foto de toda la carga se hizo al empezar: para las últimas monedas tendría ya cerca
+        de un minuto, así que si es más vieja de EDAD_TICKER segundos se vuelve a pedir ese par."""
+        if key in self.tk and (not self.tk_t or time.time() - self.tk_t < EDAD_TICKER):   # sin marca de edad (datos cargados a mano), se usa tal cual
             return float(self.tk[key]["c"][0])
         d = self.k.get("Ticker?pair=" + key)
-        return float(d[next(iter(d))]["c"][0])
+        x = d[next(iter(d))]
+        self.tk[key] = x
+        return float(x["c"][0])
 
     def tick_all(self):
         try:
             self.tk = self.k.get("Ticker?pair=" + ",".join(p for p in self.pairs.values() if p))
+            self.tk_t = time.time()
         except Exception:  # noqa: BLE001
             self.tk = {}
 
@@ -199,6 +223,7 @@ class Servicio:
             c["fg"], c["fg1"] = f[0], f[1]
             if len(f) > 7:
                 c["fg7"] = f[7]
+            c["t_fg"] = now_ms()
         except Exception:  # noqa: BLE001
             pass
         try:
@@ -207,11 +232,12 @@ class Servicio:
             c["mc"] = d["market_cap_change_percentage_24h_usd"]
             c["mcap"] = d["total_market_cap"].get("eur")
             c["vol"] = d["total_volume"].get("eur")
+            c["t_cg"] = now_ms()
         except Exception:  # noqa: BLE001
             pass
         with self.lock:
             if c:
-                self.ctx = c
+                self.ctx = {**self.ctx, **c}     # si CoinGecko limita las peticiones no se pierde la dominancia
             self.version += 1
 
     def cg_markets(self, reorder):
@@ -236,6 +262,7 @@ class Servicio:
                 v = float(fuentes.jget(f"https://api.coinbase.com/v2/prices/{s}-EUR/spot")["data"]["amount"])
                 if v > 0:
                     self.cbp[s] = v
+                    self.cbp_t[s] = time.time()
             except Exception:  # noqa: BLE001
                 pass
         with ThreadPoolExecutor(8) as ex:
@@ -253,15 +280,27 @@ class Servicio:
                 pass
             time.sleep(.16)
         self.cbc = out
+        self.cbc_t = time.time()
+
+    def p_coinbase(self, s):
+        """Precio de Coinbase solo si es reciente (si la fuente cae, no se contrasta contra un dato de hace horas)."""
+        t = self.cbp_t.get(s)
+        return self.cbp.get(s) if t is None or time.time() - t < EDAD_PRECIO_EXTERNO else None
+
+    def p_coingecko(self, s):
+        return (self.mk.get(s) or {}).get("p") if not self.mkt or time.time() - self.mkt < EDAD_PRECIO_EXTERNO * 2 else None
+
+    def b_coinbase(self, s):
+        return (self.cbc.get(s) or {}).get("b") if not self.cbc_t or time.time() - self.cbc_t < 3 * 3600 else None
 
     def refresh_src(self):
         with self.lock:
             for s, o in self.data.items():
                 if not o or not o.get("price"):
                     continue
-                o["cbp"] = self.cbp.get(s)
-                o["cgp"] = (self.mk.get(s) or {}).get("p")
-                o["cbb"] = (self.cbc.get(s) or {}).get("b")
+                o["cbp"] = self.p_coinbase(s)
+                o["cgp"] = self.p_coingecko(s)
+                o["cbb"] = self.b_coinbase(s)
                 if o.get("crit"):
                     fin(o)
             self.version += 1
@@ -344,8 +383,8 @@ class Servicio:
         else:
             reg = "lateral" if d1["rg"] == "range" else "transición"
         o = {"sym": sym, "price": price, "chg": chg, "ref24": ref24, "res": res, "errs": errs, "ts": ts, "tl": tl,
-             "bS": bS, "bL": bL, "reg": reg, "filt": filt, "book": book, "cbp": self.cbp.get(sym),
-             "cgp": (self.mk.get(sym) or {}).get("p"), "cbb": (self.cbc.get(sym) or {}).get("b"),
+             "bS": bS, "bL": bL, "reg": reg, "filt": filt, "book": book, "cbp": self.p_coinbase(sym),
+             "cgp": self.p_coingecko(sym), "cbb": self.b_coinbase(sym),
              "z": zones(d1, price, book, res.get("1w")) if d1 else None, "d1": d1, "raw1d": r1d,
              "short": bool(d1) and len(d1["rows"]) < 200, "t": now}
         return fin(o)
@@ -361,6 +400,8 @@ class Servicio:
         try:
             k = self.bt_key(s, o)
             if k not in self.bt:
+                for viejo in [x for x in self.bt if x.startswith(s) and x != k and x[len(s):].isdigit()]:
+                    del self.bt[viejo]
                 self.bt[k] = backtest(o["raw1d"])
             r = self.bt[k]
         except Exception:  # noqa: BLE001
@@ -377,9 +418,15 @@ class Servicio:
 
     # ---------- carga completa (cada 10 min) ----------
     def main(self, silent=False):
+        if not self._main_lock.acquire(blocking=False):
+            return                                   # ya hay una carga en marcha
+        try:
+            self._main(silent)
+        finally:
+            self._main_lock.release()
+
+    def _main(self, silent=False):
         with self.lock:
-            if self.busy and time.time() - self.bst < 300:
-                return
             self.busy = True
             self.bst = time.time()
             self.err = None
@@ -414,14 +461,19 @@ class Servicio:
                 self.set_bar(f"cargando {s}…")
                 try:
                     o = self.run(s)
+                    viejo = self.data.get(s) or {}
+                    if (o.get("fail") or o.get("nopair")) and silent and viejo.get("price"):
+                        # un fallo puntual (precio sospechoso, Kraken que no responde) no sustituye a una moneda ya analizada
+                        with self.lock:
+                            viejo["recarga_fallo"] = o.get("fail") or "sin par"
+                            self.version += 1
+                        continue
                     if o.get("raw1d") and self.bt_key(s, o) in self.bt:
                         o["bt"] = self.bt[self.bt_key(s, o)]
                         fin(o)
                     with self.lock:
                         old = self.data.get(s) or {}
-                        for k in ("vivo", "micro", "tkv"):
-                            if k in old:
-                                o[k] = old[k]
+                        heredar(o, old)
                         self.data[s] = o
                         if s == "BTC" and o.get("bL"):
                             self.btcl = o["bL"]
@@ -465,46 +517,17 @@ class Servicio:
         prev = self.calib.get(k)
         if prev and prev[0] == clave:
             return prev[1]
-        cache = self._s21(s, tf)
-        n0 = len(cache)
         try:
-            c = calibrar(rows, tf, cache)
+            c = calibrar(rows, tf)
         except Exception as e:  # noqa: BLE001
             print(f"calibración {s} {tf}: {e!r}", flush=True)
             c = None
-        if rows and len(cache) != n0:
-            desde = rows[0]["t"]
-            for t in [t for t in cache if t < desde]:
-                del cache[t]
-            self._s21_guardar(s, tf, cache)
         self.calib[k] = (clave, c)
         return c
 
-    # caché en disco de la lectura técnica de velas cerradas (acelera arranques y recalibraciones)
-    def _s21_path(self, s, tf):
-        return S21_DIR / f"s21_{s}_{tf}.json"
-
-    def _s21(self, s, tf):
-        k = (s, tf)
-        if k not in self.s21:
-            try:
-                self.s21[k] = {int(t): float(v) for t, v in json.loads(self._s21_path(s, tf).read_text()).items()}
-            except Exception:  # noqa: BLE001
-                self.s21[k] = {}
-        return self.s21[k]
-
-    def _s21_guardar(self, s, tf, cache):
-        try:
-            S21_DIR.mkdir(parents=True, exist_ok=True)
-            tmp = self._s21_path(s, tf).with_suffix(".tmp")
-            tmp.write_text(json.dumps({str(t): round(v, 6) for t, v in cache.items()}, separators=(",", ":")))
-            tmp.replace(self._s21_path(s, tf))
-        except Exception:  # noqa: BLE001
-            pass
-
     def calibrar_moneda(self, s, solo_1m=False):
-        """Calibración de la flecha por temporalidad con histórico profundo (Binance/Coinbase) empalmado
-        con Kraken. Se recalcula solo cuando cierra una vela nueva (la de 1 minuto, cada 5 minutos)."""
+        """Calibración del rango y de las probabilidades de tocar niveles, por temporalidad, con histórico profundo
+        (Binance/Coinbase) empalmado con Kraken. Se recalcula solo cuando cierra una vela nueva (la de 1 minuto, cada 5 minutos)."""
         o = self.data.get(s)
         if not o or not o.get("_raw"):
             return
@@ -546,18 +569,6 @@ class Servicio:
         prec = {WSV2[s]: self.prec[s] for s in COINS if s in self.prec}
         self.flujo = Flujo(syms, prec, on_update=None)
         self.flujo.start()
-
-    def velas_1m(self, s):
-        """Velas de 1 minuto: del flujo en vivo si lo hay; si no, de la API REST de Kraken (últimas 720)."""
-        if self.flujo:
-            return self.flujo.velas(WSV2[s])
-        key = self.pairs.get(s)
-        if not key:
-            return []
-        try:
-            return self.ohlc(key, 1)
-        except Exception:  # noqa: BLE001
-            return []
 
     def sembrar_1m(self):
         """Velas de 1 minuto (12 h) para el gráfico de 1m, la microestructura y la reacción a noticias."""
@@ -623,7 +634,7 @@ class Servicio:
                     if tkr:
                         o["tkv"] = {k: tkr.get(k) for k in ("bid", "ask", "high", "low", "volume", "vwap", "change_pct")} | {"t": int(tkr.get("t", 0) * 1000)}
                     fin(o)
-                    o["prev"] = prevision(o, self.deriv.get(s), self.pulso.get(s), self.sent)
+                    o["prev"] = prevision(o, self.deriv_fresco(s), self.pulso.get(s), self.sent)
                     proy = {}
                     for tf, c in (o.get("calib") or {}).items():
                         try:
@@ -679,9 +690,47 @@ class Servicio:
                     x["lectura"] = lectura_derivados(x, o.get("chg"))
                 self.deriv = d
                 self.deriv_t = now_ms()
+            self.registrar_derivados(d)
         except Exception:  # noqa: BLE001
             pass
         self.calc_sentimiento()
+
+    def velas_1m(self, s):
+        """Velas de 1 minuto: del flujo en vivo si lo hay; si no, de la API REST de Kraken (últimas 720)."""
+        if self.flujo:
+            return self.flujo.velas(WSV2[s])
+        key = self.pairs.get(s)
+        if not key:
+            return []
+        try:
+            return self.ohlc(key, 1)
+        except Exception:  # noqa: BLE001
+            return []
+
+    def deriv_fresco(self, s):
+        """Derivados de la moneda solo si se renovaron hace poco: si las fuentes caen, no se siguen usando los de hace horas."""
+        return self.deriv.get(s) if self.deriv_t and now_ms() - self.deriv_t < EDAD_DERIVADOS * 1000 else None
+
+    def registrar_derivados(self, d):
+        """Una foto por hora de los derivados (funding, cuentas en largo, interés abierto). Las APIs solo ofrecen unos
+        30 días de historia de estos datos: guardándolos aquí se acumula la que hará falta para estudiar si aportan
+        algo a la predicción (ver ANALISIS_PREDICCION.md)."""
+        if time.time() - self._reg_t < 3300:
+            return
+        self._reg_t = time.time()
+        t = now_ms()
+        lin = [json.dumps({"t": t, "s": s, **{k: x.get(k) for k in ("funding", "largos_pct", "top_largos_pct", "oi_usd", "oi_24h", "fuente")}},
+                          separators=(",", ":")) for s, x in d.items() if x.get("ok")]
+        if not lin:
+            return
+        try:
+            DERIV_LOG.parent.mkdir(exist_ok=True)
+            if DERIV_LOG.exists() and DERIV_LOG.stat().st_size > DERIV_LOG_MAX:
+                DERIV_LOG.replace(DERIV_LOG.with_suffix(".jsonl.old"))
+            with DERIV_LOG.open("a") as f:
+                f.write("\n".join(lin) + "\n")
+        except Exception:  # noqa: BLE001
+            pass
 
     def calc_sentimiento(self):
         with self.lock:
@@ -689,8 +738,9 @@ class Servicio:
             bl = [o.get("bL") for o in self.data.values() if o and o.get("bL") in ("AL", "NE", "BA")]
             amp = statistics.mean(100 if b == "AL" else 50 if b == "NE" else 0 for b in bl) if bl else None
             crypto = [s for s in COINS if s != "PAXG"]
-            fund = [self.deriv[s]["funding"] for s in crypto if self.deriv.get(s, {}).get("funding") is not None]
-            lp = [self.deriv[s]["largos_pct"] for s in crypto if self.deriv.get(s, {}).get("largos_pct") is not None]
+            dv = {s: self.deriv_fresco(s) or {} for s in crypto}
+            fund = [dv[s]["funding"] for s in crypto if dv[s].get("funding") is not None]
+            lp = [dv[s]["largos_pct"] for s in crypto if dv[s].get("largos_pct") is not None]
             pm = self.pulso.get("MERCADO", {}).get("score")
             pb = self.pulso.get("BTC", {}).get("score")
             pulse = (pm if pb is None else pb if pm is None else (pm + pb) / 2) if (pm is not None or pb is not None) else None
@@ -701,19 +751,23 @@ class Servicio:
 
     # ---------- bucles ----------
     def _loop_main(self):
-        self.main(False)
+        primera = True
         while True:
-            time.sleep(45)
-            if self.busy:
-                continue
-            if not self.last:
-                if not self.data:
+            try:
+                if primera:
+                    primera = False
                     self.main(False)
-                continue
-            if time.time() - self.last > 600:
-                self.main(True)
-            elif not (self.flujo and self.flujo.conectado):
-                self.live_rest()
+                elif not self.busy:
+                    if not self.last:
+                        if not self.data:
+                            self.main(False)
+                    elif time.time() - self.last > 600:
+                        self.main(True)
+                    elif not (self.flujo and self.flujo.conectado):
+                        self.live_rest()
+            except Exception as e:  # noqa: BLE001  (un fallo puntual no puede parar las recargas)
+                print(f"ciclo principal: {e!r}", flush=True)
+            time.sleep(45)
 
     def live_rest(self):
         """Respaldo por REST si el WebSocket cae (como el ciclo de 45 s de la v21)."""
@@ -739,30 +793,36 @@ class Servicio:
             pass
 
     def _loop_rt(self):
+        ultimo_error = 0
         while True:
             t = time.time()
             try:
                 if self.data:
                     self.tiempo_real()
-            except Exception:  # noqa: BLE001
-                pass
+            except Exception as e:  # noqa: BLE001
+                if t - ultimo_error > 60:       # se avisa, pero sin llenar el registro
+                    ultimo_error = t
+                    print(f"tiempo real: {e!r}", flush=True)
             time.sleep(max(.2, 1 - (time.time() - t)))
 
     def _loop_min(self):
         time.sleep(3)
         n = 0
         while True:
-            self.actualizar_fundamental()   # noticias y derivados cada minuto (avisos a tiempo)
-            n += 1
-            self.actualizar_derivados()
-            if n % 5 == 2 and self.last and not self.busy:
-                for s in self.vis():
-                    self.calibrar_moneda(s, solo_1m=True)
-            if time.time() - self.mkt > 300 and self.last:
-                self.load_ctx()
-                self.cg_markets(False)
-                self.cb_spot()
-                self.refresh_src()
+            try:
+                self.actualizar_fundamental()   # noticias y derivados cada minuto (avisos a tiempo)
+                n += 1
+                self.actualizar_derivados()
+                if n % 5 == 2 and self.last and not self.busy:
+                    for s in self.vis():
+                        self.calibrar_moneda(s, solo_1m=True)
+                if time.time() - self.mkt > 300 and self.last:
+                    self.load_ctx()
+                    self.cg_markets(False)
+                    self.cb_spot()
+                    self.refresh_src()
+            except Exception as e:  # noqa: BLE001
+                print(f"ciclo por minuto: {e!r}", flush=True)
             time.sleep(60)
 
     def start(self):
@@ -772,7 +832,7 @@ class Servicio:
     # ---------- salidas para la web ----------
     def salud(self):
         fl = self.flujo.salud() if self.flujo else {"conectado": False}
-        return {"ws": fl, "rt_ms": self.rt_ms, "rt_t": self.rt_t, "noticias": self.fund.estado, "cal_ok": self.fund.cal_ok,
+        return {"ws": fl, "rt_ms": self.rt_ms, "rt_t": self.rt_t, "noticias": {k: dict(v) for k, v in list(self.fund.estado.items())}, "cal_ok": self.fund.cal_ok,
                 "historico": self.hist.resumen(),
                 "deriv_t": self.deriv_t, "deriv_ok": sum(1 for x in self.deriv.values() if x.get("ok")), "last": int(self.last * 1000),
                 "uptime": int(time.time() - self.inicio)}
@@ -839,8 +899,7 @@ class Servicio:
                     k = max(v1)
                     velas["1m"] = dict(v1[k])
                 proy = o.get("proy") or {}
-                if tf in proy:
-                    proy = {k: (x if k == tf else compacto(x)) for k, x in proy.items()}
+                proy = {k: (x if k == tf else compacto(x)) for k, x in proy.items()}
                 out["sel"] = {"sym": sel, "velas": velas, "proy": proy}
             out = ligero(out)
         if memo is not None:

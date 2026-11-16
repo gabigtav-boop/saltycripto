@@ -1,7 +1,7 @@
 # Saltycripto · versión nube
 # Pide ejecutarlo cada 10 minutos (GitHub lo retrasa: en la práctica sale cada 30-50 min de día y a veces más de 2 h de madrugada) y ejecuta el motor en Python una vez y publica la página en GitHub Pages.
 # Los precios y gráficos se mueven en vivo en el navegador (conexión directa con Kraken);
-# el análisis completo (técnico, noticias, derivados, sentimiento, niveles y flecha) se renueva aquí.
+# el análisis completo (técnico, noticias, derivados, sentimiento, niveles y rango probable) se renueva aquí.
 name: Publicar Saltycripto
 
 on:

@@ -1,4 +1,4 @@
-"""Histórico profundo para calibrar la flecha.
+"""Histórico profundo para calibrar el rango probable.
 
 Kraken solo devuelve 720 velas por temporalidad (30 días en 1 h), muy poco para medir con qué frecuencia
 se repite un movimiento. Aquí se descargan años de velas de Binance (y Coinbase como respaldo), se guardan
@@ -128,6 +128,12 @@ class Historico:
         self.mem = {}
         self.estado = {}        # (sym, tf) -> {fuente, n, t, error}
         self._caido = {}        # fuente -> hasta cuándo no se intenta
+        self._cerrojos = {}     # (moneda, plazo) -> cerrojo: dos hilos no descargan ni escriben el mismo archivo a la vez
+        self._cerrojo_de_cerrojos = threading.Lock()
+
+    def _cerrojo(self, sym, tf):
+        with self._cerrojo_de_cerrojos:
+            return self._cerrojos.setdefault((sym, tf), threading.RLock())
 
     def _path(self, sym, tf):
         return self.dir / f"{sym}_{tf}.json"
@@ -139,7 +145,7 @@ class Historico:
         try:
             d = json.loads(self._path(sym, tf).read_text())
             rows = [{"t": x[0], "o": x[1], "h": x[2], "l": x[3], "c": x[4], "v": x[5]} for x in d["rows"]]
-            self.mem[k] = {"fuente": d.get("fuente"), "rows": rows}
+            self.mem[k] = {"fuente": d.get("fuente"), "rows": rows, "tope": bool(d.get("tope"))}
             if rows:
                 self.estado[k] = {"fuente": d.get("fuente"), "n": len(rows), "t": rows[-1]["t"], "error": None}
         except Exception:  # noqa: BLE001
@@ -149,7 +155,11 @@ class Historico:
     def _guardar(self, sym, tf, h):
         try:
             self.dir.mkdir(parents=True, exist_ok=True)
-            self._path(sym, tf).write_text(json.dumps({"fuente": h["fuente"], "rows": [[r["t"], r["o"], r["h"], r["l"], r["c"], r["v"]] for r in h["rows"]]}))
+            ruta = self._path(sym, tf)
+            tmp = ruta.with_suffix(".tmp")      # escritura atómica: un corte a mitad no deja un archivo roto
+            tmp.write_text(json.dumps({"fuente": h["fuente"], "tope": bool(h.get("tope")),
+                                       "rows": [[r["t"], r["o"], r["h"], r["l"], r["c"], r["v"]] for r in h["rows"]]}))
+            tmp.replace(ruta)
         except Exception:  # noqa: BLE001
             pass
 
@@ -168,15 +178,20 @@ class Historico:
 
     def actualizar(self, sym, tf, ahora_ms=None):
         """Completa el histórico de la moneda/temporalidad (descarga inicial o solo las velas nuevas)."""
+        with self._cerrojo(sym, tf):
+            return self._actualizar(sym, tf, ahora_ms)
+
+    def _actualizar(self, sym, tf, ahora_ms=None):
         if tf not in TF_MS or not self.net:
             return self.cargar(sym, tf)["rows"]
         h = self.cargar(sym, tf)
         ahora = ahora_ms or int(time.time() * 1000)
         rows = h["rows"]
         objetivo = OBJETIVO[tf]
-        if rows and ahora - rows[-1]["t"] < 2 * TF_MS[tf] and len(rows) >= objetivo * .9:
+        completo = len(rows) >= objetivo * .9 or h.get("tope")     # "tope": el mercado no tiene más historia (monedas nuevas)
+        if rows and ahora - rows[-1]["t"] < 2 * TF_MS[tf] and completo:
             return rows
-        if rows and len(rows) >= objetivo * .9:
+        if rows and completo:
             fuente, nuevas = self._descargar(sym, tf, 1000, rows[-1]["t"] + 1)
             if fuente and fuente != h["fuente"]:
                 # cambió el mercado de origen (p. ej. Binance no responde y se usa Coinbase): no se mezclan
@@ -184,10 +199,12 @@ class Historico:
                 fuente, nuevas = self._descargar(sym, tf, objetivo, None)
                 if nuevas:
                     rows = []
+                    h["tope"] = len(nuevas) < objetivo * .9
         else:
             fuente, nuevas = self._descargar(sym, tf, objetivo, None)
             if nuevas:
                 rows = []
+                h["tope"] = len(nuevas) < objetivo * .9
         if nuevas:
             vistos = {r["t"] for r in rows}
             rows = rows + [r for r in nuevas if r["t"] not in vistos]
@@ -208,6 +225,6 @@ class Historico:
 
     def resumen(self):
         out = {}
-        for (s, tf), e in self.estado.items():
+        for (s, tf), e in list(self.estado.items()):      # otros hilos añaden entradas mientras tanto
             out[f"{s} {tf}"] = e
         return out

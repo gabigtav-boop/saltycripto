@@ -1,445 +1,341 @@
-"""Proyección por analogías: la flecha del gráfico.
+"""Proyección por volatilidad: el rango probable del precio y la probabilidad de llegar a cada nivel.
 
-Cómo funciona (es el método de "pronóstico por análogos", habitual en meteorología y en mesas cuantitativas,
-adaptado a mercados):
+Por qué así (estudio completo en ANALISIS_PREDICCION.md): con 8 monedas, casi 4 años y unas 19.000 pruebas fuera de muestra,
+ningún método basado en precio, volumen, flujo de órdenes, funding, base de futuros o miedo y codicia (analogías, regresión
+de cresta, árboles de decisión) acertó la dirección mejor que lanzar una moneda, tampoco en el mercado bajista de 2022, y
+ninguno batió a comprar y mantener al descontar costes. Lo que sí es predecible es la volatilidad, que agrupa en rachas.
+Por eso este módulo no afirma dirección: dice cuánto puede moverse el precio y con qué probabilidad tocará cada nivel.
 
-1) Rasgos. En cada vela cerrada del histórico se describe el estado del mercado con 14 magnitudes sin escala
-   (lectura técnica v21, RSI, distancia a las medias en ATR, impulso normalizado por volatilidad, Bollinger,
-   régimen de volatilidad, ADX, volumen relativo, posición en el rango, hora del día…).
-2) Resultado real. Para cada una de esas velas se mide cuánto se movió el precio en las H velas siguientes,
-   dividido por la volatilidad del momento (así un día tranquilo y uno agitado se comparan en igualdad).
-3) Analogías. Para el estado actual se buscan las k situaciones pasadas más parecidas (vecinos más cercanos,
-   con los rasgos ponderados por su capacidad predictiva en el propio histórico y sin contar dos veces
-   momentos solapados). La distribución de lo que pasó después, reescalada a la volatilidad actual, da el
-   recorrido central, el abanico de percentiles (10-25-50-75-90) y la probabilidad de subida.
-4) Validación fuera de muestra. Antes de fiarse, el método se pone a prueba sobre el último tramo del
-   histórico usando solo información anterior a cada punto: acierto direccional, cobertura real del cono y
-   "destreza" frente a no saber nada (pérdida pinball). Si no hay destreza, la flecha se queda en lateral y
-   lo dice.
-5) Inclinación acotada (±0,35 σ) por los factores no técnicos de la lectura combinada (noticias, derivados,
-   flujo de órdenes, sentimiento) y desplazamiento por lo que el precio ya ha recorrido en la vela en curso.
-
-Todo se calcula con velas cerradas: ninguna muestra usa información posterior a su propio instante."""
+1) Volatilidad. Una sola estimación por vela: mezcla de la volatilidad reciente (media móvil exponencial de 20 velas) y la
+   de largo plazo (100 velas). Se usa igual en todas las temporalidades, así los rangos de 1 h, 4 h y 1 d son coherentes.
+2) Rango. Para cada vela del histórico se mide el retorno de las H velas siguientes dividido por la volatilidad del momento.
+   Los cuantiles de esa distribución (sin deriva: mediana en cero) multiplicados por la volatilidad de hoy dan el abanico.
+3) Niveles. Con el mismo histórico se mide la mayor excursión (máximo y mínimo) de las H velas siguientes, también en
+   unidades de volatilidad. La probabilidad de tocar un nivel a una distancia d es la frecuencia histórica de excursiones
+   de al menos d / volatilidad actual.
+4) Casos. Episodios reales del histórico con volatilidad y tendencia parecidas a las de ahora, dibujados a la escala de la
+   volatilidad de hoy. No sirven para saber hacia dónde irá el precio (los casos no añaden información sobre la dirección ni
+   sobre la forma de la distribución: estudio 9 de ANALISIS_PREDICCION.md) sino para ver cómo se mueve en situaciones así.
+   Para que no engañen: se buscan 50 (no los 4 más parecidos, cuya dispersión es solo un 70 % de la real y aparentan una
+   coherencia que no existe) y se dibujan 5 elegidos a los percentiles 10-25-50-75-90 del resultado. Con esa elección
+   reproducen la dispersión real, y se comprueba fuera de muestra. No se dibujan más (la nube tapaba el gráfico).
+5) Validación fuera de muestra. Sobre el último 35 % del histórico y con puntos separados por el horizonte, se mide la
+   cobertura real del rango (50 % y 80 %) y cuánto mejoran las probabilidades de tocar niveles frente a ignorar la
+   volatilidad (puntuación de Brier). Todo con velas cerradas: ninguna muestra usa información posterior a su instante."""
 import math
 
 import numpy as np
 
-from .motor import analyze
-
 HOR = {"1m": 60, "1h": 24, "4h": 12, "1d": 7, "1w": 4}         # velas que se proyectan
 HORAS = {"1m": 1 / 60, "1h": 1, "4h": 4, "1d": 24, "1w": 168}   # horas por vela
-PASO = {"1m": 6, "1h": 3, "4h": 2, "1d": 1, "1w": 1}            # separación entre muestras del histórico
-CON_HORA = {"1m", "1h"}
 WARM = 100
 MIN_MUESTRAS = 60
 QS = (.1, .25, .5, .75, .9)
-RASGOS = ["lectura técnica v21", "RSI 14", "distancia a EMA20", "distancia a EMA50", "distancia a EMA200",
-          "impulso del horizonte", "impulso corto", "Bollinger %B", "régimen de volatilidad", "ADX",
-          "volumen relativo", "posición en el rango", "hora del día (sen)", "hora del día (cos)"]
+ZG = np.linspace(0, 5, 101)                                      # malla de excursiones en unidades de volatilidad
+MULT = (.5, 1.0, 1.5, 2.0)
+KCASOS = 50                                                      # episodios reales que se buscan
+WARM_C = 250                                                     # el nivel de volatilidad compara con las 250 velas anteriores                                       # distancias de prueba, en múltiplos de la volatilidad típica
 
 
-# ---------- series ----------
+# ---------- volatilidad ----------
 def _ema(x, p):
     k = 2 / (p + 1)
     o = np.empty_like(x)
-    e = x[0]
+    e = x[:20].mean() if len(x) >= 20 else x.mean()
     for i in range(len(x)):
         e = x[i] * k + e * (1 - k)
         o[i] = e
     return o
 
 
-def _wilder(x, p, inicio):
-    o = np.full(len(x), np.nan)
-    if len(x) <= inicio + p:
-        return o
-    a = x[inicio:inicio + p].mean()
-    o[inicio + p - 1] = a
-    for i in range(inicio + p, len(x)):
-        a = (a * (p - 1) + x[i]) / p
-        o[i] = a
+R2_MAX = .5            # tope absoluto del retorno logarítmico al cuadrado que entra en la volatilidad (|r| ≈ 70 %)
+CAP_REL = 100.0        # y tope relativo: un retorno no cuenta más de 100 veces la varianza reciente (10 volatilidades)
+
+
+def _ema_robusta(r2, p):
+    """Media móvil exponencial de retornos al cuadrado, robusta a datos absurdos: arranca con la mediana (no con la media)
+    y cada retorno se recorta a CAP_REL veces la estimación de ese momento. Una mecha de 2016 en el histórico semanal de
+    Kraken, o un dato erróneo, deja de arrastrar la volatilidad durante cientos de velas; una caída real de un 20 % sí
+    sube la volatilidad (son decenas de volatilidades, pero el recorte deja pasar 10)."""
+    k = 2 / (p + 1)
+    e = max(float(np.median(r2[:20])) if len(r2) else 1e-10, 1e-10)
+    o = np.empty_like(r2)
+    for i in range(len(r2)):
+        e = min(r2[i], R2_MAX, CAP_REL * e) * k + e * (1 - k)
+        o[i] = e
     return o
 
 
-def _rsi(c, p=14):
-    d = np.diff(c, prepend=c[0])
-    g = _wilder(np.maximum(d, 0), p, 1)
-    l = _wilder(np.maximum(-d, 0), p, 1)
-    with np.errstate(divide="ignore", invalid="ignore"):
-        r = 100 - 100 / (1 + g / l)
-    r = np.where(l == 0, 100, r)
-    return np.nan_to_num(r, nan=50.0)
-
-
-def _adx(h, l, c, p=14):
-    n = len(c)
-    up = np.diff(h, prepend=h[0])
-    dn = -np.diff(l, prepend=l[0])
-    pdm = np.where((up > dn) & (up > 0), up, 0.0)
-    mdm = np.where((dn > up) & (dn > 0), dn, 0.0)
-    pc = np.roll(c, 1)
-    pc[0] = c[0]
-    tr = np.maximum(h - l, np.maximum(np.abs(h - pc), np.abs(l - pc)))
-    P, M, T = _wilder(pdm, p, 1), _wilder(mdm, p, 1), _wilder(tr, p, 1)
-    with np.errstate(divide="ignore", invalid="ignore"):
-        dx = 100 * np.abs(P - M) / np.where(P + M == 0, 1, P + M)
-    dx = np.nan_to_num(dx, nan=0.0)
-    a = _wilder(dx, p, 2 * p)
-    return np.nan_to_num(a, nan=20.0), np.nan_to_num(T, nan=np.nanmean(T[np.isfinite(T)]) if np.isfinite(T).any() else 1.0)
-
-
-def _roll(x, w, fn):
-    """fn (max/min/mean) sobre ventana w, alineada al final; los primeros w-1 valores se rellenan."""
-    if len(x) < w:
-        return np.full(len(x), fn(x) if len(x) else 0.0)
-    v = np.lib.stride_tricks.sliding_window_view(x, w)
-    out = fn(v, axis=1)
-    return np.concatenate([np.full(w - 1, out[0]), out])
-
-
-def rasgos(rows, tf):
-    """Rasgos sin escala en cada vela, volatilidad del momento y precios (todo con velas cerradas)."""
-    H = HOR[tf]
-    n = len(rows)
-    t = np.array([r["t"] for r in rows], dtype=float)
-    o = np.array([r["o"] for r in rows], dtype=float)
-    h = np.array([r["h"] for r in rows], dtype=float)
-    l = np.array([r["l"] for r in rows], dtype=float)
-    c = np.array([r["c"] for r in rows], dtype=float)
-    v = np.array([r["v"] for r in rows], dtype=float)
+def volatilidad(c):
+    """Desviación típica del retorno logarítmico por vela: mezcla de memoria corta (20) y larga (100)."""
     lc = np.log(np.maximum(c, 1e-12))
-    lr = np.diff(lc, prepend=lc[0])
-    sig_s = np.sqrt(np.maximum(_ema(lr * lr, 20), 1e-14))
-    sig_l = np.sqrt(np.maximum(_ema(lr * lr, 100), 1e-14))
-    sigma = np.clip(sig_s, .5 * sig_l, 2 * sig_l)
-    e20, e50 = _ema(c, 20), _ema(c, 50)
-    e200 = _ema(c, 200) if n >= 220 else None
-    adx, atr = _adx(h, l, c)
-    atr = np.maximum(atr, c * 1e-5)
-    rsi = _rsi(c)
-    m20 = _roll(c, 20, np.mean)
-    s20 = np.maximum(np.sqrt(np.maximum(_roll(c * c, 20, np.mean) - m20 * m20, 0)), c * 1e-6)
-    bbp = (c - (m20 - 2 * s20)) / (4 * s20)
-    vm = _roll(v, 20, np.mean)
-    relvol = np.log(np.maximum(v, 1e-9) / np.maximum(vm, 1e-9))
-    hi50, lo50 = _roll(h, 50, np.max), _roll(l, 50, np.min)
-    rng = (c - lo50) / np.maximum(hi50 - lo50, c * 1e-6)
-    q = max(2, H // 4)
-    momH = (lc - np.concatenate([np.full(H, lc[0]), lc[:-H]])) / (sigma * math.sqrt(H))
-    momq = (lc - np.concatenate([np.full(q, lc[0]), lc[:-q]])) / (sigma * math.sqrt(q))
-    F = np.zeros((n, len(RASGOS)))
-    F[:, 1] = (rsi - 50) / 20
-    F[:, 2] = np.clip((c - e20) / atr, -6, 6)
-    F[:, 3] = np.clip((c - e50) / atr, -8, 8)
-    F[:, 4] = np.clip((c - e200) / atr, -12, 12) / 2 if e200 is not None else 0
-    F[:, 5] = np.clip(momH, -4, 4)
-    F[:, 6] = np.clip(momq, -4, 4)
-    F[:, 7] = np.clip((bbp - .5) * 2, -2, 2)
-    F[:, 8] = np.clip(np.log(sig_s / sig_l), -1.5, 1.5) * 2
-    F[:, 9] = np.clip(adx / 25 - 1, -1, 2)
-    F[:, 10] = np.clip(relvol, -2, 2)
-    F[:, 11] = (rng - .5) * 2
-    if tf in CON_HORA:
-        hora = ((t / 3.6e6) % 24) / 24 * 2 * math.pi
-        F[:, 12], F[:, 13] = np.sin(hora), np.cos(hora)
-    return {"F": F, "sigma": sigma, "lc": lc, "t": t, "c": c, "H": H, "atr": atr}
+    r2 = np.diff(lc, prepend=lc[0]) ** 2
+    return np.sqrt(np.maximum(.5 * _ema_robusta(r2, 20) + .5 * _ema_robusta(r2, 100), 1e-14)), lc
 
 
-def _score21(rows, idx, cache=None):
-    """Lectura técnica v21 (0-100) en las velas pedidas, con solo velas anteriores.
-    `cache` (marca de tiempo → lectura) evita recalcular velas cerradas, que nunca cambian. Solo se guardan
-    las que tienen la ventana completa de 260 velas, así el valor no depende de dónde empiece la serie
-    (y la lectura no cambia si toda la serie se reescala, como al empalmar histórico y Kraken)."""
-    out = {}
-    for i in idx:
-        t = rows[i]["t"]
-        if cache is not None and i >= 259 and t in cache:
-            out[i] = cache[t]
-            continue
-        a = analyze(rows[max(0, i - 259):i + 1], False)
-        out[i] = a["score"] if (a and a["score"] is not None) else 50.0
-        if cache is not None and i >= 259:
-            cache[t] = out[i]
+def _ventanas(x, H, fn):
+    """fn (max/min) de las H velas siguientes a cada vela (la última da NaN)."""
+    n = len(x)
+    out = np.full(n, np.nan)
+    if n > H:
+        v = np.lib.stride_tricks.sliding_window_view(x[1:], H)
+        out[:len(v)] = fn(v, axis=1)
     return out
 
 
-# ---------- utilidades estadísticas ----------
-def wquant(x, w, qs=QS):
-    o = np.argsort(x)
-    x, w = x[o], w[o]
-    cw = np.cumsum(w)
-    cw = (cw - .5 * w) / cw[-1]
-    return np.interp(qs, cw, x)
+def _supervivencia(exc):
+    """Probabilidad de que la excursión (en unidades de volatilidad) alcance cada punto de la malla ZG."""
+    s = np.sort(exc)
+    return 1 - np.searchsorted(s, ZG, side="left") / len(s)
 
 
-def _pinball(q, y, qs=QS):
-    """Pérdida pinball media de un conjunto de cuantiles frente al valor real."""
-    s = 0.0
-    for qq, a in zip(q, qs):
-        d = y - qq
-        s += max(a * d, (a - 1) * d)
-    return s / len(qs)
+def _cuantiles(y):
+    q = np.quantile(y, QS)
+    return q - q[2]                                              # sin deriva: la mediana es cero
 
 
-def _vecinos(X, Xq, w, idx, sep, k):
-    """k vecinos más parecidos, sin dos momentos a menos de `sep` velas (no se cuenta dos veces lo mismo)."""
-    d2 = ((X - Xq) ** 2 * w).sum(1)
-    m = len(d2)
-    pre = min(m, 14 * k)
-    cand = np.argpartition(d2, pre - 1)[:pre] if pre < m else np.arange(m)
-    cand = cand[np.argsort(d2[cand])]
-    bloq = np.zeros(int(idx.max()) + sep + 1, dtype=bool)
-    sel = []
-    for j in cand:
-        tj = int(idx[j])
+def _interp(F, z):
+    return float(np.interp(z, ZG, F))
+
+
+# ---------- casos: episodios reales parecidos ----------
+def _estado(c, h, l, sig, lc, H):
+    """Rasgos de similitud sin escala: régimen y nivel de volatilidad, distancia a las medias de 50 y 200 velas (en ATR) e
+    impulso del horizonte (en volatilidades). Todos con velas cerradas."""
+    n = len(c)
+    r2 = np.diff(lc, prepend=lc[0]) ** 2
+    regimen = np.clip(np.log(np.sqrt(_ema_robusta(r2, 20)) / np.sqrt(_ema_robusta(r2, 100))) * 2, -3, 3)
+    cs = np.cumsum(np.insert(sig, 0, 0.0))
+    base = np.full(n, np.nan)
+    if n > WARM_C:
+        base[WARM_C:] = (cs[WARM_C:n] - cs[:n - WARM_C]) / WARM_C
+    nivel = np.clip(np.log(sig / base), -2, 2)
+    pc = np.roll(c, 1)
+    pc[0] = c[0]
+    tr = np.maximum(h - l, np.maximum(np.abs(h - pc), np.abs(l - pc)))
+    atr = np.maximum(_ema(tr, 14), c * 1e-6)
+    mom = (lc - np.concatenate([np.full(H, lc[0]), lc[:-H]])) / (sig * math.sqrt(H))
+    return np.column_stack([regimen, nivel, np.clip((c - _ema(c, 50)) / atr, -8, 8),
+                           np.clip((c - _ema(c, 200)) / atr, -12, 12) / 2, np.clip(mom, -4, 4)])
+
+
+def _vecinos(Z, zq, tiempos, sep, k):
+    """k vecinos más parecidos sin dos momentos a menos de `sep` velas (no se cuenta dos veces lo mismo)."""
+    d2 = ((Z - zq) ** 2).sum(1)
+    sel, bloq = [], np.zeros(int(tiempos.max()) + sep + 1, dtype=bool)
+    for j in np.argsort(d2)[:14 * k]:
+        tj = int(tiempos[j])
         if bloq[tj]:
             continue
-        sel.append(j)
+        sel.append(int(j))
         bloq[max(0, tj - sep + 1):tj + sep] = True
         if len(sel) >= k:
             break
-    sel = np.array(sel)
-    d = np.sqrt(d2[sel])
-    dk = d[-1] if d[-1] > 0 else 1.0
-    u = np.minimum(d / dk, 1.0)
-    pesos = (1 - u ** 3) ** 3 + .05
-    return sel, pesos
+    return np.array(sel, dtype=int)
 
 
-def _pesos_rasgos(X, y):
-    """Peso de cada rasgo = su correlación (en valor absoluto) con el resultado, con un suelo."""
-    Xc = X - X.mean(0)
-    yc = y - y.mean()
-    sx = np.sqrt((Xc ** 2).sum(0)) + 1e-12
-    sy = math.sqrt((yc ** 2).sum()) + 1e-12
-    ic = np.abs((Xc * yc[:, None]).sum(0) / (sx * sy))
-    ic[X.std(0) < 1e-9] = 0
-    w = ic + .02
-    return w / w.mean(), ic
+def _elegir(y_sel):
+    """5 casos representativos: los que quedan a los percentiles 10-25-50-75-90 del resultado (de peor a mejor)."""
+    o = np.argsort(y_sel)
+    return [int(o[int(round(q * (len(o) - 1)))]) for q in QS]
 
 
-def _estandar(X):
-    mu = X.mean(0)
-    sd = X.std(0)
+def _casos(F, idx, y, lc, sig, t, H):
+    """Busca los episodios parecidos al estado de la última vela cerrada."""
+    X = F[idx]
+    ok = np.isfinite(X).all(1)
+    if ok.sum() < 150 or not np.isfinite(F[-1]).all():
+        return None
+    mu, sd = X[ok].mean(0), X[ok].std(0)
     sd[sd < 1e-9] = 1
-    return mu, sd
+    Z = np.where(np.isfinite(X), (X - mu) / sd, 1e3)               # lo que no tiene estado calculable no se parece a nada
+    k = min(KCASOS, int(ok.sum() // 8))
+    sel = _vecinos(Z, (F[-1] - mu) / sd, idx, max(1, H // 2), k)
+    if len(sel) < 10:
+        return None
+    ii = idx[sel]
+    ks = np.arange(1, H + 1)
+    Zk = (lc[ii[:, None] + ks] - lc[ii][:, None]) / (sig[ii][:, None] * np.sqrt(ks))
+    return {"t": t[ii].astype(np.int64), "y": y[sel], "Zk": Zk, "rep": _elegir(y[sel]), "k": int(len(sel))}
 
 
-def _k(n):
-    return int(min(60, max(15, round(1.6 * math.sqrt(n)))))
+def _validar_casos(F, idx, y, H):
+    """Fuera de muestra: ¿reproducen los casos la dispersión real? Último 35 %, un punto cada horizonte."""
+    X = F[idx]
+    ok = np.isfinite(X).all(1)
+    m = len(idx)
+    corte = int(m * .65)
+    if ok[:corte].sum() < 150:
+        return None
+    mu, sd = X[:corte][ok[:corte]].mean(0), X[:corte][ok[:corte]].std(0)
+    sd[sd < 1e-9] = 1
+    Z = np.where(np.isfinite(X), (X - mu) / sd, 1e3)
+    e50 = e80 = r80 = nt = 0
+    razon = []
+    for i in range(corte, m, H):
+        if not ok[i]:
+            continue
+        lim = int(np.searchsorted(idx, idx[i] - H, side="right"))
+        if lim < 150:
+            continue
+        sel = _vecinos(Z[:lim], Z[i], idx[:lim], max(1, H // 2), min(KCASOS, lim // 8))
+        if len(sel) < 10:
+            continue
+        ys = y[sel]
+        q = np.quantile(ys, QS)
+        rep = ys[_elegir(ys)]
+        e50 += q[1] <= y[i] <= q[3]
+        e80 += q[0] <= y[i] <= q[4]
+        r80 += rep[0] <= y[i] <= rep[-1]
+        razon.append(ys.std() / (y[:lim].std() + 1e-9))
+        nt += 1
+    if nt < 12:
+        return None
+    return {"n": nt, "env50": e50 / nt, "env80": e80 / nt, "rep80": r80 / nt, "razon": float(np.mean(razon))}
 
 
-def _pron(y, P, w):
-    """Cuantiles del resultado y del recorrido, y probabilidad de subida, de un conjunto ponderado."""
-    q = wquant(y, w)
-    qp = np.array([wquant(P[:, i], w) for i in range(P.shape[1])])     # H × 5
-    p_up = float(w[y > 0].sum() / w.sum())
-    return q, qp, p_up
-
-
-def _mezcla(a, b, lam):
-    return lam * a + (1 - lam) * b
-
-
-def _factores(Q, Y):
-    """Ajuste conformal: cuánto ensanchar las bandas 50 % y 80 % para que cubran lo que prometen."""
-    med = Q[:, 2]
-    h50 = np.maximum((Q[:, 3] - Q[:, 1]) / 2, 1e-6)
-    h80 = np.maximum((Q[:, 4] - Q[:, 0]) / 2, 1e-6)
-    r = np.abs(Y - med)
-    f50 = float(np.quantile(r / h50, .5))
-    f80 = float(np.quantile(r / h80, .8))
-    return min(3.0, max(.7, f50)), min(3.0, max(.7, f80))
-
-
-def _ensanchar(Q, f50, f80):
-    """Aplica los factores a cuantiles (filas: casos u horizontes; columnas: 10-25-50-75-90)."""
-    med = Q[:, 2:3]
-    out = Q.copy()
-    out[:, 1:2] = med - (med - Q[:, 1:2]) * f50
-    out[:, 3:4] = med + (Q[:, 3:4] - med) * f50
-    out[:, 0:1] = med - (med - Q[:, 0:1]) * f80
-    out[:, 4:5] = med + (Q[:, 4:5] - med) * f80
+def limpiar(rows):
+    """Quita las velas con precios no finitos o no positivos y corrige máximos y mínimos incoherentes con apertura y cierre.
+    No inventa nada: si falta una vela, la serie sigue siendo la misma sin ella."""
+    out = []
+    for r in rows:
+        try:
+            o, h, l, c, v = (float(r[k]) for k in ("o", "h", "l", "c", "v"))
+        except (TypeError, ValueError, KeyError):
+            continue
+        if not all(math.isfinite(x) for x in (o, h, l, c)) or min(o, h, l, c) <= 0:
+            continue
+        out.append({"t": r["t"], "o": o, "h": max(h, o, c, l), "l": min(l, o, c, h), "c": c, "v": v if math.isfinite(v) else 0.0})
     return out
 
 
 # ---------- calibración (histórico) ----------
 def calibrar(rows, tf, cache=None):
-    """Prepara el histórico de una temporalidad: rasgos, resultados, validación fuera de muestra
-    y el pronóstico para el último estado conocido (última vela cerrada)."""
+    """Prepara el histórico de una temporalidad: distribución de retornos y excursiones normalizadas por la volatilidad,
+    y su validación fuera de muestra. `cache` se admite por compatibilidad y no se usa."""
     H = HOR[tf]
-    paso = PASO[tf]
+    rows = limpiar(rows)
     n = len(rows)
-    if n < WARM + H + MIN_MUESTRAS * paso // 2:
+    if n < WARM + H + MIN_MUESTRAS:
         return None
-    R = rasgos(rows, tf)
-    F, sigma, lc = R["F"], R["sigma"], R["lc"]
-    idx = np.arange(WARM, n - H, paso)
+    c = np.array([r["c"] for r in rows], dtype=float)
+    hi = np.array([r["h"] for r in rows], dtype=float)
+    lo = np.array([r["l"] for r in rows], dtype=float)
+    sig, lc = volatilidad(c)
+    idx = np.arange(WARM, n - H)
     if len(idx) < MIN_MUESTRAS:
         return None
-    s21 = _score21(rows, list(idx) + [n - 1], cache)
-    for i, s in s21.items():
-        F[i, 0] = (s - 50) / 25
-    den = sigma[idx] * math.sqrt(H)
-    y = (lc[idx + H] - lc[idx]) / den
-    P = np.stack([(lc[idx + i] - lc[idx]) / den for i in range(1, H + 1)], axis=1)
-    k = _k(len(idx))
-    sep = max(1, H // 2)
+    sH = sig[idx] * math.sqrt(H)
+    y = (lc[idx + H] - lc[idx]) / sH
+    up = np.maximum(np.log(_ventanas(hi, H, np.max)[idx] / c[idx]), 0) / sH
+    dn = np.maximum(-np.log(_ventanas(lo, H, np.min)[idx] / c[idx]), 0) / sH
+    # recorrido: en cada paso k, retorno acumulado normalizado por la volatilidad y la raíz de k (abanico)
+    qp = np.empty((H, len(QS)))
+    for k in range(1, H + 1):
+        zk = (lc[idx + k] - lc[idx]) / (sig[idx] * math.sqrt(k))
+        qp[k - 1] = _cuantiles(zk)
+    qp[-1] = _cuantiles(y)
     m = len(idx)
-    # --- validación fuera de muestra: último 35 % del histórico, cada punto solo con lo anterior a él.
-    # Tramo A: cuánto ensanchar el cono para que cubra lo que promete (ajuste conformal).
-    # Tramo B: con el cono ya ajustado, acierto direccional, cobertura y destreza frente a "no saber nada"
-    # (la distribución de siempre, sin deriva).
+    ref = float(np.median(sH))
+    val = _validar(y, up, dn, sH, idx, H)
+    activa = float(np.mean([r["v"] > 0 for r in rows[-500:]]))        # fracción de velas recientes con operaciones
+    t = np.array([r["t"] for r in rows], dtype=np.int64)
+    F = _estado(c, hi, lo, sig, lc, H)
+    idx_c = np.arange(WARM + WARM_C, n - H)
+    casos = val_casos = None
+    if len(idx_c) >= 150:
+        y_c = (lc[idx_c + H] - lc[idx_c]) / (sig[idx_c] * math.sqrt(H))
+        casos = _casos(F, idx_c, y_c, lc, sig, t, H)
+        val_casos = _validar_casos(F, idx_c, y_c, H)
+    return {"casos": casos, "val_casos": val_casos, "activa": activa, "tf": tf, "H": H, "horas": H * HORAS[tf], "n": int(n), "muestras": int(m), "t_ultima": int(rows[-1]["t"]),
+            "c_ultima": float(c[-1]), "sigma": float(sig[-1]), "q": _cuantiles(y), "qp": qp, "F_up": _supervivencia(up),
+            "F_dn": _supervivencia(dn), "ref": ref, "val": val}
+
+
+def _validar(y, up, dn, sH, idx, H):
+    """Último 35 % del histórico, cada punto con lo conocido antes de él (el resultado de las muestras de entrenamiento
+    ya había ocurrido) y puntos separados por el horizonte para que sean independientes."""
+    m = len(y)
     corte = int(m * .65)
-    w_r, ic = _pesos_rasgos(F[idx[:corte]], y[:corte])
-    mu, sd = _estandar(F[idx[:corte]])
-    Z = (F[idx] - mu) / sd
-    pruebas = range(corte, m, max(1, round(H / 4 / paso)) if paso < H else 1)
-    Q, PU, Y, QB = [], [], [], []
+    pruebas = list(range(corte, m, H))
+    c50 = c80 = nt = 0
+    bm, bb = [], []
+    cob = []
     for i in pruebas:
-        lim = int(np.searchsorted(idx, idx[i] - H, side="right"))   # muestras cuyo resultado ya se conocía
+        lim = int(np.searchsorted(idx, idx[i] - H, side="right"))
         if lim < MIN_MUESTRAS:
             continue
-        sel, pw = _vecinos(Z[:lim], Z[i], w_r, idx[:lim], sep, k)
-        q, _, p_up = _pron(y[sel], P[sel][:, -1:], pw)
-        Q.append(q)
-        PU.append(p_up)
-        Y.append(y[i])
-        qb = np.quantile(y[:lim], QS)
-        QB.append(qb - qb[2])
-    val = None
-    fk, fb = (1.3, 1.3), (1.0, 1.0)
-    destreza = None
-    if len(Y) >= 24:
-        Q, PU, Y, QB = np.array(Q), np.array(PU), np.array(Y), np.array(QB)
-        a = len(Y) // 2
-        fkA, fbA = _factores(Q[:a], Y[:a]), _factores(QB[:a], Y[:a])
-        Qw, QBw = _ensanchar(Q[a:], *fkA), _ensanchar(QB[a:], *fbA)
-        Yb, PUb = Y[a:], PU[a:]
-        sube = (PUb >= .55) & (Qw[:, 2] > 0)
-        baja = (PUb <= .45) & (Qw[:, 2] < 0)
-        llam = int(sube.sum() + baja.sum())
-        hit = int((sube & (Yb > 0)).sum() + (baja & (Yb < 0)).sum())
-        pin_m = float(np.mean([_pinball(qq, yy) for qq, yy in zip(Qw, Yb)]))
-        pin_b = float(np.mean([_pinball(qq, yy) for qq, yy in zip(QBw, Yb)]))
-        destreza = 1 - pin_m / pin_b if pin_b > 0 else 0.0
-        lam_v = _lam(destreza, float(len(Yb)))
-        Fin = _mezcla(Qw, QBw, lam_v)
-        val = {"n": int(len(Yb)), "llamadas": llam, "acierto": hit / llam if llam else None,
-               "cob50": float(((Fin[:, 1] <= Yb) & (Yb <= Fin[:, 3])).mean()),
-               "cob80": float(((Fin[:, 0] <= Yb) & (Yb <= Fin[:, 4])).mean()),
-               "destreza": destreza, "base_sube": float((Yb > 0).mean()),
-               "ic": float(np.corrcoef(Q[a:, 2], Yb)[0, 1]) if np.std(Q[a:, 2]) > 1e-9 else 0.0}
-        fk, fb = _factores(Q, Y), _factores(QB, Y)
-        val["f50"], val["f80"] = fk
-    # --- pronóstico para el estado actual (última vela cerrada), con todo el histórico ---
-    w_r, ic = _pesos_rasgos(F[idx], y)
-    mu, sd = _estandar(F[idx])
-    Z = (F[idx] - mu) / sd
-    zq = (F[n - 1] - mu) / sd
-    sel, pw = _vecinos(Z, zq, w_r, idx, sep, k)
-    q, qp, p_up = _pron(y[sel], P[sel], pw)
-    q = _ensanchar(q[None, :], *fk)[0]
-    qp = _ensanchar(qp, *fk)
-    n_eff = float(pw.sum() ** 2 / (pw ** 2).sum())
-    # la distribución "de siempre": sin deriva (mediana cero) y con su propio ajuste de anchura
-    qb = np.quantile(y, QS)
-    qb = _ensanchar((qb - qb[2])[None, :], *fb)[0]
-    qpb = np.quantile(P, QS, axis=0).T
-    qpb = _ensanchar(qpb - qpb[:, 2:3], *fb)
-    # cuánto se escuchan las analogías: solo en la medida en que demostraron destreza fuera de muestra
-    # la dirección solo se escucha si, además de mejorar la anchura del cono, acertó al menos la mitad de las veces
-    # que la marcó fuera de muestra: con un acierto por debajo del 50 % las analogías van peor que lanzar una moneda
-    dir_ok = direccion_valida(val)
-    lam = _lam(destreza, n_eff) if (destreza is not None and dir_ok) else 0.0
-    fiable = destreza is not None and destreza > 0 and dir_ok
-    orden = np.argsort(-ic)
-    top = [{"rasgo": RASGOS[j], "ic": float(ic[j])} for j in orden[:4] if ic[j] > 0]
-    o_sel = sel[np.argsort(-pw)][:6]
-    lst = list(sel)
-    analogos = [{"t": int(R["t"][idx[j]]), "ret": [float(x) for x in P[j]], "fin": float(y[j]), "peso": float(pw[lst.index(j)])} for j in o_sel]
-    return {"tf": tf, "H": H, "horas": H * HORAS[tf], "n": int(n), "muestras": int(m), "k": int(k), "n_eff": n_eff, "lam": float(lam),
-            "t_ultima": int(R["t"][n - 1]), "c_ultima": float(R["c"][n - 1]), "sigma": float(sigma[n - 1]),
-            "q": _mezcla(q, qb, lam), "qp": _mezcla(qp, qpb, lam), "p_up": _mezcla(p_up, .5, lam),
-            "q_ana": q, "p_up_ana": float(p_up), "val": val, "fiable": fiable, "rasgos": top, "analogos": analogos,
-            "score21": s21[n - 1], "estado_z": [float(x) for x in zq[:12]]}
-
-
-def direccion_valida(val, minimas=10):
-    """¿Respalda la validación fuera de muestra la dirección? Sin validación o con pocas llamadas no se descarta
-    (la destreza ya decide); con suficientes llamadas, el acierto debe ser al menos del 50 %."""
-    if not val or val.get("llamadas", 0) < minimas or val.get("acierto") is None:
-        return True
-    return val["acierto"] >= .5
-
-
-def _lam(destreza, n_eff):
-    """Peso de las analogías frente a la distribución base: 0 sin destreza, 1 con destreza ≥ 5 %."""
-    if destreza is None or destreza <= 0:
-        return 0.0
-    return min(1.0, destreza / .05) * n_eff / (n_eff + 12)
+        q = _cuantiles(y[:lim])
+        cob.append((q[1] <= y[i] <= q[3], q[0] <= y[i] <= q[4]))
+        ref = float(np.median(sH[:lim]))
+        Fu, Fd = _supervivencia(up[:lim]), _supervivencia(dn[:lim])
+        for mult in MULT:
+            d = mult * ref
+            for F, exc_tr, exc_i in ((Fu, up[:lim] * sH[:lim], up[i] * sH[i]), (Fd, dn[:lim] * sH[:lim], dn[i] * sH[i])):
+                p_base = float(np.mean(exc_tr >= d))              # ignorando la volatilidad actual
+                p_mod = _interp(F, d / sH[i])                      # según la volatilidad actual
+                real = 1.0 if exc_i >= d else 0.0
+                bm.append((p_mod - real) ** 2)
+                bb.append((p_base - real) ** 2)
+        nt += 1
+    if nt < 12:
+        return None
+    cob = np.array(cob, dtype=float)
+    return {"n": nt, "cob50": float(cob[:, 0].mean()), "cob80": float(cob[:, 1].mean()),
+            "brier_mejora": float(1 - np.mean(bm) / np.mean(bb)) if np.mean(bb) > 0 else 0.0}
 
 
 # ---------- proyección en vivo ----------
+def p_tocar(calib, precio, nivel, lado):
+    """Probabilidad de que el precio llegue a `nivel` dentro del horizonte. lado 'sube': el nivel está por encima."""
+    esc = calib["sigma"] * math.sqrt(calib["H"])
+    if lado == "sube":
+        if precio >= nivel:
+            return 1.0
+        return _interp(calib["F_up"], math.log(nivel / precio) / esc)
+    if precio <= nivel:
+        return 1.0
+    return _interp(calib["F_dn"], math.log(precio / nivel) / esc)
+
+
 def proyectar(price, tf, calib, prev=None, z=None):
-    """Convierte el pronóstico calibrado en precios desde el precio actual: centro, bandas, recorrido,
-    probabilidad y nivel que puede frenarlo. Es instantáneo (se llama cada segundo)."""
+    """Convierte la calibración en precios desde el precio actual: abanico, rango y probabilidad de tocar los niveles.
+    Es instantáneo (se llama cada segundo). `prev` se admite por compatibilidad y no inclina nada: sin ventaja demostrada."""
     if not calib or not price or price <= 0:
         return None
     H = calib["H"]
-    esc = calib["sigma"] * math.sqrt(H)             # desviación típica del horizonte, en log-retorno
-    # inclinación por factores no técnicos (noticias, derivados, flujo, sentimiento), acotada a ±0,35 σ
-    nt = 0.0
-    if prev and prev.get("factores"):
-        nt = sum(f["aporte"] for f in prev["factores"] if not f["nombre"].startswith("Técnico") and f["nombre"] != "Semáforo de momento") / 100
-    incl = max(-.35, min(.35, nt * 1.2))
-    # el pronóstico se ancla al precio actual (sin deriva no hay razón para "volver" al cierre anterior);
-    # lo recorrido desde la última vela cerrada se informa, no se descuenta
-    d = (math.log(price) - math.log(calib["c_ultima"])) / esc
-    q = calib["q"] + incl
-    qp = calib["qp"] + incl * (np.arange(1, H + 1) / H)[:, None]
-    # la probabilidad de subida se desplaza con la inclinación (±0,35 σ ≈ ±10 puntos)
-    p_up = min(.95, max(.05, calib["p_up"] + incl * .3))
-    med = float(q[2])
-    if p_up >= .56 and med > .05:
-        dirc = "alcista"
-    elif p_up <= .44 and med < -.05:
-        dirc = "bajista"
-    else:
-        dirc = "lateral"
-    p_dir = p_up if dirc == "alcista" else (1 - p_up) if dirc == "bajista" else None
-    val = calib.get("val")
-    conf = "baja"
-    if dirc != "lateral":
-        ok = bool(val and val["destreza"] > .02 and (val["acierto"] or 0) >= .55 and val["llamadas"] >= 8)
-        if p_dir >= .6 and ok:
-            conf = "alta"
-        elif p_dir >= .55 and (ok or calib["fiable"]):
-            conf = "media"
-    px = lambda v: float(price * math.exp(v * esc))  # noqa: E731
-    centro = px(q[2])
-    out = {"tf": tf, "velas": H, "horas": calib["horas"], "dir": dirc, "conf": conf, "fiable": calib["fiable"],
-           "p_up": float(p_up), "p_dir": None if p_dir is None else float(p_dir), "centro": centro,
-           "b50": [px(q[1]), px(q[3])], "b80": [px(q[0]), px(q[4])], "sd_pct": esc * 100,
-           "q": {str(int(a * 100)): [px(v) for v in qp[:, j]] for j, a in enumerate(QS)},
-           "analogos": [{"t": a["t"], "ret": [(math.exp(r * esc) - 1) * 100 for r in a["ret"]], "fin": (math.exp(a["fin"] * esc) - 1) * 100, "peso": a.get("peso")} for a in calib["analogos"]],
-           "val": val, "n": calib["muestras"], "k": calib["k"], "n_eff": round(calib["n_eff"], 1), "rasgos": calib["rasgos"],
-           "inclinacion": nt, "recorrido": d, "nivel": None, "t_calib": calib["t_ultima"], "score21": calib.get("score21"),
-           "lam": calib["lam"], "p_up_ana": calib["p_up_ana"]}
+    sig = calib["sigma"]
+    esc = sig * math.sqrt(H)
+    q = calib["q"]
+    px = lambda v, e=esc: float(price * math.exp(v * e))  # noqa: E731
+    out = {"tf": tf, "velas": H, "horas": calib["horas"], "dir": "lateral", "conf": "baja", "fiable": False,
+           "centro": float(price), "b50": [px(q[1]), px(q[3])], "b80": [px(q[0]), px(q[4])], "sd_pct": esc * 100,
+           "q": {str(int(a * 100)): [float(price * math.exp(calib["qp"][k, j] * sig * math.sqrt(k + 1))) for k in range(H)]
+                 for j, a in enumerate(QS)},
+           "val": calib["val"], "n": calib["muestras"], "t_calib": calib["t_ultima"], "activa": calib.get("activa"), "niveles": []}
+    cs = calib.get("casos")
+    if cs:
+        ks = np.arange(1, H + 1)
+        sel = list(cs["rep"])
+        ret = (np.exp(cs["Zk"][sel] * (sig * np.sqrt(ks))) - 1) * 100
+        out["analogos"] = [{"t": int(cs["t"][j]), "ret": [round(float(x), 3) for x in ret[i]], "fin": float(ret[i][-1]),
+                            "rep": i + 1} for i, j in enumerate(sel)]
+        fin = (np.exp(cs["y"] * esc) - 1) * 100
+        out["casos"] = {"k": cs["k"], "sube": int((cs["y"] > 0).sum()), "baja": int((cs["y"] <= 0).sum()),
+                        "b50": [float(np.percentile(fin, 25)), float(np.percentile(fin, 75))]}
+    out["val_casos"] = calib.get("val_casos")
     if z:
-        if dirc == "bajista":
-            s = next((g for g in z.get("sup", []) if not g.get("proj") and g["mid"] >= centro and g["mid"] < price), None)
-            if s:
-                out["nivel"] = {"tipo": "soporte", "precio": s["mid"], "fuerza": s.get("s", 0)}
-        elif dirc == "alcista":
-            r = next((g for g in z.get("res", []) if not g.get("proj") and g["mid"] <= centro and g["mid"] > price), None)
-            if r:
-                out["nivel"] = {"tipo": "resistencia", "precio": r["mid"], "fuerza": r.get("s", 0)}
+        for clave, lado, pref in (("res", "sube", "S"), ("sup", "baja", "E")):
+            for i, g in enumerate(z.get(clave, [])[:2]):
+                borde = g["lo"] if lado == "sube" else g["hi"]            # el primer contacto es el borde más cercano al precio
+                p = p_tocar(calib, price, borde, lado)
+                out["niveles"].append({"id": f"{pref}{i + 1}", "lado": lado, "precio": float(g["mid"]), "borde": float(borde),
+                                       "pct": float((g["mid"] / price - 1) * 100), "p": float(p), "proj": bool(g.get("proj"))})
     return out
 
 
 def compacto(p):
-    """Versión ligera (sin recorridos ni análogos) para enviar cada segundo a todas las monedas."""
+    """Versión ligera (sin los recorridos del abanico ni los casos) para enviar cada segundo a todas las monedas."""
     if not p:
         return None
-    return {k: v for k, v in p.items() if k not in ("q", "analogos", "rasgos", "val")}
+    return {k: v for k, v in p.items() if k not in ("q", "analogos")}

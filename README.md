@@ -27,14 +27,14 @@ Versión publicada (GitHub Pages): el análisis se renueva solo (GitHub lo lanza
 
 Secciones: **Mercado** (panorama, sentimiento, tabla de mercados con previsión, noticias, agenda, derivados y si el sistema funciona), **Estudio** (cada moneda a fondo: gráfico, previsión combinada con objetivo e invalidación, niveles, noticias que la afectan, resumen del libro y del flujo, análisis técnico, derivados, fiabilidad y tu posición), **Noticias** (efecto conjunto sobre el gráfico de cada activo y lista desplegable) y **Datos** (estado y verificación de todas las fuentes).
 
-Flecha del gráfico (Estudio): **pronóstico por analogías**. Cada vela del histórico (años de velas de Binance/Coinbase empalmadas con Kraken, guardadas en `datos/historico/`) se describe con 14 rasgos sin escala; para el estado actual se buscan los k momentos pasados más parecidos y lo que pasó después, reescalado a la volatilidad actual, da el recorrido central, el abanico de percentiles (10-25-50-75-90) y la probabilidad de subida. Antes de fiarse, el método se valida fuera de muestra (acierto, cobertura real del cono, destreza frente a no saber nada) y el cono se ajusta para cubrir lo que promete. Las analogías solo pesan si demostraron destreza; si no, la flecha muestra el rango probable y solo se inclina, de forma acotada, por noticias, derivados, flujo y sentimiento, y lo dice en pantalla. Detalle en `ANALISIS_BOTS.md`.
+Proyección del gráfico (Estudio): **rango por volatilidad con probabilidad de llegar a cada nivel**, sin dirección. Mide cuánto se ha movido el precio en el horizonte a lo largo de años de velas (Binance/Coinbase empalmadas con Kraken, en `datos/historico/`), siempre relativo a la volatilidad de cada momento, y lo aplica a la volatilidad de hoy: abanico de percentiles (10-25-50-75-90), rango del 50 y del 80 % y probabilidad de tocar cada soporte/resistencia. Se comprueba fuera de muestra (cobertura real y mejora de las probabilidades frente a ignorar la volatilidad). Añade **5 casos reales representativos** (de 50 episodios con volatilidad y tendencia parecidas, a los percentiles 10-25-50-75-90): ilustran la dispersión, no predicen nada. No se predice la dirección porque ningún método probado la acierta mejor que el azar (`ANALISIS_PREDICCION.md`). En la web publicada, la probabilidad de llegar a cada nivel se recalcula con el precio en vivo. Auditoría del sistema: `AUDITORIA.md`.
 
 Avisos (campana): semáforo, previsión, entradas y salidas, movimientos bruscos, noticias de impacto alto y eventos macro. Se comprueban cada segundo; los cambios de señal deben mantenerse unos segundos para evitar falsas alarmas. La vista anterior sigue en `/clasica`.
 
 ## Rendimiento
 - El canal en vivo envía cada segundo solo lo que ha cambiado (≈22 KB/s; la proyección completa solo de la moneda y temporalidad abiertas).
 - El estado completo y la web viajan comprimidos (gzip): 436 → 155 KB.
-- La lectura técnica de cada vela cerrada se guarda en `datos/historico/s21_*.json`: la calibración de la flecha es ~12× más rápida y el arranque baja de ~60 s a ~40 s.
+- El histórico profundo se guarda en `datos/historico/` con escritura atómica y cerrojo por archivo; en GitHub se conserva entre ejecuciones con `actions/cache`.
 - Las velas de 1 minuto se rellenan en los minutos sin operaciones, para que el momento y la volatilidad se midan sobre minutos reales.
 - `datos/servidor.log` rota al superar 2 MB.
 
@@ -51,7 +51,7 @@ El análisis de noticias es por reglas transparentes (cada noticia muestra las p
 - `cripto/envivo.py` — WebSocket de Kraken
 - `cripto/noticias.py` — analizador fundamental y agenda
 - `cripto/sentimiento.py` — derivados y sentimiento compuesto
-- `cripto/prevision.py` — previsión combinada por moneda · `cripto/proyeccion.py` — flecha por analogías · `cripto/historico.py` — histórico profundo
+- `cripto/prevision.py` — previsión combinada por moneda · `cripto/proyeccion.py` — rango por volatilidad, probabilidad de tocar niveles y casos reales · `cripto/historico.py` — histórico profundo
 - `cripto/servicio.py` — orquestación en tiempo real · `servidor.py` — servidor local
 - `web/index.html` — interfaz · `web/clasica.html` — vista v21
 - `legacy/` — versión anterior (Streamlit)

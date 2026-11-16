@@ -1,3 +1,5 @@
+> **Nota (16 nov 2026):** este documento describe la flecha por analogías, que se sustituyó por un rango por volatilidad con probabilidad de tocar niveles. El análisis que lo motivó está en `ANALISIS_PREDICCION.md`.
+
 # Análisis de bots cripto y qué hemos aplicado a Saltycripto
 
 Fecha: 15 de noviembre de 2026. Saltycripto es una plataforma de **análisis** (no opera). Por eso lo que nos interesa de los bots del mercado no es su ejecución de órdenes, sino **cómo leen los datos, cómo validan sus señales y cómo evitan engañarse**.
