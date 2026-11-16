@@ -181,6 +181,7 @@ const card=(cl,title,right,body,id)=>`<section class="card ${cl}"${id?` id="${id
    desplegables abiertos y las animaciones), se compara con lo que ya hay y solo se tocan los textos y atributos que cambian. */
 function morph(a,b){if(a.nodeType!==b.nodeType||a.nodeName!==b.nodeName)return false;
   if(a.nodeType!==1){if(a.nodeValue!==b.nodeValue)a.nodeValue=b.nodeValue;return true}
+  if(a._m)a._h=undefined;   /* un elemento con memoria de su HTML y reutilizado por el repintado: la memoria ya no es fiable */
   const det=a.nodeName==='DETAILS';
   for(const at of [...a.attributes])if(!b.hasAttribute(at.name)&&!(det&&at.name==='open'))a.removeAttribute(at.name);
   for(const at of b.attributes){if(det&&at.name==='open')continue;if(a.getAttribute(at.name)!==at.value)a.setAttribute(at.name,at.value)}
@@ -357,7 +358,8 @@ function projCard(o){let el=$('es-proj');if(!el)return;const pr=o.proy&&o.proy[T
   const fia=!v?{c:'t-ND',t:'Histórico corto: se muestra el rango de siempre, sin dirección.'}
     :(v.destreza>.02&&ac!=null&&ac>=55&&v.llamadas>=8)?{c:'t-pos',t:`En datos que no había visto acertó la dirección el ${ac} % de las ${v.llamadas} veces que la marcó.`}
     :(v.destreza>0&&(ac==null||ac>=50))?{c:'t-ND',t:`El rango mejora algo la estimación de siempre, pero la dirección no está demostrada${ac!=null?' (acierto '+ac+' %)':''}: tómalo como rango probable, no como señal.`}
-    :{c:'t-wa',t:`En datos que no había visto, la dirección acertó el ${ac!=null?ac+' %':'—'} de las veces, menos que lanzar una moneda: tómalo como rango probable, no como señal.`};
+    :(ac!=null&&ac<50)?{c:'t-wa',t:`En datos que no había visto, la dirección acertó el ${ac} % de las veces, menos que lanzar una moneda: tómalo como rango probable, no como señal.`}
+    :{c:'t-wa',t:`En datos que no había visto, estas analogías no mejoraron la estimación de siempre${ac!=null?' (la dirección acertó el '+ac+' %, sin ventaja demostrada)':''}: tómalo como rango probable, no como señal.`};
   const sube=Math.round((pr.p_up_ana!=null?pr.p_up_ana:pr.p_up)*pr.k);
   const ana=(pr.analogos||[]).slice(0,4).map((a,i)=>`<span class="pill cp" data-c="${i}" style="--c:${a.fin>=0?'var(--up)':'var(--dn)'}"><i>${i+1}</i>${fdate(a.t)} <b class="${a.fin>=0?'up':'dn'}">${pc(a.fin,1)}</b></span>`).join(''),ras=(pr.rasgos||[]).slice(0,3).map(x=>`<span class="pill">${esc(x.rasgo)}</span>`).join('');
   el.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div class="fdir ${T[2]}">${T[0]} ${T[1]}</div><span class="tag t-ac">próximas ${hz(pr.horas)}</span></div>
