@@ -6,7 +6,7 @@
 |---|---|---|
 | Carpeta | `~/Desktop/saltycripto-nube` | `~/Desktop/claude` |
 | Uso | Web publicada en GitHub Pages para verla en el iPhone | Versión estable que el usuario usa en su Mac |
-| Arranque | GitHub Actions cada 20 min (`.github/workflows/publicar.yml` → `nube.py`) | Acceso directo `Saltycripto.app` → `abrir.sh` |
+| Arranque | GitHub Actions (cron cada 10 min; en la práctica 30-50 min, hasta 2 h de madrugada) (`.github/workflows/publicar.yml` → `nube.py`) | Acceso directo `Saltycripto.app` → `abrir.sh` |
 | Puerto local (pruebas) | **8502** | 8501 |
 | Entorno Python | `.venv` propio | `.venv` propio |
 | Git / GitHub | Repositorio público `gabigtav-boop/saltycripto` (rama `main`) | Ninguno |

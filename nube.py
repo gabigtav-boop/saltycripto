@@ -1,6 +1,6 @@
 """Saltycripto · versión nube: ejecuta el motor UNA vez y publica una "foto" del análisis como web estática.
 
-Lo usa GitHub Actions cada 20 minutos (.github/workflows/publicar.yml). También se puede probar en local:
+Lo usa GitHub Actions con frecuencia (ver el cron) (.github/workflows/publicar.yml). También se puede probar en local:
     .venv/bin/python nube.py            → genera publico/
     .venv/bin/python -m http.server -d publico 8600   → y se abre http://localhost:8600
 
