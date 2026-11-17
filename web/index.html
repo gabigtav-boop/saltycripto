@@ -141,11 +141,11 @@ details.nw .ti{font-size:13.5px;font-weight:550;line-height:1.35}details.nw .tm{
  .tabbar{display:flex}main{padding:12px max(14px,env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}body[data-v=ALL] .tape,body[data-v=NEWS] .tape,body[data-v=DATA] .tape{display:none}.tape{padding:8px 14px}
  .ch{padding:14px 16px 0}.cb{padding:12px 16px 16px}.kpi{padding:14px 16px}.kpi .v{font-size:19px}.kpi .s{font-size:11.5px}
  .sec{margin:22px 0 2px;font-size:18px}.sec small{display:none}.pts{grid-template-columns:1fr;gap:10px}
- .mtab{display:none}.mlist{display:block}#chart,.chartcard #chart{height:330px;min-height:330px}.hide-s{display:none}
+ .mtab{display:none}.mlist{display:block}#chart,.chartcard #chart{height:clamp(470px,68vh,640px);min-height:clamp(470px,68vh,640px);margin:4px 0 0}.hide-s{display:none}
  .hero{gap:14px;padding:16px}.hero .px{font-size:30px}.stats{margin-left:0;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:12px 14px}
  .pg,.pg.p5{grid-template-columns:1fr 1fr}.foot{padding:0 6px}
- .chartcard .ch h2{display:none}.chartcard .ch>div{width:100%;gap:8px!important}#tfb{display:flex;flex:1 0 100%}#tfb button{flex:1;padding:8px 0}
- .lr{grid-template-columns:70px 1fr auto;padding:11px 12px}.dg{grid-template-columns:1fr 1fr}.dg>.card:first-child{grid-column:span 2}
+ .chartcard .ch h2{display:none}.chartcard .ch>div{width:100%;gap:8px!important;flex-wrap:nowrap!important}#tfb{display:flex;flex:1 1 0;min-width:0}#tfb button{flex:1;padding:9px 0}#rst{flex:none;width:38px;padding:0;justify-content:center}#rst .rt{display:none}.stats>div:last-child{grid-column:1/-1}
+ .lr{grid-template-columns:82px 1fr auto;gap:10px;padding:11px 12px}.lr .lb{letter-spacing:.05em;white-space:nowrap}.nr .ti{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.nr{align-items:start}.dg{grid-template-columns:1fr 1fr}.dg>.card:first-child{grid-column:span 2}
  .pf input{font-size:16px;height:44px}.ib{width:38px;height:38px}.btabs{padding-left:10px;padding-right:10px}.btabs button{flex:none;padding:9px 12px;letter-spacing:.08em}.seg button{padding:8px 12px}.warnbar{padding:8px 16px}.btn{min-height:36px}.sw.tg{min-height:34px}
 }
 .cases{position:absolute;left:12px;top:30px;z-index:3;display:flex;flex-wrap:wrap;align-items:center;gap:5px;max-width:calc(100% - 110px)}.cases:empty{display:none}
@@ -186,7 +186,12 @@ body[data-v=ALL] .tape{display:none}
 .hb b{display:block;margin:7px 0 3px;font:600 clamp(15px,1.3vw,18px)/1.25 var(--sans)}.hb .cuenta{display:inline-block;margin-right:8px;font:600 clamp(18px,1.7vw,24px)/1.1 var(--mono);letter-spacing:-.02em;min-width:9ch}
 .hb .si b{color:var(--ac)}.hb .sm{display:block;font-size:12.5px;color:var(--mut)}
 @media(max-width:1180px){.stage-ui{grid-template-columns:minmax(240px,30vw) minmax(0,1fr) minmax(240px,30vw)}.pan-r .fila{grid-template-columns:46px minmax(24px,1fr) auto}.pan-r .fila .tag:nth-of-type(3){display:none}}
-@media(max-width:900px){.stage{min-height:0}.stage canvas{height:min(88vw,520px);inset:0 0 auto 0}.stage-ui{display:flex;flex-direction:column;gap:16px;padding-top:calc(min(88vw,520px) - 8px)}.hl{max-width:none}.pan-l,.pan-r{width:100%}.hb{grid-template-columns:minmax(0,1fr)}.hb>div{border-right:0;border-bottom:1px solid var(--ln)}.hb>div:last-child{border-bottom:0}.pan-r .fila .tag:nth-of-type(3){display:inline-flex}}
+@media(max-width:900px){.stage{min-height:0}.stage canvas{height:min(92vw,370px);inset:0 0 auto 0}.stage-ui{display:flex;flex-direction:column;gap:14px;padding:calc(min(92vw,370px) + 2px) max(14px,env(safe-area-inset-right)) 20px max(14px,env(safe-area-inset-left))}
+ .hl{max-width:none}.tit{font-size:clamp(32px,10vw,46px)}.subt{font-size:14px}.pan-l,.pan-r{width:100%;padding:12px 14px}.pan-t{margin-bottom:4px}
+ .pan-l .fila,.pan-r .fila{padding:7px 2px}.pan-l .fila{grid-template-columns:48px minmax(0,1fr) auto}.pan-r .fila{grid-template-columns:48px minmax(28px,1fr) auto auto;gap:8px}.pan-r .fila .tag:nth-of-type(3){display:inline-flex}.pan-r .fila .tag{padding:2px 6px;font-size:9px;letter-spacing:.03em}.fila .px{font-size:14.5px}.fila .chg{min-width:54px;font-size:11px}.nota{display:none}
+ .hb{grid-template-columns:minmax(0,1fr)}.hb>div{padding:12px 16px;border-right:0;border-bottom:1px solid var(--ln)}.hb>div:last-child{border-bottom:0}.hb b{font-size:15.5px}.hb .cuenta{font-size:20px}}
+@media(min-width:640px) and (max-width:900px){.stage canvas{height:min(62vw,480px)}.stage-ui{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;padding-top:calc(min(62vw,480px) + 2px)}
+ .hl{grid-column:1/-1;grid-row:1}.pan-l{grid-column:1;grid-row:2;align-self:start}.pan-r{grid-column:2;grid-row:2;align-self:start}.hb{grid-column:1/-1;grid-row:3;grid-template-columns:repeat(3,minmax(0,1fr))}.hb>div{border-bottom:0;border-right:1px solid var(--ln)}.hb>div:last-child{border-right:0}}
 /* al cambiar de tema, los colores se funden en vez de saltar (la clase solo está puesta 0,4 s) */
 .tr *,.tr *:before,.tr *:after{transition:background-color .3s,color .3s,border-color .3s,fill .3s,stroke .3s,box-shadow .3s!important}
 @media(prefers-reduced-motion:reduce){.tr *,.tr *:before,.tr *:after{transition:none!important}.fu,.fd,.nt,.nt.out,.card,.suelo i,.ib.spin svg{animation:none}.nav button:after,.btabs button:after{transition:none}}
@@ -372,7 +377,7 @@ let CHART=null,CS=null,VS=null,L20=null,L50=null,L200=null,CHK='',PLINES=[],ZK='
 function viewEstudio(slow){const s=SEL,o=DATA[s];if(!$('es')){$('app').innerHTML=`<div class="grid" id="es">
   <section class="card c12" id="es-hero"></section>
   <div class="sec">Gráfico y proyección<small>el rango se recalcula en vivo</small></div>
-  <section class="card c9 e9 chartcard"><div class="ch" style="flex-wrap:wrap"><h2>Gráfico</h2><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><div class="seg" id="tfb">${['1m','1h','4h','1d','1w'].map(t=>`<button data-tf="${t}">${t}</button>`).join('')}</div><button class="btn" id="rst" title="Volver a la vista inicial del gráfico (también con doble clic)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg>Reiniciar vista</button><label class="sw tg hide-s"><input type="checkbox" id="oema" ${PREF.ema?'checked':''}>Medias</label><label class="sw tg hide-s"><input type="checkbox" id="ozon" ${PREF.zon?'checked':''}>Niveles</label><label class="sw tg hide-s" title="Episodios reales con volatilidad y tendencia parecidas a las de ahora: cómo se movió el precio en situaciones así (no predicen la dirección)"><input type="checkbox" id="ocas" ${PREF.cas?'checked':''}>Casos</label></div></div><div id="chart"><div class="leg" id="leg"></div><div class="cases" id="cases"></div><div class="pchip" id="pchip" hidden></div><svg class="pjs" id="pjsvg" aria-hidden="true"></svg></div></section>
+  <section class="card c9 e9 chartcard"><div class="ch" style="flex-wrap:wrap"><h2>Gráfico</h2><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><div class="seg" id="tfb">${['1m','1h','4h','1d','1w'].map(t=>`<button data-tf="${t}">${t}</button>`).join('')}</div><button class="btn" id="rst" title="Volver a la vista inicial del gráfico (también con doble clic)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg><span class="rt">Reiniciar vista</span></button><label class="sw tg hide-s"><input type="checkbox" id="oema" ${PREF.ema?'checked':''}>Medias</label><label class="sw tg hide-s"><input type="checkbox" id="ozon" ${PREF.zon?'checked':''}>Niveles</label><label class="sw tg hide-s" title="Episodios reales con volatilidad y tendencia parecidas a las de ahora: cómo se movió el precio en situaciones así (no predicen la dirección)"><input type="checkbox" id="ocas" ${PREF.cas?'checked':''}>Casos</label></div></div><div id="chart"><div class="leg" id="leg"></div><div class="cases" id="cases"></div><div class="pchip" id="pchip" hidden></div><svg class="pjs" id="pjsvg" aria-hidden="true"></svg></div></section>
   ${card('c3 e3','Proyección','<span class="t">rango y niveles del gráfico</span>','<div class="cb" id="es-proj"></div>')}
   <div class="sec">Contexto de <span id="es-sn" style="margin-left:4px"></span><small>lectura, niveles y flujo</small></div>
   ${card('c4','Lectura de los datos','<span class="t">7 factores, ahora</span>','<div class="cb" id="es-prev"></div>')}
@@ -447,19 +452,19 @@ function fluCard(o){const m=o.micro,el=$('es-flu');if(!m){el.innerHTML='<div cla
   <div class="box">${w.length?w.join('; ')[0].toUpperCase()+w.join('; ').slice(1)+'.':'Sin muros relevantes cerca del precio.'} Momento 15 min <b class="${cls(m.mom_15m)}">${pc(m.mom_15m)}</b>, 1 h <b class="${cls(m.mom_60m)}">${pc(m.mom_60m)}</b>.</div>`}
 function newsCard(s){const rn=RNEWS[s],L=NEWS.filter(x=>x.afecta[s]!==undefined||(s!=='PAXG'&&x.afecta.MERCADO!==undefined)).slice(0,4);$('es-nt').textContent=rn&&rn.n?rn.n+' en 24 h':'';
   $('es-news').innerHTML=`<div class="cb" style="padding-bottom:6px;flex:0">${digest(rn)}</div>${L.map(x=>`<div class="nr" style="grid-template-columns:40px 1fr auto"><span class="tm">${ago(x.t)}</span><span class="ti" title="${esc(x.titulo)}">${esc(x.titulo)}</span>${effTag(x)}</div>`).join('')}<div style="padding:10px 18px"><button class="btn go" data-go="NEWS" onclick="NF='${s}';go('NEWS')">Todas las noticias de ${lab(s)}</button></div>`}
-const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim(),isL=()=>document.documentElement.dataset.theme==='light';
+const MOB=()=>matchMedia('(max-width:860px)').matches,cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim(),isL=()=>document.documentElement.dataset.theme==='light';
 const TFMS={'1m':6e4,'1h':36e5,'4h':144e5,'1d':864e5,'1w':6048e5},HOR={'1m':60,'1h':24,'4h':12,'1d':7,'1w':4};
 let PJ=null,PU=null,PD=null,PK='',PJK='',RAF=0,LASTBAR=null,LASTD=null,LASTX=null,HOV=false,USERMOVED=false,PSIG='',CASEHOV=null,CASEPIN=null,FW=0,FH=0;
 const LIVEC={}; /* última vela en vivo recibida por temporalidad: evita que una foto antigua la pise */
 const CC=new Map(); /* velas ya descargadas (moneda|temporalidad): cambiar de plazo es instantáneo */
 const vcol=up=>cssv(up?'--upv':'--dnv');
-function chartOpts(){const g=isL()?'rgba(8,52,66,.07)':'rgba(150,210,225,.05)',c=isL()?'rgba(8,52,66,.34)':'rgba(191,234,255,.28)';return{layout:{background:{color:'transparent'},textColor:cssv('--mut'),fontFamily:cssv('--mono'),fontSize:11},grid:{vertLines:{color:g},horzLines:{color:g}},rightPriceScale:{borderVisible:false},timeScale:{borderVisible:false,timeVisible:true,secondsVisible:false,rightOffset:4,fixLeftEdge:true,minBarSpacing:.8},crosshair:{mode:0,vertLine:{color:c},horzLine:{color:c}},kineticScroll:{touch:true,mouse:false},handleScale:{axisDoubleClickReset:{time:true,price:true}},localization:{locale:'es-ES',priceFormatter:p=>fp(p)}}}
+function chartOpts(){const g=isL()?'rgba(8,52,66,.07)':'rgba(150,210,225,.05)',c=isL()?'rgba(8,52,66,.34)':'rgba(191,234,255,.28)';return{layout:{background:{color:'transparent'},textColor:cssv('--mut'),fontFamily:cssv('--mono'),fontSize:11},grid:{vertLines:{color:g},horzLines:{color:g}},rightPriceScale:{borderVisible:false,scaleMargins:{top:MOB()?.27:.2,bottom:.1}},timeScale:{borderVisible:false,timeVisible:true,secondsVisible:false,rightOffset:4,fixLeftEdge:true,minBarSpacing:.8},crosshair:{mode:0,vertLine:{color:c},horzLine:{color:c}},kineticScroll:{touch:true,mouse:false},handleScale:{axisDoubleClickReset:{time:true,price:true}},localization:{locale:'es-ES',priceFormatter:p=>fp(p)}}}
 /* solo se redimensiona si el tamaño del gráfico cambió de verdad; si el usuario no lo ha movido, se recoloca la vista inicial */
-function fitChart(){const el=$('chart');if(!CHART||!el)return;const w=el.clientWidth,h=el.clientHeight;if(!w||!h||(w===FW&&h===FH))return;FW=w;FH=h;CHART.resize(w,h);if(!USERMOVED)resetView(true);else projArrow()}
+function fitChart(){const el=$('chart');if(!CHART||!el)return;const w=el.clientWidth,h=el.clientHeight;if(!w||!h||(w===FW&&h===FH))return;FW=w;FH=h;try{CHART.priceScale('right').applyOptions({scaleMargins:{top:MOB()?.27:.2,bottom:.1}})}catch(e){}CHART.resize(w,h);if(!USERMOVED)resetView(true);else projArrow()}
 addEventListener('resize',fitChart);
 const candleOpts=()=>({upColor:cssv('--up'),downColor:cssv('--dn'),borderVisible:false,wickUpColor:cssv('--up'),wickDownColor:cssv('--dn'),priceLineColor:cssv('--mut')});
 /* ---- vista del gráfico: inicial, reinicio y detección de "desajustado" ---- */
-const defRange=(n,tf,pr)=>{const N=pr?pr.velas:HOR[tf];return{from:Math.max(0,n-Math.max(30,Math.round(2.5*N))),to:n+N+4}};
+const defRange=(n,tf,pr)=>{const N=pr?pr.velas:HOR[tf],m=MOB();return{from:Math.max(0,n-Math.max(m?22:30,Math.round((m?1.5:2.5)*N))),to:n+N+4}};
 function resetView(silent){if(!CHART||!LASTD)return;try{CHART.priceScale('right').applyOptions({autoScale:true});const o=DATA[SEL];CHART.timeScale().setVisibleLogicalRange(defRange(LASTD.n,LASTD.tf,o&&o.proy&&o.proy[LASTD.tf]))}catch(e){}USERMOVED=false;if(!silent)projArrow()}
 const moved=()=>{USERMOVED=true};
 function legend(){const L=LASTD;if(!L||!L.rows.length)return'';const x=LASTX&&LASTX.tf===L.tf&&LASTX.t>=L.rows[L.rows.length-1][0]?[LASTX.t,LASTX.o,LASTX.h,LASTX.l,LASTX.c]:L.rows[L.rows.length-1];return`<span>A ${fp(x[1])}</span><span>M ${fp(x[2])}</span><span>m ${fp(x[3])}</span><span class="${x[4]>=x[1]?'up':'dn'}">C ${fp(x[4])}</span>`}
@@ -477,7 +482,7 @@ async function fetchVelas(s,tf){let d;if(window.ESTATICO){d=(await moneda(s)).ve
 function prefetch(s){if(window.ESTATICO)return;const run=()=>['1m','1h','4h','1d','1w'].forEach((t,i)=>{if(t===TF||CC.has(s+'|'+t))return;setTimeout(()=>{if(SEL===s&&VIEW==='TRADE'&&!CC.has(s+'|'+t))fetchVelas(s,t).catch(()=>{})},500*i)});(window.requestIdleCallback||setTimeout)(run)}
 function makeChart(s){const el=$('chart');CHART=LightweightCharts.createChart(el,Object.assign(chartOpts(),{width:el.clientWidth,height:el.clientHeight}));FW=el.clientWidth;FH=el.clientHeight;CS=CHART.addCandlestickSeries(candleOpts());
   VS=CHART.addHistogramSeries({priceScaleId:'v',priceFormat:{type:'volume'},lastValueVisible:false,priceLineVisible:false});CHART.priceScale('v').applyOptions({scaleMargins:{top:.84,bottom:0}});
-  const ln=(c,w,st)=>CHART.addLineSeries({color:c,lineWidth:w,lineStyle:st||0,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});L20=ln(COINS[s].a,1.5);L50=ln(cssv('--mut'),1.2);L200=ln(cssv('--vio'),1.2,2);
+  const ln=(c,w,st)=>CHART.addLineSeries({color:c,lineWidth:w,lineStyle:st||0,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});L20=ln(COINS[s].a,1.5);L50=ln(cssv('--mut'),1.2);L200=ln(cssv('--vio'),1.2,2);L200.applyOptions({autoscaleInfoProvider:()=>null});   /* la EMA 200 puede estar lejos del precio: no debe encoger las velas */
   PJ=ln(cssv('--mut'),2,2);PU=ln('rgba(0,0,0,0)',1);PD=ln('rgba(0,0,0,0)',1);
   CHART.subscribeCrosshairMove(p=>{const d=p&&p.seriesData&&p.seriesData.get(CS);HOV=!!d;$('leg').innerHTML=d?`<span>A ${fp(d.open)}</span><span>M ${fp(d.high)}</span><span>m ${fp(d.low)}</span><span class="${d.close>=d.open?'up':'dn'}">C ${fp(d.close)}</span>`:legend()});
   CHART.timeScale().subscribeVisibleLogicalRangeChange(()=>projArrow());
@@ -501,12 +506,12 @@ function projDraw(){markCases();const o=DATA[SEL],svg=$('pjsvg'),chip=$('pchip')
   const col=cssv('--ac'),tfms=TFMS[TF],N=pr.velas,t0=LASTBAR.t,t1=t0+N*tfms,p=o.price,cu=cssv('--up'),cd=cssv('--dn');
   const key=TF+t0+N;if(PJK!==key){PJK=key;const pts=[];for(let i=1;i<=N;i++)pts.push({time:tsec(t0+i*tfms)});try{PJ.setData(pts);PJ.setMarkers([])}catch(e){}}
   const pk=key+'|'+pr.b80[0].toPrecision(5)+pr.b80[1].toPrecision(5);if(PK!==pk&&PU){PK=pk;try{PU.setData(pr.q['90'].map((v,i)=>({time:tsec(t0+(i+1)*tfms),value:v})));PD.setData(pr.q['10'].map((v,i)=>({time:tsec(t0+(i+1)*tfms),value:v})))}catch(e){}}
-  if(chip){chip.hidden=false;chip.innerHTML=`<span class="a" style="color:${col};animation:none">◆</span><span>Rango ${hz(pr.horas)}</span><span class="dim">·</span><span class="m hide-s">${fp(pr.b50[0])} – ${fp(pr.b50[1])}</span>`}
+  if(chip){chip.hidden=false;chip.innerHTML=`<span class="a" style="color:${col};animation:none">◆</span><span>Rango ${hz(pr.horas)}</span><span class="dim hide-s">·</span><span class="m hide-s">${fp(pr.b50[0])} – ${fp(pr.b50[1])}</span>`}
   const cl=(pr.analogos||[]).filter(a=>a.rep>0),hi=caseHi();
   if(cb)cb.innerHTML=PREF.cas&&cl.length?`<span class="cap" title="Episodios reales con volatilidad y tendencia parecidas: qué hizo el precio en las ${hz(pr.horas)} siguientes. Representan del peor 10 % al mejor 10 % de lo ocurrido; no son los más parecidos.">Casos reales</span>`+cl.map((a,i)=>`<button class="cc${hi===i?' on':hi!=null?' dim':''}" data-c="${i}" style="--c:${a.fin>=0?cu:cd}" title="${fdate(a.t)} → ${pc(a.fin,1)} tras ${hz(pr.horas)}"><i>${a.rep}</i>${hi===i?fdate(a.t)+' · ':''}<b class="${a.fin>=0?'up':'dn'}">${pc(a.fin,1)}</b></button>`).join(''):'';
   const ts=CHART.timeScale(),W=svg.clientWidth||9999,H=svg.clientHeight||400,Y=v=>CS.priceToCoordinate(v),x0=ts.timeToCoordinate(tsec(t0)),xr=ts.timeToCoordinate(tsec(t1));
   if(x0==null||xr==null||Y(p)==null){svg.innerHTML='';PSIG='';return}
-  const show=PREF.cas?cl.map((a,i)=>i):(hi!=null&&cl[hi]?[hi]:[]),mk=show.length>0,x1=Math.min(xr,W-78-(mk?26:0));
+  const show=PREF.cas?cl.map((a,i)=>i):(hi!=null&&cl[hi]?[hi]:[]),mk=show.length>0,x1=Math.min(xr,W-78-(mk?26:0)-(MOB()?14:0));
   const X=i=>x0+(x1-x0)*i/N,ok=a=>a.every(q=>q[1]!=null),fmt=a=>a.map(q=>q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
   const pts=a=>[[X(0),Y(p)]].concat((a.ret||[]).slice(0,N).map((v,k)=>[X(k+1),Y(p*(1+v/100))]));
   const ends=[],paths=show.map(i=>{const a=cl[i],c=a.fin>=0?cu:cd,q=pts(a);if(!ok(q))return'';const z=q[q.length-1];ends.push({i,x:z[0],y:z[1],c,r:a.rep});
@@ -519,7 +524,7 @@ function projDraw(){markCases();const o=DATA[SEL],svg=$('pjsvg'),chip=$('pchip')
   if(html!==PSIG){PSIG=html;svg.innerHTML=html}}
 function chartLive(v){if(!CS||!v||!v[TF]||CHK!==SEL+TF)return;const x=v[TF];try{CS.update({time:tsec(x.t),open:x.o,high:x.h,low:x.l,close:x.c});if(TF==='1m')VS.update({time:tsec(x.t),value:x.v,color:vcol(x.c>=x.o)});LASTX=Object.assign({tf:TF},x);if(!LASTBAR||x.t>=LASTBAR.t)LASTBAR={t:x.t};if(!HOV)$('leg').innerHTML=legend();projArrow()}catch(e){}}
 function zoneLines(){const o=DATA[SEL];if(!CS||!o||!o.z)return;const pr=o.proy&&o.proy[TF],pm={};((pr&&pr.niveles)||[]).forEach(g=>pm[g.id]=g.p);
-  const tit=(id)=>pm[id]!=null?id+'·'+(pm[id]>=.995?100:Math.round(pm[id]*100))+'%':id;
+  const tit=(id)=>MOB()?id:pm[id]!=null?id+'·'+(pm[id]>=.995?100:Math.round(pm[id]*100))+'%':id;   /* en el móvil el título del nivel va corto: la probabilidad está en la tarjeta */
   const key=PREF.zon+'|'+o.z.sup.map(g=>g.mid.toPrecision(6)).join()+'|'+o.z.res.map(g=>g.mid.toPrecision(6)).join()+'|'+Object.keys(pm).map(k=>k+Math.round(pm[k]*100)).join();if(key===ZK)return;ZK=key;
   PLINES.forEach(l=>{try{CS.removePriceLine(l)}catch(e){}});PLINES=[];if(!PREF.zon)return;
   o.z.res.slice(0,2).forEach((g,i)=>PLINES.push(CS.createPriceLine({price:g.mid,color:cssv('--dnl'),lineWidth:1,lineStyle:2,axisLabelVisible:true,title:tit('S'+(i+1))})));
@@ -723,7 +728,7 @@ function crearNucleo(cv,host,onPick){
   const ctx=cv.getContext('2d'),reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   /* dos paletas: sobre fondo oscuro la luz se suma («lighter»); sobre fondo claro las partículas son tinta teal y ámbar que se superpone normalmente */
   const COLD={ion:'#a9dcf3',gold:'#e9b95a',pos:'#4fd9a8',neg:'#e8697f',steel:'#6f9fb0'},COLL={ion:'#1f5f78',gold:'#b8760a',pos:'#0a9468',neg:'#cf3450',steel:'#4a7888'},F=2.7,LO=5,COLS=['','pos','neg','ion'];
-  let COL=COLD,OP='lighter',kk=1,ka=1,kf=1,claro=false;
+  let COL=COLD,OP='lighter',kk=1,ka=1,kf=1,claro=false,rk=1;
   let W=0,H=0,dpr=1,cx=0,cy=0,U=1,raf=0,last=0,vis=true,st={coins:[]},anc={L:[],R:[]},paq=[],waves=[],grupos=[],gdir=[],cen=[],proxA=0,proxO=0,rowHot=-1,canHot=-1,coste=0,ligero=false;
   const T0=performance.now(),par={x:0,y:0,tx:0,ty:0},lo=document.createElement('canvas'),lg=lo.getContext('2d'),ultimo={};
   const clamp=(x,a=0,b=1)=>x<a?a:x>b?b:x,hot=()=>rowHot>=0?rowHot:canHot;
@@ -752,7 +757,7 @@ function crearNucleo(cv,host,onPick){
   /* la esfera ocupa el espacio libre sobre la barra inferior: ni los rótulos ni los anillos quedan tapados */
   function disposicion(o){const movil=W<900,hb=host.querySelector('.hb'),tope=hb&&!movil?hb.getBoundingClientRect().top-o.top:H,libre=Math.max(260,tope-16);
     const pl=host.querySelector('#panL'),pr=host.querySelector('#panR'),ancho=pl&&pr&&!movil?pr.getBoundingClientRect().left-pl.getBoundingClientRect().right-24:1e4;
-    U=movil?Math.min(W*.8,H*.88):Math.min(W*.39,libre/1.2,Math.max(220,ancho/1.12));cx=W*.5;cy=movil?H*.5:8+libre/2-.045*U}
+    rk=movil?.76:1;U=movil?Math.min(W*.6,H*.74):Math.min(W*.39,libre/1.2,Math.max(220,ancho/1.12));cx=W*.5;cy=movil?H*.47:8+libre/2-.045*U}
   function ancla(){const o=cv.getBoundingClientRect();disposicion(o);const tomar=(sel,lado)=>[...document.querySelectorAll(sel)].map(el=>{const r=el.getBoundingClientRect();return{x:(lado==='r'?r.right:r.left)-o.left,y:r.top+r.height/2-o.top}});
     anc=W<900?{L:[],R:[]}:{L:tomar('#panL .fila','r'),R:tomar('#panR .fila','l')}}
   function ajustar(){const r=cv.getBoundingClientRect();W=Math.max(300,r.width);H=Math.max(260,r.height);dpr=Math.min(2,window.devicePixelRatio||1,Math.sqrt(2.6e6/(W*H)));cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);lo.width=Math.ceil(W/LO);lo.height=Math.ceil(H/LO);
@@ -775,7 +780,7 @@ function crearNucleo(cv,host,onPick){
     const cg=ctx.createRadialGradient(cx,cy,0,cx,cy,U*.62);cg.addColorStop(0,rgba(COL.ion,.07*kk));cg.addColorStop(.6,rgba(COL.ion,.02*kk));cg.addColorStop(1,rgba(COL.ion,0));ctx.fillStyle=cg;ctx.fillRect(0,0,W,H);
     const at=ctx.createRadialGradient(cx,cy,U*.44,cx,cy,U*.62);at.addColorStop(0,rgba(COL.ion,0));at.addColorStop(.4,rgba(COL.ion,.055*kk));at.addColorStop(1,rgba(COL.ion,0));ctx.fillStyle=at;ctx.fillRect(0,0,W,H);
     const anillo=(an,frente)=>{const P=new Path2D(),ca=Math.cos(an.tx),sa=Math.sin(an.tx),cz=Math.cos(an.tz),sz=Math.sin(an.tz),off=t*an.v*6.2832;let pen=false;
-      for(let k=0;k<=160;k++){const a=k/160*6.2832+off,x=an.R*Math.cos(a),y0=an.R*Math.sin(a),y1=y0*ca,z1=y0*sa,xr=x*cz-y1*sz,yr=x*sz+y1*cz,x2=xr*Math.cos(yaw)+z1*Math.sin(yaw),z2=-xr*Math.sin(yaw)+z1*Math.cos(yaw),yy=yr*cp-z2*sp,zz=yr*sp+z2*cp,s=F/(F-zz),ok=(zz>=-.02)===frente;
+      for(let k=0;k<=160;k++){const a=k/160*6.2832+off,x=an.R*rk*Math.cos(a),y0=an.R*rk*Math.sin(a),y1=y0*ca,z1=y0*sa,xr=x*cz-y1*sz,yr=x*sz+y1*cz,x2=xr*Math.cos(yaw)+z1*Math.sin(yaw),z2=-xr*Math.sin(yaw)+z1*Math.cos(yaw),yy=yr*cp-z2*sp,zz=yr*sp+z2*cp,s=F/(F-zz),ok=(zz>=-.02)===frente;
         if(ok){const X2=cx+x2*s*U,Y2=cy-yy*s*U;pen?P.lineTo(X2,Y2):P.moveTo(X2,Y2);pen=true}else pen=false}return P};
     ctx.lineWidth=1;for(const an of ANILLOS){ctx.strokeStyle=rgba(COL.ion,.05*kk);ctx.stroke(anillo(an,false))}
     /* hilos de puntos hacia las filas de los paneles (detrás de las partículas): casi invisibles, se destaca el de la fila señalada */
@@ -803,7 +808,7 @@ function crearNucleo(cv,host,onPick){
     ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(lo,0,0,W,H);
     ctx.globalCompositeOperation='source-over';ctx.lineWidth=1;for(const an of ANILLOS){ctx.strokeStyle=rgba(COL.ion,.17*kk);ctx.stroke(anillo(an,true))}
     /* satélites sobre los anillos */
-    ctx.globalCompositeOperation=OP;if(!reduce)ANILLOS.forEach((an,n)=>{const ca=Math.cos(an.tx),sa=Math.sin(an.tx),cz=Math.cos(an.tz),sz=Math.sin(an.tz),a=t*an.v*6.2832+6.2832*(n?.31:0)+t/13000,x=an.R*Math.cos(a),y0=an.R*Math.sin(a),y1=y0*ca,z1=y0*sa,xr=x*cz-y1*sz,yr=x*sz+y1*cz,x2=xr*Math.cos(yaw)+z1*Math.sin(yaw),z2=-xr*Math.sin(yaw)+z1*Math.cos(yaw),yy=yr*cp-z2*sp,zz=yr*sp+z2*cp,s=F/(F-zz),z=15*u*(.6+.5*(zz+.5));
+    ctx.globalCompositeOperation=OP;if(!reduce)ANILLOS.forEach((an,n)=>{const ca=Math.cos(an.tx),sa=Math.sin(an.tx),cz=Math.cos(an.tz),sz=Math.sin(an.tz),a=t*an.v*6.2832+6.2832*(n?.31:0)+t/13000,x=an.R*rk*Math.cos(a),y0=an.R*rk*Math.sin(a),y1=y0*ca,z1=y0*sa,xr=x*cz-y1*sz,yr=x*sz+y1*cz,x2=xr*Math.cos(yaw)+z1*Math.sin(yaw),z2=-xr*Math.sin(yaw)+z1*Math.cos(yaw),yy=yr*cp-z2*sp,zz=yr*sp+z2*cp,s=F/(F-zz),z=15*u*(.6+.5*(zz+.5));
       ctx.globalAlpha=zz>0?.6:.2;ctx.drawImage(K.SP.ion,cx+x2*s*U-z/2,cy-yy*s*U-z/2,z,z)});
     /* paquetes de datos: entran por la izquierda con cada precio nuevo; salen por la derecha mientras el semáforo pida compra */
     paq=paq.filter(p=>now-p.t<p.dur);
@@ -813,7 +818,8 @@ function crearNucleo(cv,host,onPick){
     ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
     /* rótulos: el activo de cada franja, que sigue a la esfera al girar */
     ctx.font=`600 ${Math.round(clamp(U/46,10,13))}px ui-monospace,"SF Mono",Menlo,monospace`;ctx.textAlign='center';ctx.textBaseline='middle';
-    st.coins.forEach((co,g)=>{const c=cen[g];if(!c||!isFinite(c[0]))return;ctx.fillStyle=g===hg?rgba(COL.gold,.98):rgba(COL.ion,claro?.8:.46);ctx.fillText(co.etq||'',c[0],cy+U*.585)});
+    const alt=U/Math.max(1,st.coins.length)<44;   /* en pantallas estrechas los rótulos vecinos se escalonan para no pisarse */
+    st.coins.forEach((co,g)=>{const c=cen[g];if(!c||!isFinite(c[0]))return;ctx.fillStyle=g===hg?rgba(COL.gold,.98):rgba(COL.ion,claro?.8:.46);ctx.fillText(co.etq||'',c[0],cy+U*.585+(alt&&g%2?14:0))});
     if(!reduce&&grupos.length&&now>proxO){proxO=now+4200;st.coins.forEach((co,g)=>{if((co.objetivo||0)>0&&anc.R[g])paq.push({t:now,dur:2200,g,k:'gold',out:true})})}
     /* calidad adaptable: si el equipo tarda más de 11 ms por fotograma se dibuja la mitad del polvo y del interior (vuelve a todo por debajo de 7 ms) */
     coste=coste*.9+(performance.now()-ini)*.1;if(coste>11)ligero=true;else if(coste<7)ligero=false}

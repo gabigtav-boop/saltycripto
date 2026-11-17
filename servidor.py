@@ -74,8 +74,23 @@ class H(BaseHTTPRequestHandler):
         self.send_header("Connection", "keep-alive")
         self.end_headers()
         try:
+            fallos = 0
             while True:     # un envío por segundo (también sirve de latido para el navegador)
-                self.wfile.write(b"data: " + SV.tick_payload(sel, tf, memo).encode() + b"\n\n")
+                try:
+                    cuerpo = SV.tick_payload(sel, tf, memo).encode()
+                    fallos = 0
+                except Exception as e:  # noqa: BLE001
+                    # un error puntual al armar el envío (p. ej. un dato que cambia a mitad) no debe cortar el canal en vivo
+                    fallos += 1
+                    if fallos in (1, 30):
+                        print(f"canal en vivo: {e!r}", flush=True)
+                    if fallos >= 60:
+                        return
+                    self.wfile.write(b": latido\n\n")
+                    self.wfile.flush()
+                    time.sleep(1)
+                    continue
+                self.wfile.write(b"data: " + cuerpo + b"\n\n")
                 self.wfile.flush()
                 time.sleep(1)
         except (BrokenPipeError, ConnectionResetError, OSError):
@@ -123,14 +138,14 @@ class H(BaseHTTPRequestHandler):
         if not self._host_ok() or not (self.headers.get("Content-Type") or "").startswith("application/json") or (
                 org and urlparse(org).hostname not in ("localhost", "127.0.0.1")):
             return self._send(403, b"{}")
-        n = int(self.headers.get("Content-Length") or 0)
         try:
-            b = json.loads(self.rfile.read(n) or b"{}")
+            n = int(self.headers.get("Content-Length") or 0)
+            b = json.loads(self.rfile.read(n) or b"{}") if 0 <= n <= 65536 else {}
         except ValueError:
             b = {}
         p = urlparse(self.path).path
         if p == "/api/refresh":
-            threading.Thread(target=SV.main, args=(False,), daemon=True).start()
+            threading.Thread(target=SV.main, args=(True,), daemon=True).start()   # sin vaciar: mientras recarga se siguen viendo los datos
         elif p == "/api/retry" and b.get("s") in COINS:
             threading.Thread(target=SV.load_coin, args=(b["s"],), daemon=True).start()
         elif p == "/api/prefs" and isinstance(b.get("off"), list):

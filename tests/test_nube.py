@@ -144,3 +144,13 @@ def test_web_de_iphone_conserva_su_modo_estatico_en_la_portada():
     for pieza in ("window.ESTATICO", "function krakenWS", 'id="tabbar"', "function mRow", 'id="warn"', "NUC.tick"):
         assert pieza in HTML, pieza
     assert 'src="/' not in HTML and 'rel="icon" href="favicon.svg"' in HTML   # rutas relativas: la página vive en /saltycripto/
+
+
+def test_web_de_iphone_ajustada_a_pantallas_pequenas():
+    """Gráfico grande en el móvil, esfera que cabe con sus anillos, lectura técnica sin solapes y tabletas en dos columnas."""
+    assert "clamp(470px,68vh,640px)" in HTML                         # el gráfico ocupa buena parte de la pantalla
+    assert "autoscaleInfoProvider" in HTML                           # la EMA 200 lejana no encoge las velas
+    assert "rk=movil?.76:1" in HTML                                  # los anillos de la esfera caben en el ancho del móvil
+    assert "min-width:640px) and (max-width:900px)" in HTML          # tabletas: paneles en dos columnas
+    assert "grid-template-columns:48px minmax(28px,1fr) auto auto" in HTML  # lectura técnica: cuatro columnas, sin que la etiqueta salte de fila
+    assert "MOB()" in HTML and 'class="rt"' in HTML                  # rango y botón de reiniciar adaptados al móvil
