@@ -15,6 +15,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 
 from . import fuentes
+from . import hora
 from .envivo import Flujo
 from .indicadores import ema, holes
 from .motor import (LONG, SHORT, TFS, analyze, backtest, bias, book_sum, fin, gs, validate, zones)
@@ -46,11 +47,12 @@ def now_ms():
 
 
 def hm(t=None):
-    return time.strftime("%H:%M", time.localtime(t))
+    """Hora de Canarias (no la del equipo: en GitHub sería UTC)."""
+    return hora.hm(t)
 
 
 def hms(t=None):
-    return time.strftime("%H:%M:%S", time.localtime(t))
+    return hora.hms(t)
 
 
 def clean(x):

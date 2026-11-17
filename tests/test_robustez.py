@@ -77,3 +77,18 @@ def test_servidor_rechaza_peticiones_que_no_llegan_por_localhost():
     finally:
         srv.shutdown()
         srv.server_close()
+
+
+def test_velas_defectuosas_se_descartan_antes_de_analizar():
+    from cripto.fuentes import parse_coinbase, parse_ohlc, sanear
+    base = {"o": 10.0, "h": 11.0, "l": 9.0, "c": 10.5, "v": 5.0}
+    filas = [dict(base, t=3000), dict(base, t=1000), dict(base, t=2000, c=0.0), dict(base, t=4000, o=float("nan")),
+             dict(base, t=5000, h=9.5), dict(base, t=3000, v=7.0), dict(base, t=6000, v=-1.0)]
+    r = sanear(filas)
+    assert [x["t"] for x in r] == [1000, 3000, 5000, 6000]                 # ordenadas, sin ceros ni NaN, sin tiempos repetidos
+    assert r[1]["v"] == 7.0                                                  # de dos velas con el mismo tiempo manda la última
+    assert r[2]["h"] >= max(r[2]["o"], r[2]["c"]) and r[3]["v"] == 0.0     # máximo coherente; volumen negativo → 0
+    kr = {"XBTEUR": [[1, "10", "11", "9", "10.5", "10", "3", 5], [2, "0", "1", "0", "0", "0", "3", 5]], "last": 2}
+    assert [x["t"] for x in parse_ohlc(kr)] == [1000]
+    cb = [[2, 9, 11, 10, 10.5, 4], [1, 9, 11, 10, -1, 4]]
+    assert [x["t"] for x in parse_coinbase(cb)] == [2000]

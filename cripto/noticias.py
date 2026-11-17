@@ -12,7 +12,7 @@ import re
 import time
 import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
+from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 
 from . import fuentes
@@ -107,14 +107,15 @@ def _txt(s):
 def parse_date(s):
     if not s:
         return None
-    try:
-        return int(parsedate_to_datetime(s).timestamp() * 1000)
-    except Exception:  # noqa: BLE001
-        pass
-    try:
-        return int(datetime.fromisoformat(s.replace("Z", "+00:00")).timestamp() * 1000)
-    except Exception:  # noqa: BLE001
-        return None
+    for leer in (parsedate_to_datetime, lambda x: datetime.fromisoformat(x.replace("Z", "+00:00"))):
+        try:
+            d = leer(s)
+        except Exception:  # noqa: BLE001
+            continue
+        if d.tzinfo is None:        # «-0000» o fecha sin zona: se toma como UTC (con timestamp() a secas se leería en la hora del equipo)
+            d = d.replace(tzinfo=timezone.utc)
+        return int(d.timestamp() * 1000)
+    return None
 
 
 def parse_feed(xml_bytes, fuente):

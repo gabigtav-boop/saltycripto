@@ -1,5 +1,6 @@
 """Fuentes de datos públicas (sin claves): Kraken, Coinbase, CoinGecko y alternative.me.
 Las llamadas a Kraken van en cola (una a la vez, 450 ms entre ellas) para respetar su límite."""
+import math
 import threading
 import time
 
@@ -51,13 +52,31 @@ def jget(url, timeout=12):
     return r.json()
 
 
+def sanear(rows):
+    """Velas listas para analizar: sin precios no finitos o ≤ 0 (un dato defectuoso de un mercado nuevo falsearía medias, RSI y
+    zonas), con el máximo y el mínimo coherentes con apertura y cierre, volumen no negativo, ordenadas y sin tiempos repetidos.
+    En datos normales no cambia nada (las pruebas de paridad con la v21 lo comprueban)."""
+    out = {}
+    for r in rows:
+        try:
+            o, h, l, c, v = r["o"], r["h"], r["l"], r["c"], r["v"]
+        except KeyError:
+            continue
+        if not all(math.isfinite(x) and x > 0 for x in (o, h, l, c)):
+            continue
+        if h < max(o, c, l) or l > min(o, c, h):
+            r = dict(r, h=max(o, h, l, c), l=min(o, h, l, c))
+        if not (math.isfinite(v) and v >= 0):
+            r = dict(r, v=0.0)
+        out[r["t"]] = r
+    return [out[t] for t in sorted(out)]
+
+
 def parse_ohlc(result):
     k = next(x for x in result if x != "last")
-    return [{"t": int(x[0]) * 1000, "o": float(x[1]), "h": float(x[2]), "l": float(x[3]), "c": float(x[4]), "v": float(x[6])}
-            for x in result[k]]
+    return sanear([{"t": int(x[0]) * 1000, "o": float(x[1]), "h": float(x[2]), "l": float(x[3]), "c": float(x[4]), "v": float(x[6])}
+                   for x in result[k]])
 
 
 def parse_coinbase(d):
-    rows = [{"t": int(x[0]) * 1000, "l": float(x[1]), "h": float(x[2]), "o": float(x[3]), "c": float(x[4]), "v": float(x[5])} for x in d]
-    rows.sort(key=lambda r: r["t"])
-    return rows
+    return sanear([{"t": int(x[0]) * 1000, "l": float(x[1]), "h": float(x[2]), "o": float(x[3]), "c": float(x[4]), "v": float(x[5])} for x in d])

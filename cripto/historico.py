@@ -66,7 +66,9 @@ def _binance(sym, tf, n, desde=None):
         d = fuentes.jget(q, 12)
         if not d:
             break
-        rows = [{"t": int(x[0]), "o": float(x[1]), "h": float(x[2]), "l": float(x[3]), "c": float(x[4]), "v": float(x[5])} for x in d]
+        rows = fuentes.sanear([{"t": int(x[0]), "o": float(x[1]), "h": float(x[2]), "l": float(x[3]), "c": float(x[4]), "v": float(x[5])} for x in d])
+        if not rows:
+            break
         out = rows + out
         if len(d) < 1000 or desde is not None:
             break

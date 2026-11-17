@@ -34,6 +34,16 @@ Revisión completa del bot del Mac: datos, servicio, histórico, servidor y proy
 | `proyeccion.py`, `noticias.py`, tests | Variables e importaciones sin usar, comentario mezclado | Limpiado |
 | `web/index.html` | Estética nueva, cono azul fuera, portada con esfera, modo claro real; el modo estático, la barra inferior y la lista móvil se conservaron | Comprobado a 375 y 1440 px, en oscuro y claro, con datos reales generados por `nube.py` |
 
+## Revisión profunda del 17 nov 2026
+| Zona | Hallazgo | Acción |
+|---|---|---|
+| `servicio.py`, web | Las horas salían en la zona del equipo (en GitHub, UTC: el estado decía «actualizado» con una hora de menos en verano) | `hora.py` y `Intl` con `Atlantic/Canary` en todo; noticias y agenda con su hora canaria |
+| `noticias.py` | Fechas de noticias sin zona se leían en la hora del equipo | Se toman como UTC; prueba permanente |
+| `fuentes.py`, `historico.py` | Una vela con precio 0 o NaN falseaba medias, RSI y zonas | `sanear()` en Kraken, Coinbase y el histórico profundo |
+| Motor | Series extremas (constantes, saltos, precios diminutos, volumen 0) | Sin excepciones ni valores no finitos |
+| Datos en vivo | RSI, ATR y EMA contra velas independientes de Coinbase | Coinciden (RSI ±0,1; ATR ±0,06; EMA20 ±0,01 %) |
+| Rendimiento | Análisis en vivo: ~41 ms por segundo (8 monedas) | Sin cuello de botella que justifique tocar la traducción de la v21 |
+
 ## Límites que siguen vigentes
 - La proyección no tiene dirección: ningún método probado la acierta mejor que el azar (`ANALISIS_PREDICCION.md`).
 - La «Lectura de los datos» usa pesos fijos sin validar (se llama «acuerdo»).

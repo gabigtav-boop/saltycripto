@@ -154,3 +154,9 @@ def test_web_de_iphone_ajustada_a_pantallas_pequenas():
     assert "min-width:640px) and (max-width:900px)" in HTML          # tabletas: paneles en dos columnas
     assert "grid-template-columns:48px minmax(28px,1fr) auto auto" in HTML  # lectura técnica: cuatro columnas, sin que la etiqueta salte de fila
     assert "MOB()" in HTML and 'class="rt"' in HTML                  # rango y botón de reiniciar adaptados al móvil
+
+
+def test_todas_las_horas_de_la_web_van_en_hora_de_canarias():
+    assert "Atlantic/Canary" in HTML and "hc=t=>" in HTML           # noticias: hora canaria y, debajo, la antigüedad
+    assert "toLocale" not in HTML and "getTimezoneOffset" not in HTML  # nada depende de la zona del equipo (el análisis corre en UTC)
+    assert "hora de Canarias" in HTML
