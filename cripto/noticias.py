@@ -12,7 +12,7 @@ import re
 import time
 import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timezone
+from datetime import datetime
 from email.utils import parsedate_to_datetime
 
 from . import fuentes

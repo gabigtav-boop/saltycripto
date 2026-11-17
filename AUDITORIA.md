@@ -25,6 +25,15 @@ Revisión completa del bot del Mac: datos, servicio, histórico, servidor y proy
 ## Comprobaciones en vivo
 `verificar.py` (todo correcto), recarga manual repetida mientras se consulta `/api/state` (siempre ≥ 8 monedas con precio), 12 desconexiones bruscas del flujo SSE (websocket de Kraken sin reconectar), recorrido de BTC, SUI y PAXG en todos los plazos en el navegador sin errores de la página.
 
+## Revisión del 17 nov 2026 (misma que en la versión del Mac)
+| Zona | Hallazgo | Acción |
+|---|---|---|
+| `motor.validate` | El veredicto «ventaja modesta» salía de un número sin margen de error | `validacion.py`: intervalo por bloques de tiempo; el veredicto baja a «posible, no demostrada» si incluye el cero |
+| `servidor.py` | Aceptaba cualquier `Host` (posible «rebinding» de DNS al probar en local) | Solo `localhost` y `127.0.0.1` |
+| `indicadores.py` | RSI contrastado con los 19 valores publicados del ejemplo de Wilder | Prueba permanente en `tests/test_indicadores_clasicos.py` |
+| `proyeccion.py`, `noticias.py`, tests | Variables e importaciones sin usar, comentario mezclado | Limpiado |
+| `web/index.html` | Estética nueva, cono azul fuera, portada con esfera, modo claro real; el modo estático, la barra inferior y la lista móvil se conservaron | Comprobado a 375 y 1440 px, en oscuro y claro, con datos reales generados por `nube.py` |
+
 ## Límites que siguen vigentes
 - La proyección no tiene dirección: ningún método probado la acierta mejor que el azar (`ANALISIS_PREDICCION.md`).
 - La «Lectura de los datos» usa pesos fijos sin validar (se llama «acuerdo»).

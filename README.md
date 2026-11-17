@@ -25,6 +25,8 @@ La primera vez instala lo necesario (requiere Python 3 de python.org).
 
 Versión publicada (GitHub Pages): el análisis se renueva solo (GitHub lo lanza cada 30-50 min de día y a veces tarda más de 2 h de madrugada); el botón ↻ vuelve a descargar el último análisis saltándose cachés, reconecta los precios en vivo y dice de cuándo es el análisis y cuándo llega el siguiente. En el Estudio, los **casos parecidos** van numerados en el gráfico (al pasar el cursor o tocar uno en la lista se resalta su camino; un clic lo fija) y el detalle técnico, de derivados y de fiabilidad va plegado. **Mi posición** acepta monedas, invertido o precio de compra (dos de los tres bastan) y números en formato español (3.200 o 1.500,25).
 
+Portada (Mercado): una esfera de luz animada, de la misma familia visual que la del bot de trading. Cada activo es una franja de la esfera; su luz dorada sube con su puntuación técnica, cada precio nuevo que llega de Kraken lanza una onda (menta si sube, coral si baja) y un toque en una fila abre su estudio. A los lados, los precios en vivo y la lectura técnica; debajo, el semáforo de momento, el próximo evento macro con cuenta atrás y el sentimiento. Se pausa cuando no se ve, baja la calidad si el teléfono va justo y respeta el movimiento reducido del sistema. La interfaz tiene modo oscuro (por defecto) y modo claro con paleta propia.
+
 Secciones: **Mercado** (panorama, sentimiento, tabla de mercados con previsión, noticias, agenda, derivados y si el sistema funciona), **Estudio** (cada moneda a fondo: gráfico, previsión combinada con objetivo e invalidación, niveles, noticias que la afectan, resumen del libro y del flujo, análisis técnico, derivados, fiabilidad y tu posición), **Noticias** (efecto conjunto sobre el gráfico de cada activo y lista desplegable) y **Datos** (estado y verificación de todas las fuentes).
 
 Proyección del gráfico (Estudio): **rango por volatilidad con probabilidad de llegar a cada nivel**, sin dirección. Mide cuánto se ha movido el precio en el horizonte a lo largo de años de velas (Binance/Coinbase empalmadas con Kraken, en `datos/historico/`), siempre relativo a la volatilidad de cada momento, y lo aplica a la volatilidad de hoy: abanico de percentiles (10-25-50-75-90), rango del 50 y del 80 % y probabilidad de tocar cada soporte/resistencia. Se comprueba fuera de muestra (cobertura real y mejora de las probabilidades frente a ignorar la volatilidad). Añade **5 casos reales representativos** (de 50 episodios con volatilidad y tendencia parecidas, a los percentiles 10-25-50-75-90): ilustran la dispersión, no predicen nada. No se predice la dirección porque ningún método probado la acierta mejor que el azar (`ANALISIS_PREDICCION.md`). En la web publicada, la probabilidad de llegar a cada nivel se recalcula con el precio en vivo. Auditoría del sistema: `AUDITORIA.md`.
@@ -43,11 +45,11 @@ Avisos (campana): semáforo, previsión, entradas y salidas, movimientos bruscos
 - `.venv/bin/python verificar.py` — con la app en marcha, compara lo que muestra con consultas independientes a Kraken, Coinbase y Binance.
 
 ## Honestidad del análisis
-La pestaña *¿Funciona el sistema?* muestra el histórico real: la lectura técnica general tiene una ventaja modesta, pero las entradas y salidas automáticas **no han demostrado beneficio** descontando costes. Úsalas como mapa de niveles, no como órdenes.
+La pestaña *¿Funciona el sistema?* muestra el histórico real: la lectura técnica general tiene una ventaja modesta (correlación con el retorno a 5 días de alrededor de +0,1, con un intervalo del 90 % por remuestreo de bloques de tiempo que respeta el solapamiento de las muestras y que las monedas se mueven juntas), pero las entradas y salidas automáticas **no han demostrado beneficio** descontando costes. Úsalas como mapa de niveles, no como órdenes.
 El análisis de noticias es por reglas transparentes (cada noticia muestra las palabras que la clasificaron) y se contrasta con la reacción real del precio.
 
 ## Estructura
-- `cripto/motor.py`, `cripto/indicadores.py` — motor técnico v21 (traducción verificada)
+- `cripto/motor.py`, `cripto/indicadores.py` — motor técnico v21 (traducción verificada) · `cripto/validacion.py` — intervalo de confianza de la validación (no toca la traducción)
 - `cripto/envivo.py` — WebSocket de Kraken
 - `cripto/noticias.py` — analizador fundamental y agenda
 - `cripto/sentimiento.py` — derivados y sentimiento compuesto

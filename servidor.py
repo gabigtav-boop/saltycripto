@@ -81,7 +81,15 @@ class H(BaseHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError, OSError):
             return
 
+    def _host_ok(self):
+        """Solo se atiende a quien llega por localhost: una web externa que apunte su dominio a 127.0.0.1 («rebinding» de DNS)
+        envía su propio nombre en Host y se rechaza."""
+        h = (self.headers.get("Host") or "").rsplit(":", 1)[0].strip("[]").lower()
+        return h in ("localhost", "127.0.0.1")
+
     def do_GET(self):
+        if not self._host_ok():
+            return self._send(403, b"{}")
         u = urlparse(self.path)
         q = parse_qs(u.query)
         if u.path in ("/", "/index.html"):
@@ -112,7 +120,7 @@ class H(BaseHTTPRequestHandler):
     def do_POST(self):
         # solo peticiones de la propia app: JSON y mismo origen (otra web no puede tocar el motor)
         org = self.headers.get("Origin")
-        if not (self.headers.get("Content-Type") or "").startswith("application/json") or (
+        if not self._host_ok() or not (self.headers.get("Content-Type") or "").startswith("application/json") or (
                 org and urlparse(org).hostname not in ("localhost", "127.0.0.1")):
             return self._send(403, b"{}")
         n = int(self.headers.get("Content-Length") or 0)

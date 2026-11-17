@@ -192,7 +192,7 @@ import numpy as _np  # noqa: E402
 
 from cripto import fuentes as _f  # noqa: E402
 from cripto.historico import agregar, empalmar  # noqa: E402
-from cripto.proyeccion import HOR, QS, calibrar, compacto, p_tocar, proyectar, volatilidad  # noqa: E402
+from cripto.proyeccion import HOR, calibrar, compacto, p_tocar, proyectar, volatilidad  # noqa: E402
 
 
 def _raw(key, m):

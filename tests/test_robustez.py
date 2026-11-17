@@ -51,3 +51,29 @@ def test_historico_se_guarda_y_se_recarga(tmp_path):
     h.actualizar("BTC", "1h", ahora_ms=4001 * H)
     h2 = Historico(directorio=tmp_path, net=False)
     assert len(h2.cargar("BTC", "1h")["rows"]) >= 3990 and h2.estado[("BTC", "1h")]["n"] >= 3990
+
+
+def test_servidor_rechaza_peticiones_que_no_llegan_por_localhost():
+    """Una web externa cuyo dominio apunte a 127.0.0.1 («rebinding» de DNS) enviaría su nombre en Host: se rechaza."""
+    import http.client
+    import threading
+
+    import servidor
+
+    srv = servidor.Servidor(("127.0.0.1", 0), servidor.H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        def pide(host, ruta="/api/health", metodo="GET"):
+            c = http.client.HTTPConnection("127.0.0.1", srv.server_address[1], timeout=5)
+            c.request(metodo, ruta, body=b"{}" if metodo == "POST" else None,
+                      headers={"Host": host, **({"Content-Type": "application/json"} if metodo == "POST" else {})})
+            r = c.getresponse()
+            r.read()
+            c.close()
+            return r.status
+        assert pide("localhost:8501") == 200 and pide("127.0.0.1:8501") == 200
+        assert pide("malo.example.com") == 403 and pide("malo.example.com:8501") == 403
+        assert pide("malo.example.com", "/api/refresh", "POST") == 403
+    finally:
+        srv.shutdown()
+        srv.server_close()

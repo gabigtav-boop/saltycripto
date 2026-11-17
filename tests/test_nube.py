@@ -126,3 +126,21 @@ console.log(JSON.stringify({c:o.centro,b:o.b50,q:o.q["50"],p1:o.niveles[0].p,p2:
     assert 0 < out["p2"] < 1 and out["p2"] == pytest.approx(1 - abs(__import__("math").log(109 / 100)) / .05 / 5 * 1, abs=.05)
     assert out["pct"] == pytest.approx((90 / 110 - 1) * 100)
     assert out["sin"] == .5                                            # sin curvas guardadas se deja lo calculado
+
+
+def test_portada_de_mercado_con_esfera_modo_claro_y_sin_cono_azul():
+    """Portada (esfera de luz) con paleta propia en modo claro, que respeta el movimiento reducido y se pausa; sin cono azul ni desenfoque."""
+    for pieza in ('id="stage"', 'id="nuc"', "function crearNucleo", "prefers-reduced-motion", "IntersectionObserver", "frame(ms)", "function heroUpdate", "COLL"):
+        assert pieza in HTML, pieza
+    assert "<polygon" not in HTML and "pjg" not in HTML             # sin cono: ni polígonos ni su degradado
+    assert "backdrop-filter" not in HTML                             # nada de desenfoque sobre contenido que se desplaza
+    assert 'class="cs"' in HTML and "pill cp" not in HTML            # casos como filas, no como etiquetas sueltas
+    assert 'class="stage dk"' not in HTML and ".dk{" not in HTML     # sin portada oscura forzada en modo claro
+    assert "body[data-v=ALL] .tape" in HTML                          # la cinta de monedas se oculta en la portada
+
+
+def test_web_de_iphone_conserva_su_modo_estatico_en_la_portada():
+    """La portada convive con el modo estático: precios de Kraken en vivo, barra inferior y lista de activos."""
+    for pieza in ("window.ESTATICO", "function krakenWS", 'id="tabbar"', "function mRow", 'id="warn"', "NUC.tick"):
+        assert pieza in HTML, pieza
+    assert 'src="/' not in HTML and 'rel="icon" href="favicon.svg"' in HTML   # rutas relativas: la página vive en /saltycripto/

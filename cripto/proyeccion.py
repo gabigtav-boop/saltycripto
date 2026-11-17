@@ -34,7 +34,7 @@ QS = (.1, .25, .5, .75, .9)
 ZG = np.linspace(0, 5, 101)                                      # malla de excursiones en unidades de volatilidad
 MULT = (.5, 1.0, 1.5, 2.0)
 KCASOS = 50                                                      # episodios reales que se buscan
-WARM_C = 250                                                     # el nivel de volatilidad compara con las 250 velas anteriores                                       # distancias de prueba, en múltiplos de la volatilidad típica
+WARM_C = 250                                                     # el nivel de volatilidad compara con las 250 velas anteriores
 
 
 # ---------- volatilidad ----------
@@ -258,7 +258,7 @@ def _validar(y, up, dn, sH, idx, H):
     m = len(y)
     corte = int(m * .65)
     pruebas = list(range(corte, m, H))
-    c50 = c80 = nt = 0
+    nt = 0
     bm, bb = [], []
     cob = []
     for i in pruebas:

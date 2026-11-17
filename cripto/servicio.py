@@ -23,6 +23,7 @@ from .prevision import prevision
 from .historico import Historico
 from .proyeccion import calibrar, compacto, proyectar
 from .sentimiento import compuesto, derivados, lectura_derivados
+from .validacion import con_intervalo
 
 COINS = {"BTC": "XBT/EUR", "ETH": "ETH/EUR", "XRP": "XRP/EUR", "SOL": "SOL/EUR", "HYPE": "HYPE/EUR",
          "SUI": "SUI/EUR", "ZEC": "ZEC/EUR", "PAXG": "PAXG/EUR"}
@@ -413,7 +414,7 @@ class Servicio:
 
     def do_validate(self):
         with self.lock:
-            self.val = validate(self.data)
+            self.val = con_intervalo(validate(self.data), self.data)
             self.version += 1
 
     # ---------- carga completa (cada 10 min) ----------
