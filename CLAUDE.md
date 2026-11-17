@@ -39,3 +39,5 @@ Siguen siendo **proyectos separados** aunque uno quede dentro del otro:
 - En el proyecto del Mac, cualquier búsqueda, copia o limpieza recursiva (`grep -r`, `find`, `rsync`, `rm`) debe **excluir** la subcarpeta `saltycripto-nube/`.
 - No hacer nunca `git init` en `~/Desktop/claude`: el repositorio de saltycripto-nube quedaría dentro de otro.
 - GitHub y la web publicada no se ven afectados por mover la carpeta.
+- Rendimiento de la interfaz (17 nov 2026): sin `backdrop-filter` en cabecera, barra inferior, chip y casos (se recalculaba en cada fotograma del desplazamiento; solo lo conservan menús y notificaciones), sin animaciones infinitas sobre el gráfico y destellos de precio solo de color. Medido: el JavaScript cuesta ~2-5 ms por segundo, así que el retraso era de pintado. No volver a poner desenfoque sobre contenido que se desplaza.
+- Nube: el fondo con cuadrícula vive en `body` (no en una capa fija) y al tocar una moneda se precarga su archivo (`pointerdown`).
