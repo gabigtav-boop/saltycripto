@@ -147,8 +147,8 @@ def test_web_de_iphone_conserva_su_modo_estatico_en_la_portada():
 
 
 def test_web_de_iphone_ajustada_a_pantallas_pequenas():
-    """Gráfico grande en el móvil, esfera que cabe con sus anillos, lectura técnica sin solapes y tabletas en dos columnas."""
-    assert "clamp(470px,68vh,640px)" in HTML                         # el gráfico ocupa buena parte de la pantalla
+    """Gráfico contenido en el móvil, esfera que cabe con sus anillos, lectura técnica sin solapes y tabletas en dos columnas."""
+    assert "clamp(330px,48vh,430px)" in HTML                         # gráfico más bajo: deja ver lo de abajo al deslizar (18 nov)
     assert "autoscaleInfoProvider" in HTML                           # la EMA 200 lejana no encoge las velas
     assert "rk=movil?.76:1" in HTML                                  # los anillos de la esfera caben en el ancho del móvil
     assert "min-width:640px) and (max-width:900px)" in HTML          # tabletas: paneles en dos columnas
@@ -160,3 +160,15 @@ def test_todas_las_horas_de_la_web_van_en_hora_de_canarias():
     assert "Atlantic/Canary" in HTML and "hc=t=>" in HTML           # noticias: hora canaria y, debajo, la antigüedad
     assert "toLocale" not in HTML and "getTimezoneOffset" not in HTML  # nada depende de la zona del equipo (el análisis corre en UTC)
     assert "hora de Canarias" in HTML
+
+
+def test_arreglos_del_iphone_18_nov():
+    """Gráfico que no atrapa el desplazamiento, título sin recortar, interruptores visibles, casos dentro del gráfico y tema claro más suave."""
+    assert "vertTouchDrag:!MOB()" in HTML and "price:!MOB()" in HTML  # arrastrar en vertical sobre el gráfico desplaza la página
+    assert "touch-action:pan-x pan-y" in HTML                         # tampoco la tira de casos bloquea el desplazamiento vertical
+    assert ".tit{margin:10px 0;padding-bottom:.08em;" in HTML         # la «j» de «bajista» no queda cortada por el texto con degradado
+    assert '<label class="sw tg"><input type="checkbox" id="oema"' in HTML and 'class="sw tg hide-s"' not in HTML
+    assert "env(pr.q['90'],Math.max)" in HTML and 'height="${HP}"' in HTML  # la escala incluye los casos; se recortan al panel de precios
+    assert "--bg:#d3dde0" in HTML and "kk=claro?2.6:1" in HTML        # claro menos deslumbrante y esfera visible
+    for largo in ("Qué dicen juntos el análisis técnico", "ningún método (analogías, regresión", "Comprobado fuera de muestra ("):
+        assert largo not in HTML, largo                               # textos grises resumidos
