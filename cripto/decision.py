@@ -32,6 +32,17 @@ def decision(o, ahora):
                 cobertura=prev.get("cobertura"), precio_t=t, caduca=t + FRESCO_MS)
 
 
+def _compacto(x):
+    """Floats a 7 cifras significativas (como lo que se publica en la web): el registro ocupaba ~1,25 kB por decisión."""
+    if isinstance(x, float):
+        return float(f"{x:.7g}")
+    if isinstance(x, dict):
+        return {k: _compacto(v) for k, v in x.items()}
+    if isinstance(x, (list, tuple)):
+        return [_compacto(v) for v in x]
+    return x
+
+
 class Registro:
     def __init__(self, ruta=RUTA):
         self.ruta = ruta
@@ -60,7 +71,7 @@ class Registro:
                 db.execute("INSERT OR IGNORE INTO precios VALUES (?,?,?,?)", (sym, cot // 60000, cot, o["price"]))
             if nueva:
                 db.execute("INSERT OR IGNORE INTO decisiones VALUES (?,?,?)",
-                       (sym, ahora, json.dumps(detalle, allow_nan=False, ensure_ascii=False)))
+                       (sym, ahora, json.dumps(_compacto(detalle), allow_nan=False, ensure_ascii=False, separators=(",", ":"))))
         if muestra:
             self.minuto[sym] = cot // 60000
         if nueva:

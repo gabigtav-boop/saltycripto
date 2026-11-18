@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 
 from . import fuentes
+from .catalogo import campo
 
 FEEDS = [
     # nombre, url, tipo, peso de la fuente
@@ -37,16 +38,7 @@ FEEDS = [
 CALENDAR = "https://nfs.faireconomy.media/ff_calendar_thisweek.json"
 CAL_CACHE = pathlib.Path(__file__).resolve().parent.parent / "datos" / "calendario.json"
 
-COIN_WORDS = {
-    "BTC": [r"bitcoin", r"btc", r"satoshi"],
-    "ETH": [r"ethereum", r"ether", r"eth", r"vitalik"],
-    "XRP": [r"xrp", r"ripple"],
-    "SOL": [r"solana", r"(?-i:\$?SOL)"],          # "sol" (el astro) y "hype" (exageración) son palabras corrientes:
-    "HYPE": [r"hyperliquid", r"(?-i:\$?HYPE)"],   # el ticker solo cuenta escrito en mayúsculas
-    "SUI": [r"(?-i:\$?SUI|Sui)"],
-    "ZEC": [r"zcash", r"zec"],
-    "PAXG": [r"gold", r"oro", r"paxg", r"bullion", r"xau"],
-}
+COIN_WORDS = campo("palabras")   # del catálogo: el ticker de palabras corrientes (sol, hype) solo cuenta en mayúsculas
 COIN_RX = {s: re.compile(r"\b(" + "|".join(w) + r")\b", re.I) for s, w in COIN_WORDS.items()}
 CRYPTO_RX = re.compile(r"\b(crypto\w*|cripto\w*|bitcoin|blockchain|stablecoin\w*|defi|altcoin\w*|token\w*|web3|exchange[s]?|binance|coinbase|kraken)\b", re.I)
 

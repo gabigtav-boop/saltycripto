@@ -7,14 +7,14 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 
 from . import fuentes
+from .catalogo import campo
 
 BINANCE = "https://fapi.binance.com"
 BYBIT = "https://api.bybit.com"
 OKX = "https://www.okx.com"
 SIN_BINANCE = os.environ.get("SALTY_SIN_BINANCE") == "1"   # para probar en local cómo funciona sin Binance
 KFUT = "https://futures.kraken.com/derivatives/api/v3/tickers"
-KF_SYM = {"BTC": "PF_XBTUSD", "ETH": "PF_ETHUSD", "XRP": "PF_XRPUSD", "SOL": "PF_SOLUSD", "HYPE": "PF_HYPEUSD",
-          "SUI": "PF_SUIUSD", "ZEC": "PF_ZECUSD", "PAXG": "PF_PAXGUSD"}
+KF_SYM = campo("futuros")       # del catálogo de activos
 
 
 def _f(x):

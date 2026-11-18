@@ -22,6 +22,9 @@ def _servicio(fx, monedas, monkeypatch):
     sv.tk_t = 0
     for s in monedas:
         sv.data[s] = sv.run(s, now=fx["now"])
+        # ETH y XRP: en la foto real el último negociado está fuera de la horquilla del ticker REST, así que no se da por
+        # vigente sin la confirmación del libro en vivo (18 nov 2026); aquí se simula esa confirmación
+        sv.data[s]["_precio_t"] = sv.data[s]["_precio_t"] or fx["now"]
     monkeypatch.setattr(sv_mod, "now_ms", lambda: fx["now"] + 1000)
     return sv
 

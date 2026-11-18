@@ -16,15 +16,14 @@ import threading
 import time
 
 from . import fuentes
+from .catalogo import campo
 
 DIR = pathlib.Path(__file__).resolve().parent.parent / "datos" / "historico"
 BINANCE = "https://api.binance.com/api/v3/klines"
 COINBASE = "https://api.exchange.coinbase.com/products/{}/candles"
 # pares por moneda: primero en euros; si no existe, en USDT (solo se usan magnitudes relativas)
-BIN_SYM = {"BTC": "BTCEUR", "ETH": "ETHEUR", "XRP": "XRPEUR", "SOL": "SOLEUR", "SUI": "SUIEUR",
-           "HYPE": "HYPEUSDT", "ZEC": "ZECUSDT", "PAXG": "PAXGUSDT"}
-CB_SYM = {"BTC": "BTC-EUR", "ETH": "ETH-EUR", "XRP": "XRP-EUR", "SOL": "SOL-EUR", "HYPE": "HYPE-USD",
-          "SUI": "SUI-USD", "ZEC": "ZEC-USD", "PAXG": "PAXG-USD"}
+BIN_SYM = campo("binance")      # del catálogo de activos
+CB_SYM = campo("coinbase")
 SIN_BINANCE = os.environ.get("SALTY_SIN_BINANCE") == "1"
 TF_MS = {"1m": 60000, "1h": 3600000, "4h": 14400000, "1d": 86400000}
 BIN_INT = {"1m": "1m", "1h": "1h", "4h": "4h", "1d": "1d"}

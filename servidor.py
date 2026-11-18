@@ -5,17 +5,23 @@ import gzip
 import json
 import mimetypes
 import pathlib
+import sqlite3
 import threading
 import time
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
-from cripto.servicio import COINS, Servicio
+from cripto import catalogo
+from cripto.evidencias import ACTIVOS as EV_ACTIVOS
+from cripto.servicio import COINS, Servicio, now_ms
+from estudios import evaluar_spot
 
 WEB = pathlib.Path(__file__).with_name("web")
 SV = Servicio()
 TFS_OK = {"1m", "1h", "4h", "1d", "1w"}
+CATALOGO_JS = ("window.CATALOGO=" + json.dumps(catalogo.web(), ensure_ascii=False, separators=(",", ":")) + ";").encode()
+_SPOT = {"t": 0, "body": None}       # el informe spot recorre todas las decisiones: se reutiliza durante 60 s
 
 
 _GZ = {}
@@ -111,6 +117,8 @@ class H(BaseHTTPRequestHandler):
             return self._static("index.html")
         if u.path == "/clasica":
             return self._static("clasica.html")
+        if u.path == "/catalogo.js":           # la lista de monedas de la página sale del catálogo del servidor
+            return self._send(200, CATALOGO_JS, "text/javascript; charset=utf-8")
         if u.path == "/api/state":
             v = q.get("v", [None])[0]
             try:
@@ -128,9 +136,50 @@ class H(BaseHTTPRequestHandler):
             return self._send(200, SV.velas(s, tf).encode())
         if u.path == "/api/health":
             return self._send(200, json.dumps(SV.salud()).encode())
+        if u.path.startswith("/api/evid") or u.path in ("/api/minutos", "/api/avisos", "/api/niveles", "/api/spot", "/api/historial"):
+            return self._evidencias(u.path, q)
         if u.path.startswith("/vendor/") or u.path in ("/favicon.svg",):
             return self._static(u.path.lstrip("/"))
         self._send(404, b"{}")
+
+    def _json(self, x):
+        return self._send(200, json.dumps(x, ensure_ascii=False, allow_nan=False, separators=(",", ":")).encode())
+
+    def _evidencias(self, ruta, q):
+        """Evidencias, minutos, avisos, niveles e historial de las monedas del catálogo (lectura, para el diagnóstico)."""
+        s = q.get("s", ["BTC"])[0]
+        if s not in EV_ACTIVOS and not (ruta == "/api/evidencias" and s == "*") and ruta not in ("/api/avisos", "/api/spot", "/api/historial"):
+            return self._send(400, b"{}")
+        if SV.evid is None or SV.avisos is None:
+            return self._send(503, json.dumps({"error": SV.ev_error or "evidencias no disponibles"}).encode())
+        try:
+            ahora = now_ms()
+            if ruta == "/api/evidencias":
+                return self._json(SV.evid.resumen(s, ahora))
+            if ruta == "/api/evidencia":
+                d = SV.evid.detalle(s, int(q.get("h", ["0"])[0]))
+                return self._json(d) if d else self._send(404, b"{}")
+            if ruta == "/api/minutos":
+                return self._json({"s": s, "minutos": SV.evid.minutos(s, max(10, min(720, int(q.get("n", ["120"])[0]))), ahora)})
+            if ruta == "/api/avisos":
+                f = q.get("s", [None])[0]
+                return self._json({"avisos": SV.avisos.lista(int(q.get("desde", ["0"])[0]), 200, f if f in EV_ACTIVOS else None),
+                                   "niveles": SV.avisos.niveles(), "ultimo": SV.av_ultimo})
+            if ruta == "/api/niveles":
+                return self._json({"niveles": SV.avisos.niveles(s)})
+            if ruta == "/api/historial":
+                return self._json(SV.hist_ev or SV.evid.historial(ahora))
+            if ruta == "/api/spot":
+                if ahora - _SPOT["t"] > 60000 or _SPOT["body"] is None:
+                    with sqlite3.connect(SV.evid.ruta.as_uri() + "?mode=ro", uri=True) as db:
+                        if not db.execute("SELECT 1 FROM sqlite_master WHERE name='decisiones'").fetchone():
+                            return self._json({"total": 0, "evaluadas": 0, "excluidas": {}, "activos": {}})
+                        _SPOT["body"] = evaluar_spot.informe(db, ahora, .001)
+                    _SPOT["t"] = ahora
+                return self._json(_SPOT["body"])
+        except (ValueError, sqlite3.Error) as e:
+            return self._send(500, json.dumps({"error": str(e)[:200]}).encode())
+        return self._send(404, b"{}")
 
     def do_POST(self):
         # solo peticiones de la propia app: JSON y mismo origen (otra web no puede tocar el motor)
@@ -148,6 +197,20 @@ class H(BaseHTTPRequestHandler):
             threading.Thread(target=SV.main, args=(True,), daemon=True).start()   # sin vaciar: mientras recarga se siguen viendo los datos
         elif p == "/api/retry" and b.get("s") in COINS:
             threading.Thread(target=SV.load_coin, args=(b["s"],), daemon=True).start()
+        elif p == "/api/avisos/entrega" and SV.avisos and isinstance(b.get("id"), int):
+            ok = SV.avisos.entregar(b["id"], b.get("canal"), now_ms())
+            return self._send(200, json.dumps({"registrada": ok}).encode())
+        elif p == "/api/niveles" and SV.avisos:
+            try:
+                if b.get("accion") == "anadir" and b.get("s") in EV_ACTIVOS:
+                    i = SV.avisos.anadir_nivel(b["s"], float(b.get("precio")), str(b.get("nota") or ""), now_ms())
+                    return self._send(200, json.dumps({"id": i}).encode())
+                if b.get("accion") == "quitar" and isinstance(b.get("id"), int):
+                    SV.avisos.quitar_nivel(b["id"])
+                else:
+                    return self._send(400, b"{}")
+            except (TypeError, ValueError):
+                return self._send(400, b"{}")
         elif p == "/api/prefs" and isinstance(b.get("off"), list):
             SV.off = {s for s in b["off"] if s in COINS}
             if SV.last:

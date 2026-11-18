@@ -100,6 +100,14 @@ class Flujo:
         self.error = None
         self._ws = None
         self._stop = False
+        # procedencia y continuidad (evidencias): qué se recibió, cuándo, y durante qué tramos el canal estuvo activo
+        self.ultima_op = {}                                   # s -> última operación recibida {p, q, side, t (bolsa), recibido}
+        self.ohlc_desde = {}                                  # s -> ms desde que el canal de velas está activo en esta conexión
+        self.trade_desde = {}                                 # s -> ms desde que el canal de operaciones está activo
+        self.segmentos = {s: collections.deque(maxlen=500) for s in self.simbolos}   # tramos cerrados (desde, hasta) del canal de velas
+        self.pend_ws = {s: {} for s in self.simbolos}         # velas de 1 min recibidas por WebSocket aún sin guardar
+        self.agregados = {s: {} for s in self.simbolos}       # minuto -> volumen negociado por lado (solo operaciones en vivo)
+        self.conectado_t = 0
 
     # ---------- semilla REST de velas de 1 minuto ----------
     def sembrar_1m(self, s, rows):
@@ -149,6 +157,7 @@ class Flujo:
                 for ch, extra in (("ticker", {}), ("trade", {"snapshot": True}), ("book", {"depth": BOOK_DEPTH}), ("ohlc", {"interval": 1})):
                     ws.send(json.dumps({"method": "subscribe", "params": {"channel": ch, "symbol": self.simbolos, **extra}}))
                 self.conectado = True
+                self.conectado_t = time.time()
                 self.error = None
                 espera = 1
                 while not self._stop:
@@ -158,19 +167,33 @@ class Flujo:
                     self._msg(json.loads(raw))
             except Exception as e:  # noqa: BLE001
                 self.error = str(e)[:120]
-            with self.lock:
-                self.conectado = False
-                self.ticker.clear()
-                for libro in self.libros.values():
-                    libro.valido = False
-                for operaciones in self.trades.values():
-                    operaciones.clear()
+            self._desconectado()
             self.on_update()
             if self._stop:
                 break
             self.reconexiones += 1
             time.sleep(espera)
             espera = min(30, espera * 2)
+
+    def _desconectado(self):
+        """Cierra los tramos de cobertura en el último mensaje recibido y vacía lo que deja de ser válido."""
+        with self.lock:
+            self.conectado = False
+            fin = int(self.ultimo * 1000)
+            for s, desde in self.ohlc_desde.items():
+                if fin > desde:
+                    self.segmentos[s].append((desde, fin))
+            self.ohlc_desde.clear()
+            self.trade_desde.clear()
+            for cola in self.agregados.values():     # un minuto cortado por la desconexión no está completo
+                for m, g in cola.items():
+                    if m + 60000 > fin:
+                        g["completo"] = False
+            self.ticker.clear()
+            for libro in self.libros.values():
+                libro.valido = False
+            for operaciones in self.trades.values():
+                operaciones.clear()
 
     def _resub_book(self, s):
         try:
@@ -197,18 +220,37 @@ class Flujo:
                     self.ticker[s] = dict(d, t=now)
                 elif ch == "trade":
                     ts = iso_ms(d["timestamp"])
-                    self.trades[s].append({"p": d["price"], "q": d["qty"], "side": d["side"], "t": ts, "id": d.get("trade_id")})
-                    if typ == "update":
+                    op = {"p": d["price"], "q": d["qty"], "side": d["side"], "t": ts, "id": d.get("trade_id")}
+                    self.trades[s].append(op)
+                    if ts >= (self.ultima_op.get(s) or {}).get("t", 0):
+                        self.ultima_op[s] = dict(op, recibido=int(now * 1000))
+                    if typ == "snapshot":
+                        self.trade_desde.setdefault(s, int(now * 1000))
+                    elif typ == "update":
                         self.latencias.append(now * 1000 - ts)
+                        self.trade_desde.setdefault(s, int(now * 1000))
+                        m = ts - ts % 60000
+                        if m >= self.trade_desde[s] - self.trade_desde[s] % 60000:
+                            g = self.agregados[s].setdefault(m, {"compra": 0.0, "venta": 0.0, "n": 0, "q": 0.0,
+                                                                  "completo": m >= self.trade_desde[s]})
+                            g["compra" if d["side"] == "buy" else "venta"] += d["price"] * d["qty"]
+                            g["n"] += 1
+                            g["q"] += d["qty"]
                 elif ch == "book":
                     if not self.libros[s].apply(d, typ == "snapshot"):
                         self._resub_book(s)
                 elif ch == "ohlc":
                     t0 = iso_ms(d["interval_begin"])
+                    self.ohlc_desde.setdefault(s, int(now * 1000))
                     self.velas1m[s][t0] = {"t": t0, "o": d["open"], "h": d["high"], "l": d["low"], "c": d["close"], "v": d["volume"]}
+                    self.pend_ws[s][t0] = dict(self.velas1m[s][t0], n=d.get("trades"))
                     if len(self.velas1m[s]) > 1500:
                         for k in sorted(self.velas1m[s])[:-1440]:
                             del self.velas1m[s][k]
+                    for cola in (self.pend_ws[s], self.agregados[s]):   # sin nadie que las guarde, no crecen sin límite
+                        if len(cola) > 1500:
+                            for k in sorted(cola)[:-1440]:
+                                del cola[k]
         self.on_update()
 
     # ---------- lecturas ----------
@@ -236,6 +278,55 @@ class Flujo:
             ask, bid = min(libro.asks), max(libro.bids)
             t = self.ultimo
         return t if bid * (1 - .001) <= precio <= ask * (1 + .001) else None
+
+    # ---------- evidencias: continuidad, velas cerradas, volumen y profundidad ----------
+    def cobertura_ws(self, s, ahora_ms=None):
+        """Tramos (desde, hasta) en ms durante los que el canal de velas de `s` estuvo activo, incluido el actual.
+        Dentro de un tramo, un minuto sin vela es un minuto sin operaciones; fuera de todos, es un hueco de conexión."""
+        ahora_ms = ahora_ms if ahora_ms is not None else int(time.time() * 1000)
+        with self.lock:
+            out = list(self.segmentos.get(s, ()))
+            if self.conectado and s in self.ohlc_desde:
+                out.append((self.ohlc_desde[s], min(ahora_ms, int(self.ultimo * 1000))))
+        return out
+
+    def tomar_cerradas(self, s, hasta_ms):
+        """Saca (para guardarlas) las velas de 1 minuto recibidas por WebSocket que ya cerraron antes de `hasta_ms`."""
+        with self.lock:
+            cola = self.pend_ws.get(s, {})
+            listas = sorted(t for t in cola if t + 60000 <= hasta_ms)
+            return [cola.pop(t) for t in listas]
+
+    def tomar_agregados(self, s, hasta_ms):
+        """Volumen negociado por minuto y lado (operaciones recibidas en vivo) de los minutos ya cerrados."""
+        with self.lock:
+            cola = self.agregados.get(s, {})
+            listos = sorted(m for m in cola if m + 60000 <= hasta_ms)
+            return [dict(cola.pop(m), minuto=m) for m in listos]
+
+    def profundidad(self, s, bandas=(.001, .005, .01)):
+        """Foto del libro verificado: mejor compra y venta, horquilla y euros acumulados a cada distancia del precio medio.
+        None si el libro no está verificado (CRC), la conexión cayó o la foto tiene más de 120 s."""
+        with self.lock:
+            libro = self.libros.get(s)
+            if not (self.conectado and libro and libro.valido and libro.asks and libro.bids
+                    and time.time() - libro.t <= 120):
+                return None
+            a, b = libro.sorted()
+            t = libro.t
+        bid, ask = b[0][0], a[0][0]
+        md = (bid + ask) / 2
+        # con BOOK_DEPTH niveles por lado, el libro solo llega hasta cierta distancia: una banda más allá quedaría truncada
+        alc_c, alc_v = (1 - b[-1][0] / md) * 100, (a[-1][0] / md - 1) * 100
+        out = {"t": int(t * 1000), "bid": bid, "ask": ask, "spread_pct": (ask - bid) / md * 100, "niveles": [len(b), len(a)],
+               "alcance_compra_pct": alc_c, "alcance_venta_pct": alc_v}
+        for x in bandas:
+            k = f"{x * 100:g}".replace(".", ",")
+            completo_c = len(b) < BOOK_DEPTH or alc_c >= x * 100
+            completo_v = len(a) < BOOK_DEPTH or alc_v >= x * 100
+            out[f"compra_{k}"] = sum(p * q for p, q in b if p >= md * (1 - x)) if completo_c else None
+            out[f"venta_{k}"] = sum(p * q for p, q in a if p <= md * (1 + x)) if completo_v else None
+        return out
 
     def salud(self):
         now = time.time()
