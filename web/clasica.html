@@ -190,7 +190,7 @@ function alerts(){if(!ALERTS)return;const A=PREF.al,now=Date.now();
     const h=(PH[s]=PH[s]||[]);h.push({t:now,p:o.price});while(h.length&&now-h[0].t>66*6e4)h.shift();
     if(A.mov&&h.length>3&&now-h[0].t>=15*6e4){const f=h[0],ch=(o.price/f.p-1)*100,th=s==='PAXG'?1.5:3;if(Math.abs(ch)>=th&&cool(s+'m',60))notify(s,`${ch>0?'sube':'baja'} ${f1(Math.abs(ch))} % en ${Math.round((now-f.t)/6e4)} min`)}
     const PP=A.pos?posCalc(s,o):null;if(PP){if(PP.tp&&o.price>=PP.tp){if(cool(s+'tp',240))notify(s,'tu objetivo alcanzado · '+eur(PP.tp))}else if(PP.tp&&o.price>PP.be&&(o.price-PP.be)/(PP.tp-PP.be)>=.9&&cool(s+'t9',240))notify(s,'a punto de tu objetivo · '+eur(PP.tp));if(PP.sl&&o.price<=PP.sl&&cool(s+'sl',240))notify(s,'tu stop alcanzado · '+eur(PP.sl))}
-    if(!o.tm||!o.z)continue;const st=ALS[s],p=o.price,e=o.z.sup.find(g=>!g.proj),x=o.z.res.find(g=>!g.proj),ne=!!e&&p<=e.hi*1.004,nx=!!x&&p>=x.lo*.996,v=o.tm.v;
+    if(!o.tm||!o.z||!o.decision||o.decision.accion==='ND'||Date.now()>o.decision.caduca)continue;const st=ALS[s],p=o.price,e=o.z.sup.find(g=>!g.proj),x=o.z.res.find(g=>!g.proj),ne=!!e&&p<=e.hi*1.004,nx=!!x&&p>=x.lo*.996,v=o.tm.v;
     if(st){if(A.sig&&v!==st.v&&v!=='E'&&cool(s+'s',30))notify(s,v==='C'?'compra favorable':'venta favorable');if(A.ent&&ne&&!st.ne&&cool(s+'e',60))notify(s,'cerca de la Entrada 1 · '+eur(e.mid));if(A.sal&&nx&&!st.nx&&cool(s+'x',60))notify(s,'cerca de la Salida 1 · '+eur(x.mid))}
     ALS[s]={v,ne,nx}}}
 

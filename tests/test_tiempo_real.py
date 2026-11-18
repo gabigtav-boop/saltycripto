@@ -123,7 +123,7 @@ def test_agrupar_misma_historia():
 
 
 def test_reaccion_confirmada_y_contradicha():
-    velas = [{"t": i * 60000, "c": 100 + i * .05} for i in range(200)]  # sube
+    velas = [{"t": i * 60000, "o": 100 + i * .05, "c": 100 + i * .05} for i in range(200)]  # sube
     pos = {"t": 0, "dir": .8}
     neg = {"t": 0, "dir": -.8}
     assert reaccion(pos, velas, None, 200 * 60000)["conf"] == "Confirmada"

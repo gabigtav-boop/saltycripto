@@ -42,6 +42,7 @@ class Libro:
         self.pdec, self.qdec = pdec, qdec
         self.ok = 0
         self.bad = 0
+        self.valido = False
         self.t = 0
 
     def sorted(self):
@@ -50,6 +51,8 @@ class Libro:
         return a, b
 
     def apply(self, d, snapshot):
+        if not snapshot and not self.valido:
+            return False
         if snapshot:
             self.bids.clear()
             self.asks.clear()
@@ -66,8 +69,10 @@ class Libro:
         self.t = time.time()
         cs = d.get("checksum")
         if cs is None:
+            self.valido = True
             return True
         good = book_checksum(a, b, self.pdec, self.qdec) == cs
+        self.valido = good
         if good:
             self.ok += 1
         else:
@@ -153,7 +158,13 @@ class Flujo:
                     self._msg(json.loads(raw))
             except Exception as e:  # noqa: BLE001
                 self.error = str(e)[:120]
-            self.conectado = False
+            with self.lock:
+                self.conectado = False
+                self.ticker.clear()
+                for libro in self.libros.values():
+                    libro.valido = False
+                for operaciones in self.trades.values():
+                    operaciones.clear()
             self.on_update()
             if self._stop:
                 break
@@ -209,6 +220,23 @@ class Flujo:
             return float(t["last"])
         return None
 
+    def confirmacion(self, s, precio, max_age=10):
+        """Hora (s) en que el flujo confirma por última vez que `precio` sigue vigente, o None.
+        Kraken solo envía ticker cuando hay operaciones: en un par tranquilo el último precio negociado
+        sigue vigente mientras la conexión esté viva (último mensaje hace ≤ max_age s; Kraken envía cada
+        cambio del libro y latidos) y el libro, con CRC correcto, lo contenga en su horquilla (±0,1 %).
+        Si se corta la conexión, el libro falla o el precio se sale de la horquilla, no se confirma."""
+        if not precio or precio <= 0:
+            return None
+        with self.lock:
+            libro = self.libros.get(s)
+            if not (self.conectado and libro and libro.valido and libro.asks and libro.bids
+                    and 0 <= time.time() - self.ultimo <= max_age):
+                return None
+            ask, bid = min(libro.asks), max(libro.bids)
+            t = self.ultimo
+        return t if bid * (1 - .001) <= precio <= ask * (1 + .001) else None
+
     def salud(self):
         now = time.time()
         with self.lock:     # el hilo del WebSocket añade mientras tanto: sin cerrojo la cola cambia al recorrerla
@@ -221,8 +249,10 @@ class Flujo:
                 "checksum_ok": ok, "checksum_mal": bad, "error": self.error}
 
     def libro(self, s, n=14):
+        now = time.time() * 1000
         with self.lock:
-            a, b = self.libros[s].sorted()
+            libro = self.libros[s]
+            a, b = libro.sorted() if self.conectado and libro.valido and now - libro.t * 1000 <= 120000 else ([], [])
             return {"asks": a[:n], "bids": b[:n], "ok": self.libros[s].ok, "bad": self.libros[s].bad}
 
     def ultimos_trades(self, s, n=40):
@@ -234,7 +264,8 @@ class Flujo:
         now = time.time() * 1000
         with self.lock:
             tr = list(self.trades[s])
-            a, b = self.libros[s].sorted()
+            libro = self.libros[s]
+            a, b = libro.sorted() if self.conectado and libro.valido and now - libro.t * 1000 <= 120000 else ([], [])
             vel = self._rellenar({k: self.velas1m[s][k] for k in sorted(self.velas1m[s])[-121:]})[-121:]
         out = {}
         for lab, ms in (("1m", 6e4), ("5m", 3e5), ("15m", 9e5)):
@@ -257,7 +288,7 @@ class Flujo:
                 p, q = max(arr, key=lambda x: x[0] * x[1])
                 if med > 0 and p * q >= 3 * med:
                     out[k] = {"precio": p, "eur": p * q, "pct": (p / ((a[0][0] + b[0][0]) / 2) - 1) * 100}
-        if vel:
+        if vel and 0 <= now - vel[-1]["t"] < 120000:
             last = vel[-1]["c"]
             for lab, k in (("1m", 1), ("5m", 5), ("15m", 15), ("60m", 60)):
                 out["mom_" + lab] = (last / vel[-1 - k]["c"] - 1) * 100 if len(vel) > k else None

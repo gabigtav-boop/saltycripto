@@ -287,7 +287,10 @@ def _validar(y, up, dn, sH, idx, H):
 
 # ---------- proyección en vivo ----------
 def p_tocar(calib, precio, nivel, lado):
-    """Probabilidad de que el precio llegue a `nivel` dentro del horizonte. lado 'sube': el nivel está por encima."""
+    """Probabilidad de que el precio llegue a `nivel` dentro del horizonte. lado 'sube': el nivel está por encima.
+    None si el precio o el nivel no son números finitos positivos."""
+    if not all(isinstance(x, (int, float)) and math.isfinite(x) and x > 0 for x in (precio, nivel)):
+        return None                                                  # precio o nivel inválidos: sin probabilidad (nunca NaN)
     esc = calib["sigma"] * math.sqrt(calib["H"])
     if lado == "sube":
         if precio >= nivel:
@@ -301,7 +304,7 @@ def p_tocar(calib, precio, nivel, lado):
 def proyectar(price, tf, calib, prev=None, z=None):
     """Convierte la calibración en precios desde el precio actual: abanico, rango y probabilidad de tocar los niveles.
     Es instantáneo (se llama cada segundo). `prev` se admite por compatibilidad y no inclina nada: sin ventaja demostrada."""
-    if not calib or not price or price <= 0:
+    if not calib or not isinstance(price, (int, float)) or not math.isfinite(price) or price <= 0:
         return None
     H = calib["H"]
     sig = calib["sigma"]
@@ -327,10 +330,15 @@ def proyectar(price, tf, calib, prev=None, z=None):
     if z:
         for clave, lado, pref in (("res", "sube", "S"), ("sup", "baja", "E")):
             for i, g in enumerate(z.get(clave, [])[:2]):
-                borde = g["lo"] if lado == "sube" else g["hi"]            # el primer contacto es el borde más cercano al precio
+                try:
+                    borde, medio = float(g["lo"] if lado == "sube" else g["hi"]), float(g["mid"])   # primer contacto: borde más cercano
+                except (KeyError, TypeError, ValueError):
+                    continue
                 p = p_tocar(calib, price, borde, lado)
-                out["niveles"].append({"id": f"{pref}{i + 1}", "lado": lado, "precio": float(g["mid"]), "borde": float(borde),
-                                       "pct": float((g["mid"] / price - 1) * 100), "p": float(p), "proj": bool(g.get("proj"))})
+                if p is None or not math.isfinite(medio):
+                    continue                                              # zona incompleta o no finita: no se dibuja
+                out["niveles"].append({"id": f"{pref}{i + 1}", "lado": lado, "precio": medio, "borde": borde,
+                                       "pct": float((medio / price - 1) * 100), "p": float(p), "proj": bool(g.get("proj"))})
     return out
 
 

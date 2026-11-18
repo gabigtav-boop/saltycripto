@@ -33,6 +33,7 @@ def main():
     t0 = time.time()
     sv = Servicio()
     sv.con_ws = False                      # sin conexión en vivo: todo por REST
+    sv.registro = None                     # el registro de decisiones (SQLite) es del Mac: aquí cada ejecución es una foto suelta
     print("· análisis completo (Kraken, Coinbase, CoinGecko, histórico, rango)…", flush=True)
     sv.main(False)
     if not sv.data:

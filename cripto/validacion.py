@@ -16,17 +16,21 @@ BLOQUE = 5          # muestras por bloque (cada muestra está a 2 días de la an
 REMUESTRAS = 400
 NIVEL = .90
 MIN_BLOQUES = 12
+PASO_DIAS = 2        # separación entre muestras de `motor.backtest` (range(210, …, 2))
+HORIZONTE_DIAS = 5   # horizonte del retorno que usa `motor.backtest` (H = 5)
 
 
 def intervalo_ic(data, bloque=BLOQUE, remuestras=REMUESTRAS, nivel=NIVEL, semilla=7):
     """Intervalo de la correlación puntuación/retorno por remuestreo de bloques temporales. Las muestras de cada moneda se
     alinean por su distancia al final de la serie (todas terminan en la última vela diaria cerrada)."""
     xs, ys, bq = [], [], []
+    ventana = 0
     for o in data.values():
         bt = o.get("bt") if o else None
         if not bt or not bt.get("SM"):
             continue
         sm = bt["SM"]
+        ventana = max(ventana, len(sm) * PASO_DIAS)
         for j, p in enumerate(sm):
             sc = score_from(p["v"], p["rg"])["score"]
             if sc is not None:
@@ -49,15 +53,30 @@ def intervalo_ic(data, bloque=BLOQUE, remuestras=REMUESTRAS, nivel=NIVEL, semill
     if len(ics) < remuestras // 2:
         return None
     lo, hi = np.quantile(ics, [(1 - nivel) / 2, 1 - (1 - nivel) / 2])
-    return {"lo": float(lo), "hi": float(hi), "n": int(len(x)), "bloques": len(grupos), "nivel": nivel}
+    # n: observaciones (monedas × momentos, solapadas y correlacionadas); bloques: tramos de 10 días ≥ horizonte, una cota del
+    # número de observaciones independientes en el tiempo (con monedas muy correlacionadas, aún menos); horizonte: el del retorno.
+    return {"lo": float(lo), "hi": float(hi), "n": int(len(x)), "bloques": len(grupos), "nivel": nivel,
+            "n_indep": len(grupos), "horizonte_dias": HORIZONTE_DIAS, "bloque_dias": bloque * PASO_DIAS,
+            "ventana_dias": ventana}       # periodo que cubre la muestra (las velas diarias que el servidor tiene cargadas)
 
 
-def con_intervalo(val, data):
-    """Añade el intervalo a la validación y no deja que el veredicto afirme una ventaja que el intervalo no respalda."""
+def con_intervalo(val, data, largo=None):
+    """Añade los intervalos a la validación y no deja que el veredicto afirme una ventaja que no respaldan.
+
+    «Ventaja modesta» exige DOS cosas: que el intervalo de la ventana reciente (`ic_int`, ~500 días) excluya el cero Y que
+    también lo excluya el de TODA la historia diaria disponible (`ic_larga`, calculado por el servicio con la misma
+    función). La ventana reciente sola dependía del periodo: sobre la historia completa el IC es ~+0,01 y no se distingue de
+    cero (ANALISIS_FACTORES.md §J). Si la historia completa no está disponible, no se puede confirmar y se degrada."""
     if not val:
         return val
     ci = intervalo_ic(data)
     val["ic_int"] = ci
-    if ci and val["vd"][0] == "AL" and ci["lo"] <= 0:
-        val["vd"] = ["NE", "Ventaja posible, no demostrada"]
+    val["ic_larga"] = largo
+    if val["vd"][0] == "AL":
+        if not ci or ci["lo"] <= 0:
+            val["vd"] = ["NE", "Ventaja posible, no demostrada"]
+        elif largo is None:
+            val["vd"] = ["NE", "Ventaja no confirmada con toda la historia"]
+        elif largo["lo"] <= 0:
+            val["vd"] = ["NE", "Ventaja reciente, no confirmada con toda la historia"]
     return val

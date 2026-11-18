@@ -95,7 +95,8 @@ td{padding:10px 12px;border-bottom:1px solid var(--ln);text-align:right;white-sp
 .ev{display:grid;grid-template-columns:70px 1fr auto;gap:12px;align-items:center;padding:9px 18px;border-top:1px solid var(--ln);font-size:13px}.ev .w{font:500 11.5px var(--mono)}
 /* ---------- estudio ---------- */
 .hero{display:flex;align-items:center;gap:22px;flex-wrap:wrap;padding:16px 18px}.hero .px{font:620 clamp(28px,2.6vw,38px)/1 var(--sans);letter-spacing:-.035em}.stats{display:flex;gap:26px;flex-wrap:wrap;margin-left:auto}.stats div{display:flex;flex-direction:column;gap:3px}.stats>div>span{font:600 9.5px/1.2 var(--mono);color:var(--steel);text-transform:uppercase;letter-spacing:.16em}.stats b{font:500 13px var(--mono)}
-#chart{height:560px;position:relative;margin:8px 4px 4px;contain:size}.chartcard #chart{flex:1;height:auto;min-height:clamp(560px,72vh,860px)}
+#chart{height:560px;position:relative;margin:8px 4px 4px;contain:size}.chartcard #chart{flex:1;height:auto;min-height:clamp(400px,50vh,520px)}
+@media(min-width:1181px){.chartcard,.e3{--eh:clamp(520px,66vh,680px);height:var(--eh);min-height:0}.chartcard #chart{min-height:0}.e3 .cb{flex:1;min-height:0;overflow-y:auto}}
 .rng{padding:12px 14px;border:1px solid var(--ln);background:var(--s2);margin-bottom:6px}.rng .rv{font:620 21px/1.2 var(--sans);letter-spacing:-.025em;margin:5px 0 3px}
 details.more{margin-top:12px}details.more summary{cursor:pointer;font:600 10.5px/1.2 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);list-style:none}details.more summary:before{content:"▸ ";color:var(--ac)}details.more[open] summary:before{content:"▾ "}.leg{position:absolute;left:12px;top:6px;z-index:3;font:500 11px var(--mono);color:var(--mut);pointer-events:none;display:flex;gap:12px}
 .fdir{font:620 28px/1.1 var(--sans);letter-spacing:-.03em}.e3 .fdir{font-size:23px}.e3 .rng .rv{font-size:18px}.meter{position:relative;height:6px;background:linear-gradient(90deg,var(--dn),var(--mid) 45%,var(--mid) 55%,var(--up));margin:16px 0 6px}.meter i{position:absolute;top:-5px;width:14px;height:16px;background:var(--knob);transition:left .6s cubic-bezier(.2,.8,.2,1);border:3px solid var(--s1);transform:translateX(-7px);box-shadow:0 0 0 1px var(--ln2)}
@@ -268,15 +269,15 @@ const coins=()=>ORDER.filter(s=>COINS[s]);
 /* ---------- conexión con el motor ---------- */
 const rowsOf=a=>(a||[]).map(x=>({t:x[0],o:x[1],h:x[2],l:x[3],c:x[4],v:x[5]}));
 function hydrate(o){if(o.res){for(const k in o.res)o.res[k].rows=rowsOf(o.res[k].rows);o.d1=o.res['1d']}if(o.raw1d)o.raw1d=o.raw1d.map(x=>({h:x[0],l:x[1],c:x[2]}));if(!o.errs)o.errs=[];return o}
-const LIVEK=['price','chg','z','tm','crit','conf','tkv','vivo','micro','prev','proy','t'];
+const LIVEK=['decision','precio_t','precio_fuente','price','chg','z','tm','crit','conf','tkv','vivo','micro','prev','proy','t'];
 function apply(st){SV=st.v;const D={};for(const s in st.data){const o=hydrate(st.data[s]),old=DATA[s];o._p0=o.price;if(window.ESTATICO){if(old&&old.tkv&&old.tkv.t)for(const k of ['price','chg','tkv'])o[k]=old[k]}else if(old&&old.t>o.t)for(const k of LIVEK)if(old[k]!==undefined)o[k]=old[k];D[s]=o}
   DATA=D;CTX=st.ctx||{};MK=st.mk||{};if(st.order&&st.order.length)ORDER=st.order;VAL=st.val==='pending'?undefined:st.val;NEWS=st.noticias||[];PULSO=st.pulso||{};RNEWS=st.rnews||{};CAL=st.cal||[];DERIV=st.deriv||{};SENT=st.sent;BAR=st.bar;BUSY=st.busy;ERR=st.err;
   renderAll(true);alerts()}
 let polling=false;async function poll(){if(polling)return;polling=true;try{
   if(window.ESTATICO){const r=await fetch('datos/estado.json',{cache:'no-cache'});if(!r.ok)throw new Error(r.status);const st=await r.json();  /* no-cache: GitHub devuelve 304 (unos bytes) si no hay análisis nuevo */if(st.nube&&st.nube.generado!==SV){NUBE=st.nube;st.v=st.nube.generado;CC.clear();apply(st);if(VIEW==='TRADE'){await moneda(SEL);CHK='';loadChart()}}}
   else{const r=await fetch('/api/state?v='+SV,{cache:'no-store'});if(r.status===200)apply(await r.json())}}catch(e){if(!Object.keys(DATA).length){const f=$('app').firstElementChild;if(f&&f.classList.contains('empty'))f.textContent='No se pudo cargar el análisis. Reintentando…';setTimeout(poll,5000)}}polling=false}
-setInterval(poll,window.ESTATICO?60000:5000);
-function stream(){if(window.ESTATICO)return krakenWS();if(ES)ES.close();ES=new EventSource('/api/stream'+(VIEW==='TRADE'?'?sel='+SEL+'&tf='+TF:''));ES.onmessage=e=>onTick(JSON.parse(e.data));ES.onerror=()=>{LASTT=0;renderStatus()}}
+setInterval(window.ESTATICO?poll:()=>{poll();if(!LASTT||Date.now()-LASTT>5000){PEND={};renderAll(false)}},window.ESTATICO?60000:5000);
+function stream(){if(window.ESTATICO)return krakenWS();if(ES)ES.close();ES=new EventSource('/api/stream'+(VIEW==='TRADE'?'?sel='+SEL+'&tf='+TF:''));ES.onmessage=e=>onTick(JSON.parse(e.data));ES.onerror=()=>{LASTT=0;PEND={};renderStatus()}}
 function onTick(t){LASTT=Date.now();if(t.salud)SALUD=t.salud;BAR=t.bar;BUSY=t.busy;
   for(const s in t.coins){const o=DATA[s];if(!o)continue;PRV[s]=o.price;Object.assign(o,t.coins[s]);if(VIEW==='ALL'&&PRV[s]&&o.price&&o.price!==PRV[s])NUC.tick(s,o.price>PRV[s]?1:-1)}
   if(t.sel&&t.sel.sym===SEL){chartLive(t.sel.velas);if(t.sel.proy&&DATA[SEL])DATA[SEL].proy=t.sel.proy}
@@ -297,9 +298,29 @@ function go(v,s,noPush){const prevSel=SEL;if(s)SEL=s;const ch=v!==VIEW||(v==='TR
   if(ch){if(CHART){try{CHART.remove()}catch(e){}CHART=null;PJ=PU=PD=null;PK='';PJK='';PSIG='';LASTBAR=null;LASTD=null;LASTX=null;FW=FH=0;USERMOVED=false}CASEPIN=null;CASEHOV=null;CHK='';$('app').innerHTML='';stream();window.scrollTo({top:0})}renderAll(true)}
 addEventListener('popstate',()=>{const h=location.hash.slice(1).split('/');if(['ALL','TRADE','NEWS','DATA'].includes(h[0]))go(h[0],h[0]==='TRADE'?(COINS[h[1]]?h[1]:SEL):null,true)});
 $('tabs').onclick=$('tabbar').onclick=e=>{const b=e.target.closest('button');if(b)go(b.dataset.v,b.dataset.v==='TRADE'?SEL:null)};
+/* en la web publicada la hora de la foto siempre es vieja: cuenta la cotización recibida en el navegador */
+function cotizacionViva(o){if(window.ESTATICO){const t=o.tkv&&o.tkv.t||0,ult=WSST.n.length?WSST.n[WSST.n.length-1]:0;return WSST.conectado&&t>=WSOPEN&&Date.now()-ult<=10000}return !!o.precio_t&&Date.now()-o.precio_t<=120000}
+function lecturaSpot(o){
+  const d=o&&o.decision;
+  if(!d||Date.now()>d.caduca)return {accion:'ND',motivo:'Cotización pendiente de renovar'};
+  return d;
+}
+function siguienteSpot(o){
+  const d=lecturaSpot(o);
+  if(d.accion==='ND')return 'Revisar al renovar los datos';
+  if(d.accion==='E'&&d.zona)return 'Vigilar '+fp(d.zona[0])+'–'+fp(d.zona[1])+' € · 24 h';
+  return 'Revisar al cambiar la señal';
+}
+function textoSpot(s,o){
+  const d=lecturaSpot(o), pos=hasPos(s);
+  if(d.accion==='ND')return 'Datos insuficientes';
+  if(d.accion==='V')return pos?'Revisar salida':'Evitar entrada';
+  if(d.accion==='C')return pos?'Revisar ampliación':'Valorar entrada';
+  return pos?'Mantener en observación':'Esperar';
+}
 const liveB=o=>o&&o.vivo?{s:o.vivo.bS,l:o.vivo.bL,ts:o.vivo.ts,tl:o.vivo.tl}:{s:o&&o.bS,l:o&&o.bL,ts:o&&o.ts,tl:o&&o.tl};
 const ACU={alta:'alto',media:'medio',baja:'bajo'};
-const prevTag=p=>p?`<span class="${DIRC[p.dir]}" style="font-weight:600">${ARW[p.dir]} ${p.dir[0].toUpperCase()+p.dir.slice(1)}</span> <span class="dim">· acuerdo ${ACU[p.conf]||p.conf}</span>`:'<span class="dim">—</span>';
+const prevTag=p=>p?.obsoleta?'Lectura anterior':p&&p.cobertura<.5?'Cobertura insuficiente':p?`<span class="${DIRC[p.dir]}" style="font-weight:600">${ARW[p.dir]} ${p.dir[0].toUpperCase()+p.dir.slice(1)}</span> <span class="dim">· acuerdo ${ACU[p.conf]||p.conf}</span>`:'<span class="dim">—</span>';
 /* ---------- MERCADO ---------- */
 function gauge(v){const R=56,cx=75,cy=68,pt=(a,r)=>[cx+r*Math.cos(Math.PI*(1-a/100)),cy-r*Math.sin(Math.PI*(1-a/100))],cols=['var(--dn)','var(--am)','var(--steel)','var(--up2)','var(--up)'];
   const sg=cols.map((c,i)=>{const a=pt(i*20+1.8,R),b=pt(i*20+18.2,R);return`<path d="M${a[0].toFixed(1)} ${a[1].toFixed(1)}A${R} ${R} 0 0 1 ${b[0].toFixed(1)} ${b[1].toFixed(1)}" stroke="${c}" stroke-width="8" stroke-linecap="round" fill="none"/>`}).join(''),n=pt(clamp(v,0,100),R-15);
@@ -307,30 +328,30 @@ function gauge(v){const R=56,cx=75,cy=68,pt=(a,r)=>[cx+r*Math.cos(Math.PI*(1-a/1
 function spark(o){const x=o&&o.res&&(o.res['4h']||o.res['1d']);if(!x)return'';const c=x.rows.slice(-60).map(k=>k.c);if(c.length<5)return'';const mn=Math.min(...c),mx=Math.max(...c),W=96,H=26,P=c.map((v,i)=>(i*W/(c.length-1)).toFixed(1)+','+(H-2-(v-mn)/(mx-mn||1)*(H-4)).toFixed(1)).join(' '),col=c[c.length-1]>=c[0]?'var(--up)':'var(--dn)';
   return`<svg class="sp" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${P}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`}
 const med=a=>{a=a.filter(x=>x!=null).sort((x,y)=>x-y);return a.length?a[Math.floor(a.length/2)]:null};
-function panorama(){const ids=coins().filter(s=>DATA[s]&&DATA[s].bL&&DATA[s].bL!=='ND'),n=ids.length;if(!n)return null;
+function panorama(){const ids=coins().filter(s=>DATA[s]&&cotizacionViva(DATA[s])&&DATA[s].bL&&DATA[s].bL!=='ND'),n=ids.length;if(!n)return null;
   const al=ids.filter(s=>DATA[s].bL==='AL').length,ba=ids.filter(s=>DATA[s].bL==='BA').length,L=s=>liveB(DATA[s]),sba=ids.filter(s=>L(s).s==='BA').length,sal=ids.filter(s=>L(s).s==='AL').length;
-  const C=ids.filter(s=>DATA[s].tm&&DATA[s].tm.v==='C'),V=ids.filter(s=>DATA[s].tm&&DATA[s].tm.v==='V'),pv=ids.map(s=>DATA[s].prev).filter(Boolean),pts=[];
+  const C=ids.filter(s=>lecturaSpot(DATA[s]).accion==='C'),V=ids.filter(s=>lecturaSpot(DATA[s]).accion==='V'),pv=ids.filter(s=>lecturaSpot(DATA[s]).accion!=='ND').map(s=>DATA[s].prev).filter(Boolean),pts=[];
   const tec=al>=n*.6?1:ba>=n*.6?-1:al>ba+1?.5:ba>al+1?-.5:0;
   pts.push([tec>0?'up':tec<0?'dn':'','T',`<b>Técnico.</b> ${ba} de ${n} bajistas a largo plazo y ${al} alcistas; a corto, ${sba} bajistas y ${sal} alcistas.`]);
-  pts.push([C.length?'up':V.length?'dn':'','S',`<b>Semáforo.</b> Compra favorable en ${C.map(lab).join(', ')||'ninguno'}; venta en ${V.map(lab).join(', ')||'ninguno'}.`]);
+  pts.push([C.length?'up':V.length?'dn':'','S',`<b>Semáforo.</b> Valorar entrada en ${C.map(lab).join(', ')||'ninguno'}; venta en ${V.map(lab).join(', ')||'ninguno'}.`]);
   if(SENT)pts.push([SENT.valor>=60?'up':SENT.valor<40?'dn':'','◐',`<b>Sentimiento.</b> ${SENT.lectura} (${f0(SENT.valor)}/100)${CTX.fg?`, miedo y codicia en ${CTX.fg.value}`:''}.`]);
   const cr=coins().filter(s=>s!=='PAXG'&&DERIV[s]&&DERIV[s].ok);if(cr.length){const fu=med(cr.map(s=>DERIV[s].funding)),lp=med(cr.map(s=>DERIV[s].largos_pct)),oi=med(cr.map(s=>DERIV[s].oi_24h));
     pts.push([lp>=75?'wa':'','D',`<b>Derivados.</b> ${lp!=null?f0(lp)+' % de cuentas en largo, ':`funding mediano ${(fu*100).toFixed(4).replace('.',',')} %, `}${oi!=null?`interés abierto ${pc(oi,1)}: ${oi<=-3?'se cierran posiciones':oi>=3?'entra apalancamiento':'apalancamiento estable'}`:`${fu>=.00015?'euforia apalancada':fu<0?'dominan los cortos':'sin excesos de apalancamiento'}`}.`])}
   const rn=RNEWS.MERCADO;if(rn&&rn.n)pts.push([rn.dir==='alcista'?'up':rn.dir==='bajista'?'dn':'','N',`<b>Noticias.</b> ${esc(rn.efecto)}.`]);
   const ev=CAL.find(e=>e.rel>=2&&e.t>Date.now());pts.push([ev&&ev.rel>=3&&ev.t-Date.now()<864e5?'wa':'','M',ev?`<b>Agenda.</b> ${esc(ev.titulo)} (${ev.pais}) ${until(ev.t)}.`:'<b>Agenda.</b> Sin eventos importantes publicados para los próximos días.']);
-  const pb=pv.filter(p=>p.dir==='bajista').length,pa=pv.filter(p=>p.dir==='alcista').length,sc=(tec+(SENT?(SENT.valor-50)/50:0)+(rn?rn.score/100:0)+(pv.length?(pa-pb)/pv.length:0))/4;
+  const pb=pv.filter(p=>p.dir==='bajista').length,pa=pv.filter(p=>p.dir==='alcista').length,partes=[tec,SENT?(SENT.valor-50)/50:null,rn&&rn.n?rn.score/100:null,pv.length?(pa-pb)/pv.length:null].filter(Number.isFinite),sc=partes.reduce((a,b)=>a+b,0)/partes.length;
   const head=sc>=.3?['up','Mercado alcista']:sc>=.1?['up','Sesgo alcista']:sc<=-.3?['dn','Mercado bajista']:sc<=-.1?['dn','Sesgo bajista']:['','Mercado mixto'];
   return{head,pts,pa,pb,pl:pv.length-pa-pb}}
 function distBar(P){const n=P.pa+P.pb+P.pl;if(!n)return'';const w=x=>(x/n*100).toFixed(1)+'%';return`<div style="margin-top:auto;padding-top:18px"><div class="lbl" style="margin-bottom:6px">Lectura de los ${n} activos</div><div class="press" style="height:22px">${P.pb?`<i style="width:${w(P.pb)};background:var(--dnb);color:var(--dn)">${P.pb}${P.pb/n>=.25?' bajistas':''}</i>`:''}${P.pl?`<i style="width:${w(P.pl)};background:var(--s3);color:var(--mut)">${P.pl}${P.pl/n>=.25?' laterales':''}</i>`:''}${P.pa?`<i style="width:${w(P.pa)};background:var(--upb);color:var(--up)">${P.pa}${P.pa/n>=.25?' alcistas':''}</i>`:''}</div></div>`}
 function mRow(s){const o=DATA[s];if(!o||!o.price)return`<div class="mrow">${ico(s,30)}<div class="mn"><b>${lab(s)}</b><span>${o&&o.fail?'sin datos':'cargando…'}</span></div></div>`;
   const fl=PRV[s]&&o.price!==PRV[s]?(o.price>PRV[s]?'fu':'fd'):'',L=liveB(o);
   return`<button class="mrow" data-s="${s}">${ico(s,30)}<div class="mn"><b>${lab(s)}</b><span>${COINS[s].n}</span></div><div class="mp"><b class="${fl}">${fp(o.price)} €</b><span class="${cls(o.chg)}">${pc(o.chg)}</span></div>
-  <div class="mc">${o.prev?`<span class="tag t-${o.prev.dir==='alcista'?'pos':o.prev.dir==='bajista'?'neg':'neu'}">${ARW[o.prev.dir]} ${o.prev.dir[0].toUpperCase()+o.prev.dir.slice(1)}</span>`:''}${o.tm?`<span class="tag t-${o.tm.v}">${TMV[o.tm.v]}</span>`:''}<span class="tag t-${L.s||'ND'}">Corto ${SB[L.s||'ND'].toLowerCase()}</span></div></button>`}
-function sigRow(s){const o=DATA[s];if(!o||!o.price)return`<tr><td>${ico(s)} <b style="font-family:var(--sans);margin-left:6px">${lab(s)}</b></td><td colspan="8" class="dim" style="text-align:left">${o&&o.fail?'Sin datos: '+esc(o.fail):'Cargando…'}</td></tr>`;
+  <div class="mc">${o.prev?`<span class="tag t-${o.prev.dir==='alcista'?'pos':o.prev.dir==='bajista'?'neg':'neu'}">${ARW[o.prev.dir]} ${o.prev.dir[0].toUpperCase()+o.prev.dir.slice(1)}</span>`:''}${(d=>`<span class="tag t-${d.accion}" title="${esc(d.motivo)}">${textoSpot(s,o)}</span>`)(lecturaSpot(o))}<span class="tag t-${L.s||'ND'}">Corto ${SB[L.s||'ND'].toLowerCase()}</span></div></button>`}
+function sigRow(s){const o=DATA[s];if(!o||!o.price)return`<tr><td>${ico(s)} <b style="font-family:var(--sans);margin-left:6px">${lab(s)}</b></td><td colspan="9" class="dim" style="text-align:left">${o&&o.fail?'Sin datos: '+esc(o.fail):'Cargando…'}</td></tr>`;
   const L=liveB(o),fl=PRV[s]&&o.price!==PRV[s]?(o.price>PRV[s]?'fu':'fd'):'',rn=RNEWS[s];
   return`<tr class="cl" data-s="${s}"><td><span style="display:inline-flex;align-items:center;gap:10px">${ico(s,24)}<span><b style="font:600 13px var(--sans)">${lab(s)}</b><span class="dim hide-s" style="display:block;font:400 11px var(--sans)">${COINS[s].n}</span></span></span></td>
   <td class="${fl}" style="font-weight:600">${fp(o.price)}</td><td class="${cls(o.chg)}">${pc(o.chg)}</td><td class="hide-s">${spark(o)}</td>
-  <td>${bTag(L.s)}</td><td>${bTag(o.bL)}</td><td class="hide-s">${o.tm?`<span class="tag t-${o.tm.v}">${TMV[o.tm.v]}</span>`:'—'}</td>
+  <td>${bTag(L.s)}</td><td>${bTag(o.bL)}</td><td class="hide-s">${o.tm&&lecturaSpot(o).accion!=='ND'?`<span class="tag t-${o.tm.v}">${TMV[o.tm.v]}</span>`:'—'}</td><td style="white-space:normal;min-width:180px;max-width:250px"><b>${textoSpot(s,o)}</b><div class="tiny">${esc(lecturaSpot(o).motivo)}</div><div class="tiny">${siguienteSpot(o)} · ${lecturaSpot(o).precio_t?hm(lecturaSpot(o).precio_t):'sin hora'}</div></td>
   <td>${prevTag(o.prev)}</td><td class="hide-s">${rn&&rn.n?`<span class="${rn.dir==='alcista'?'up':rn.dir==='bajista'?'dn':'mut'}">${rn.dir==='alcista'?'Positivas':rn.dir==='bajista'?'Negativas':'Mixtas'}</span>`:'<span class="dim">—</span>'}</td></tr>`}
 const hasEff=x=>x.afecta&&Object.keys(x.afecta).length&&Math.abs(x.dir)>=.2&&x.fuerza>=1;
 const effTag=x=>{const e=hasEff(x),c=e?(x.dir<0?'t-neg':'t-pos'):'t-ND';return`<span class="tag ${c}">${e?(x.dir<0?'▼':'▲'):'◆'} ${x.nivel}</span>`};
@@ -347,14 +368,14 @@ function valBody(){if(VAL===undefined)return'<div class="empty">Calculando el hi
   const A=VAL.A,T=A.T,R=T.fill?T.r/T.fill:0,sg=v=>v==null?'—':(v>=0?'+':'')+v.toFixed(2).replace('.',',');
   return`<div class="cb"><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"><span class="tag t-${VAL.vd[0]}">Lectura técnica: ${VAL.vd[1].toLowerCase()}</span><span class="tag ${R>0?'t-pos':'t-wa'}">Entradas: ${R>0?'positivas':'sin beneficio demostrado'}</span></div>
   ${A.b.n?kv('Lectura alcista → subió a 5 días',`${(A.b.w/A.b.n*100).toFixed(0)} % (media ${(VAL.base*100).toFixed(0)} %)`):''}${A.s.n?kv('Lectura bajista → bajó a 5 días',`${(A.s.w/A.s.n*100).toFixed(0)} % (media ${((1-VAL.base)*100).toFixed(0)} %)`):''}
-  ${kv('Correlación con el retorno',sg(VAL.icAll)+(VAL.ic_int?` <span class="dim">(${Math.round(VAL.ic_int.nivel*100)} %: ${sg(VAL.ic_int.lo)} a ${sg(VAL.ic_int.hi)})</span>`:''))}${T.fill?kv('Entradas simuladas',`${T.fill} · ${(T.w/T.fill*100).toFixed(0)} % objetivo · R ${R>=0?'+':''}${f1(R)}`):''}
+  ${kv('Correlación con el retorno',sg(VAL.icAll)+(VAL.ic_int?` <span class="dim">(${Math.round(VAL.ic_int.nivel*100)} %: ${sg(VAL.ic_int.lo)} a ${sg(VAL.ic_int.hi)}${VAL.ic_int.ventana_dias?' · solo los últimos ~'+VAL.ic_int.ventana_dias+' días':''})</span>`:'')+(VAL.ic_larga?` <span class="dim">· toda la historia (~${VAL.ic_larga.ventana_dias} días): ${sg(VAL.ic_larga.lo)} a ${sg(VAL.ic_larga.hi)}</span>`:''))}${T.fill?kv('Entradas simuladas',`${T.fill} · ${(T.w/T.fill*100).toFixed(0)} % objetivo · R ${R>=0?'+':''}${f1(R)}`):''}
   ${R>0?'':'<div class="note">Usa las entradas y salidas como mapa de niveles, no como órdenes.</div>'}</div>`}
 function viewMercado(slow){if(!$('mk')){$('app').innerHTML=`<div class="grid" id="mk"><div class="sec">Resumen<small>qué está pasando ahora</small></div>
   ${card('c8','Síntesis','<span class="t" id="mk-t"></span>','<div class="cb" id="mk-pan" style="display:flex;flex-direction:column"></div>')}
-  ${card('c4','Sentimiento','<span class="t">6 fuentes</span>','<div class="cb" id="mk-sent"></div>')}
+  ${card('c4','Sentimiento','<span class="t">Componentes disponibles</span>','<div class="cb" id="mk-sent"></div>')}
   <section class="card c3 kpi" id="k1"></section><section class="card c3 kpi" id="k2"></section><section class="card c3 kpi" id="k3"></section><section class="card c3 kpi" id="k4"></section>
   <div class="sec">Mercados<small>señales y previsión de cada activo</small></div>
-  ${card('c12','Activos','<span class="t hide-s">Corto: 1 h y 4 h en vivo · Largo: diario y semanal · Lectura: los 7 factores combinados</span>','<div class="mlist" id="mk-list"></div><div class="mtab" style="overflow-x:auto;padding-top:6px"><table><thead><tr><th>Activo</th><th>Precio €</th><th>24 h</th><th class="hide-s">12 días</th><th>Corto</th><th>Largo</th><th class="hide-s">Semáforo</th><th>Lectura</th><th class="hide-s">Noticias</th></tr></thead><tbody id="mk-sig"></tbody></table></div>')}
+  ${card('c12','Activos','<span class="t hide-s">Corto: 1 h y 4 h en vivo · Largo: diario y semanal · Lectura: los factores con dato (hasta 7) combinados</span>','<div class="mlist" id="mk-list"></div><div class="mtab" style="overflow-x:auto;padding-top:6px"><table><thead><tr><th>Activo</th><th>Precio €</th><th>24 h</th><th class="hide-s">12 días</th><th>Corto</th><th>Largo</th><th class="hide-s">Semáforo</th><th>Decisión spot</th><th>Lectura</th><th class="hide-s">Noticias</th></tr></thead><tbody id="mk-sig"></tbody></table></div>')}
   <div class="sec">Contexto<small>noticias y agenda macro</small></div>
   ${card('c7','Lo que mueve el mercado','<button class="btn go" data-go="NEWS">Ver noticias</button>','<div id="mk-news" style="flex:1"></div>')}
   ${card('c5','Agenda macro','<span class="t">Alto y medio impacto · hora de Canarias</span>','<div id="mk-cal" style="padding-top:8px;flex:1"></div>')}
@@ -384,7 +405,7 @@ function viewEstudio(slow){const s=SEL,o=DATA[s];if(!$('es')){$('app').innerHTML
   <section class="card c9 e9 chartcard"><div class="ch" style="flex-wrap:wrap"><h2>Gráfico</h2><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><div class="seg" id="tfb">${['1m','1h','4h','1d','1w'].map(t=>`<button data-tf="${t}">${t}</button>`).join('')}</div><button class="btn" id="rst" title="Volver a la vista inicial del gráfico (también con doble clic)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg><span class="rt">Reiniciar vista</span></button><label class="sw tg hide-s"><input type="checkbox" id="oema" ${PREF.ema?'checked':''}>Medias</label><label class="sw tg hide-s"><input type="checkbox" id="ozon" ${PREF.zon?'checked':''}>Niveles</label><label class="sw tg hide-s" title="Episodios reales con volatilidad y tendencia parecidas a las de ahora: cómo se movió el precio en situaciones así (no predicen la dirección)"><input type="checkbox" id="ocas" ${PREF.cas?'checked':''}>Casos</label></div></div><div id="chart"><div class="leg" id="leg"></div><div class="cases" id="cases"></div><div class="pchip" id="pchip" hidden></div><svg class="pjs" id="pjsvg" aria-hidden="true"></svg></div></section>
   ${card('c3 e3','Proyección','<span class="t">rango y niveles del gráfico</span>','<div class="cb" id="es-proj"></div>')}
   <div class="sec">Contexto de <span id="es-sn" style="margin-left:4px"></span><small>lectura, niveles y flujo</small></div>
-  ${card('c4','Lectura de los datos','<span class="t">7 factores, ahora</span>','<div class="cb" id="es-prev"></div>')}
+  ${card('c4','Lectura de los datos','<span class="t">hasta 7 factores, ahora</span>','<div class="cb" id="es-prev"></div>')}
   ${card('c4','Niveles clave','<span class="t">★ zona más fuerte</span>','<div class="cb" id="es-niv"></div>')}
   ${card('c4','Libro y flujo','<span class="t">hacia dónde empuja</span>','<div class="cb" id="es-flu"></div>')}
   <div class="sec">Detalle<small>resumen técnico, derivados y tu posición</small></div>
@@ -403,14 +424,15 @@ function viewEstudio(slow){const s=SEL,o=DATA[s];if(!$('es')){$('app').innerHTML
   <div><div class="px ${fl}">${fp(o.price)} <span style="font-size:15px;color:var(--mut)">€</span></div><div class="m ${cls(o.chg)}" style="font-size:12.5px;margin-top:4px">${pc(o.chg)} en 24 h</div></div>
   <div class="stats"><div><span>Máx. 24 h</span><b>${fp(k.high)}</b></div><div><span>Mín. 24 h</span><b>${fp(k.low)}</b></div><div class="hide-s"><span>Volumen 24 h</span><b>${cmp(k.volume)}</b></div><div><span>Volatilidad</span><b>${o.d1&&o.d1.atrPct?f1(o.d1.atrPct)+' %/día':'—'}</b></div><div class="hide-s"><span>Spread</span><b>${sp!=null?sp.toFixed(3).replace('.',',')+' %':'—'}</b></div><div><span>Lectura</span><b>${prevTag(o.prev)}</b></div></div></div>${COINS[s].note?`<div class="tiny" style="padding:0 18px 12px">${COINS[s].note}</div>`:''}`;
   prevCard(o);projCard(o);nivCard(o);fluCard(o);projArrow();$('es-sn').textContent=COINS[s].n;if(slow)newsCard(s);if(!CHART||CHK!==s+TF)loadChart();zoneLines();renderTab(slow)}
-function prevCard(o){const p=o.prev,el=$('es-prev');if(!p){el.innerHTML='<div class="empty">Calculando previsión…</div>';return}
+function prevCard(o){const p=o.prev,el=$('es-prev');if(lecturaSpot(o).accion==='ND'){el.innerHTML='<div class="empty">'+esc(lecturaSpot(o).motivo)+'</div>';return}if(!p){el.innerHTML='<div class="empty">Calculando previsión…</div>';return}
   const c=DIRC[p.dir],ob=p.objetivo,inv=p.invalidacion,T=o.bt&&o.bt.T,R=T&&T.fill?T.r/T.fill:null;
   const esc1=p.dir==='lateral'?(ob&&ob.rango?`Lo más probable es que se mueva en rango entre <b>${fp(ob.rango[0])}</b> (${pc(ob.pct[0],1)}) y <b>${fp(ob.rango[1])}</b> (${pc(ob.pct[1],1)}).`:'Sin dirección clara.'):`Escenario más probable: ${p.dir==='bajista'?'caída':'subida'} hacia <b>${ob?fp(ob.precio)+' €':'—'}</b>${ob?` (${pc(ob.pct,1)}, ${ob.nivel})`:''}.${inv?` Pierde validez con ${inv.texto} (<b>${fp(inv.precio)}</b>, ${pc(inv.pct,1)}).`:''}`;
-  el.innerHTML=`<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px"><div class="fdir ${c}">${ARW[p.dir]} ${p.dir[0].toUpperCase()+p.dir.slice(1)}</div><span class="tag ${p.conf==='alta'?'t-pos':p.conf==='media'?'t-wa':'t-ND'}" title="Cuánto coinciden los 7 factores entre sí. No es un acierto medido.">Acuerdo ${ACU[p.conf]||p.conf}</span></div>
-  <div class="meter"><i style="left:${clamp((p.score+100)/2,0,100)}%"></i></div><div class="ml"><span>bajista</span><span>${p.score>0?'+':''}${f0(p.score)}</span><span>alcista</span></div>
+  el.innerHTML=`<div class="lbl">Decisión spot</div><p><b>${textoSpot(o.sym,o)}</b> · ${esc(lecturaSpot(o).motivo)}</p><p class="tiny">${esc(siguienteSpot(o))}</p><div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px"><div class="fdir ${c}">${ARW[p.dir]} ${p.dir[0].toUpperCase()+p.dir.slice(1)}</div><span class="tag ${p.conf==='alta'?'t-pos':p.conf==='media'?'t-wa':'t-ND'}" title="Cuánto coinciden entre sí los ${p.n_factores||7} factores con datos${p.cobertura<1?' ('+Math.round(p.cobertura*100)+' % del peso total)':''}. No es un acierto medido ni una probabilidad.">Acuerdo ${ACU[p.conf]||p.conf}</span></div>
+  <div class="meter" title="Intensidad de la señal (−100 a +100). No es la probabilidad de que el precio suba o baje."><i style="left:${clamp((p.score+100)/2,0,100)}%"></i></div><div class="ml"><span>bajista</span><span title="Intensidad de la señal, no una probabilidad">${p.score>0?'+':''}${f0(p.score)}</span><span>alcista</span></div>
   <div class="box">${esc1}</div>
   <div style="margin-top:12px">${p.factores.map(f=>`<div class="fx"><span>${f.nombre}</span><div class="dv"><i style="left:${f.valor<0?50+f.valor*50:50}%;width:${Math.abs(f.valor)*50}%;background:${f.valor>0?'var(--up)':'var(--dn)'}"></i></div><b class="${f.aporte>1?'up':f.aporte<-1?'dn':'dim'}">${f.aporte>0?'+':''}${f0(f.aporte)}</b></div>`).join('')}</div>
-  <div class="tiny" style="margin-top:10px">Síntesis de todos los datos, no una certeza.${R!=null&&T.fill>=10?` En ${lab(o.sym)}, la Entrada 1 histórica tocó el objetivo el ${(T.w/T.fill*100).toFixed(0)} % de las veces.`:''}</div>`}
+  ${p.faltan&&p.faltan.length?`<div class="tiny" style="margin-top:8px">Sin dato: ${p.faltan.join(', ')} · ${p.n_factores} de ${p.n_total} factores (${Math.round(p.cobertura*100)} % del peso).</div>`:''}
+  <div class="tiny" style="margin-top:10px">Síntesis de todos los datos con pesos fijos sin calibrar, no una certeza ni una probabilidad.${R!=null&&T.fill>=10?` En ${lab(o.sym)}, la Entrada 1 histórica tocó el objetivo el ${(T.w/T.fill*100).toFixed(0)} % de las veces.`:''}</div>`}
 const fdate=t=>dfecha(t)+(TF==='1m'||TF==='1h'||TF==='4h'?' '+hm(t):'');
 /* secciones plegables: recuerdan si estaban abiertas aunque la tarjeta se repinte cada segundo */
 const OPD=new Set(),det=(k,t,b)=>`<details class="more" data-k="${k}"><summary>${t}</summary>${b}</details>`;
@@ -427,7 +449,7 @@ function projCard(o){let el=$('es-proj');if(!el)return;const pr=o.proy&&o.proy[T
   const dt=$('pj-det');el=$('pj-top');
   const p=o.price,v=pr.val,r=x=>pc((x/p-1)*100,1),fm=x=>new Intl.NumberFormat('es-ES').format(x);
   const cs=pr.casos,vc=pr.val_casos,ana=(pr.analogos||[]).filter(a=>a.rep>0).map((a,i)=>`<button class="cs" data-c="${i}" style="--c:${a.fin>=0?'var(--up)':'var(--dn)'};--w:${Math.min(100,Math.abs(a.fin)*5).toFixed(0)}%" title="${fdate(a.t)} → ${pc(a.fin,1)} tras ${hz(pr.horas)}"><i>${a.rep}</i><span>${fdate(a.t)}</span><s></s><b class="${a.fin>=0?'up':'dn'}">${pc(a.fin,1)}</b></button>`).join('');
-  const niv=pr.niveles||[],fila=g=>`<div class="lv ${g.lado==='sube'?'x':'e'}"><span class="nm">${g.id}</span><div>${fp(g.precio)} € <span class="dim">${pc(g.pct,1)}</span><div class="bar"><i style="left:0;width:${Math.round(g.p*100)}%;background:${g.lado==='sube'?'var(--dn)':'var(--up)'}"></i></div></div><b>${g.p>=.995?'≈100':Math.round(g.p*100)} %</b></div>`;
+  const niv=pr.niveles||[],fila=g=>`<div class="lv ${g.lado==='sube'?'x':'e'}"><span class="nm">${g.id}</span><div>${fp(g.borde??g.precio)} € <span class="dim">primer contacto</span><div class="bar"><i style="left:0;width:${Math.round(g.p*100)}%;background:${g.lado==='sube'?'var(--dn)':'var(--up)'}"></i></div></div><b>${g.p>=.995?'≈100':Math.round(g.p*100)} %</b></div>`;
   const arriba=niv.filter(g=>g.lado==='sube').reverse(),abajo=niv.filter(g=>g.lado!=='sube');
   const ok=v&&Math.abs(v.cob50-.5)<=.1&&Math.abs(v.cob80-.8)<=.1,mj=v?Math.round(v.brier_mejora*100):null;
   const aviso=!v?{c:'t-ND',t:'Histórico corto: aún no se ha podido comprobar este rango con datos pasados.'}
@@ -575,7 +597,7 @@ function posCalc(s,o){if(!hasPos(s)||!o||!o.price)return null;const P=POS[s],q=p
   if(tp&&tp<=p)W.push('Tu objetivo ya está por debajo del precio actual');
   if(avg/p>10||p/avg>10)W.push('Revisa monedas e importe: el precio medio difiere más de 10 veces del actual');const hist=o.raw1d?touchP(o.raw1d,tp&&tp>p?tp/p-1:null,sl&&sl<p?1-sl/p:null,30):null;
   return{q,inv,avg,p,val,pl,pct:pl/inv*100,tp,sl,sc,v,W,f,ts,hist}}
-function posBox(s,o){const c=posCalc(s,o);if(!c){const P=POS[s]||{},n=[num(P.qty),num(P.inv),num(P.ent)].filter(Boolean).length;return`<p class="sub" style="margin:12px 0 0">${n===1?'Falta un dato más: con dos de los tres (monedas, invertido o precio de compra) se calcula el resto.':'Introduce dos de los tres primeros datos. Se guarda solo en este navegador.'}</p>`}
+function posBox(s,o){if(hasPos(s)&&lecturaSpot(o).accion==='ND')return '<p class="sub">'+esc(lecturaSpot(o).motivo)+'</p>';const c=posCalc(s,o);if(!c){const P=POS[s]||{},n=[num(P.qty),num(P.inv),num(P.ent)].filter(Boolean).length;return`<p class="sub" style="margin:12px 0 0">${n===1?'Falta un dato más: con dos de los tres (monedas, invertido o precio de compra) se calcula el resto.':'Introduce dos de los tres primeros datos. Se guarda solo en este navegador.'}</p>`}
   const sr=c.sc.map(x=>`<div class="kv"><span>${x.me?'<b style="color:var(--ink)">Tu objetivo</b>':x.l} · ${eur(x.x)} <span class="dim">${pc(x.d,1)}</span></span><b class="${x.n>=0?'up':'dn'}">${sgn(x.n)}</b></div>`).join(''),h=c.hist;
   return`<div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="tag t-${c.v[0]}" style="font-size:12.5px">${c.v[1]}</span><span class="sub">${c.v[2]||''}</span></div>
   <div class="grid" style="gap:24px;margin-top:10px"><div class="c6">${kv('Monedas',fp(c.q,c.q<1?6:c.q<100?4:2)+' '+lab(s))}${kv('Precio medio',eur(c.avg))}${kv('Invertido',mon(c.inv))}${kv('Valor ahora',mon(c.val))}${kv('Resultado',`<span class="${c.pl>=0?'up':'dn'}">${sgn(c.pl)} · ${pc(c.pct,1)}</span>`)}${c.tp?kv('Tu objetivo',eur(c.tp)+` (${pc((c.tp/c.p-1)*100,1)})`):''}${c.sl?kv('Tu stop',eur(c.sl)+` (${pc((c.sl/c.p-1)*100,1)})`):''}${c.ts&&c.ts<c.p?kv('Stop técnico',eur(c.ts)+` (${pc((c.ts/c.p-1)*100,1)})`):''}</div>
@@ -609,7 +631,7 @@ function viewData(){const sc=[...document.querySelectorAll('#app .tw')].map(e=>e
 const APP={set innerHTML(h){morphInto($('app'),h)}};
 function viewData0(){const S=SALUD;if(!S){APP.innerHTML='<div class="empty">Esperando estado…</div>';return}const w=S.ws||{};
   const rows=coins().map(s=>{const o=DATA[s]||{},si=[['Kraken',o.price],['Coinbase',o.cbp],['CoinGecko',o.cgp]].filter(x=>x[1]>0),v=si.map(x=>x[1]).sort((a,b)=>a-b),md=v[Math.floor(v.length/2)],dev=md?Math.max(...si.map(x=>Math.abs(x[1]/md-1)))*100:null;
-    return`<tr><td>${ico(s,18)} <b style="font-family:var(--sans);margin-left:6px">${lab(s)}</b></td><td>${fp(o.price)}</td><td>${fp(o.cbp)}</td><td>${fp(o.cgp)}</td><td class="${dev==null?'':dev<=1.5?'up':'wa'}">${dev==null?'—':dev.toFixed(2).replace('.',',')+' %'}</td>${(()=>{const lt=o.tkv&&o.tkv.t,sg=lt?Math.round((Date.now()-lt)/1000):null;return`<td class="${sg==null?'dim':sg>900?'wa':'up'}" title="${sg!=null&&sg>900?'Sin operaciones recientes en Kraken: el precio es el último negociado':''}">${sg==null?'—':sg<60?'hace '+sg+' s':'hace '+ago(lt)}</td>`})()}<td class="${o.errs&&o.errs.length?'wa':'up'}">${o.res?Object.keys(o.res).length+'/4':'—'}</td><td>${o.bt===undefined?'…':o.bt?o.bt.tot+' días':'insuficiente'}</td></tr>`}).join('');
+    return`<tr><td>${ico(s,18)} <b style="font-family:var(--sans);margin-left:6px">${lab(s)}</b></td><td>${fp(o.price)}</td><td>${fp(o.cbp)}</td><td>${fp(o.cgp)}</td><td class="${dev==null?'':dev<=1.5?'up':'wa'}">${dev==null?'—':dev.toFixed(2).replace('.',',')+' %'}</td>${(()=>{const lt=window.ESTATICO?o.tkv&&o.tkv.t:o.precio_t,sg=lt?Math.round((Date.now()-lt)/1000):null;return`<td class="${sg==null?'dim':sg>900?'wa':'up'}" title="${sg!=null&&sg>900?'Sin operaciones recientes en Kraken: el precio es el último negociado':''}">${sg==null?'—':sg<60?'hace '+sg+' s':'hace '+ago(lt)}</td>`})()}<td class="${o.errs&&o.errs.length?'wa':'up'}">${o.res?Object.keys(o.res).length+'/4':'—'}</td><td>${o.bt===undefined?'…':o.bt?o.bt.tot+' días':'insuficiente'}</td></tr>`}).join('');
   const fd=Object.entries(S.noticias||{}).map(([k,v])=>`<tr><td style="font-family:var(--sans)">${esc(k)}</td><td class="${v.ok?'up':'dn'}">${v.ok?'OK':'Fallo'}</td><td>${v.n}</td><td>${v.t?ago(v.t):'—'}</td></tr>`).join('');
   const HI=S.historico||{},hr=coins().map(s=>{const g=tf=>HI[s+' '+tf],src=['1m','1h','4h','1d'].map(g).find(x=>x&&x.fuente);return`<tr><td>${ico(s,18)} <b style="font-family:var(--sans);margin-left:6px">${lab(s)}</b></td>${['1m','1h','4h','1d'].map(tf=>{const x=g(tf);return`<td class="${x&&x.n?'':'dim'}">${x&&x.n?x.n+' velas':x&&x.error?'<span class="wa" title="'+esc(x.error)+'">fallo</span>':'solo Kraken'}</td>`}).join('')}<td style="font-family:var(--sans)">${src?esc(src.fuente):'—'}</td></tr>`}).join('');
   const cal=coins().map(s=>{const pp=(DATA[s]||{}).proy||{};return`<tr><td>${ico(s,18)} <b style="font-family:var(--sans);margin-left:6px">${lab(s)}</b></td>${['1h','4h','1d','1w'].map(tf=>{const v=pp[tf]&&pp[tf].val;return v?`<td class="${v.n<30?'dim':Math.abs(v.cob50-.5)<=.1&&Math.abs(v.cob80-.8)<=.1?'up':'wa'}" title="${v.n} comprobaciones independientes">${Math.round(v.cob50*100)} / ${Math.round(v.cob80*100)} % · ${v.brier_mejora>=0?'+':''}${Math.round(v.brier_mejora*100)} %</td>`:'<td class="dim">—</td>'}).join('')}</tr>`}).join('');
@@ -634,10 +656,12 @@ function bubble(title,body,sym){const el=document.createElement('div');el.classN
 function notify(title,body,sym,key){bubble(title,body,sym);chime();try{if(document.hidden&&'Notification' in window&&Notification.permission==='granted')new Notification(title,{body,icon:'/favicon.svg',tag:key||title})}catch(e){}}
 /* un cambio debe mantenerse unos segundos para avisar (evita falsas alarmas por ruido) */
 function stable(k,val,secs){const p=PEND[k];if(!p||p.v!==val){PEND[k]={v:val,t:Date.now()};return false}return Date.now()-p.t>=secs*1000}
-function alerts(){if(!ALERTS||window.ESTATICO)return;const A=PREF.al,now=Date.now();
+function alerts(){if(!ALERTS||window.ESTATICO||!LASTT||Date.now()-LASTT>5000){PEND={};return}const A=PREF.al,now=Date.now();
   for(const s of coins()){const o=DATA[s];if(!o||!o.price||!o.z)continue;const L=lab(s),st=AS[s]||(AS[s]={}),p=o.price;
-    if(o.tm){const v=o.tm.v;if(st.v===undefined)st.v=v;else if(v!==st.v&&stable(s+'tm',v,15)){if(A.sig&&v!=='E'&&cool(s+'s',20))notify(`${L} · ${TMV[v].toLowerCase()}`,`El semáforo cambia a ${TMV[v].toLowerCase()} (${v==='C'?o.tm.bn:o.tm.sn}/6 condiciones) a ${eur(p)}.`,s,s+'tm');st.v=v}}
-    if(o.prev){const d=o.prev.dir;if(st.d===undefined)st.d=d;else if(d!==st.d&&stable(s+'pv',d,60)){if(A.prev&&d!=='lateral'&&cool(s+'p',30))notify(`${L} · previsión ${d}`,`La lectura combinada pasa a ${d} (confianza ${o.prev.conf})${o.prev.objetivo&&o.prev.objetivo.precio?`, objetivo ${eur(o.prev.objetivo.precio)}`:''}.`,s,s+'pv');st.d=d}}
+    const d=lecturaSpot(o);
+    if(d.accion==='ND'){delete PEND[s+'tm'];delete PEND[s+'pv'];continue}
+    if(o.tm){const v=d.accion;if(v===st.v)delete PEND[s+'tm'];if(st.v===undefined)st.v=v;else if(v!==st.v&&stable(s+'tm',v,15)){if(A.sig&&v!=='E'&&cool(s+'s',20))notify(`${L} · ${textoSpot(s,o).toLowerCase()}`,`El semáforo cambia a ${textoSpot(s,o).toLowerCase()} (${v==='C'?o.tm.bn:o.tm.sn}/6 condiciones) a ${eur(p)}.`,s,s+'tm');st.v=v}}
+    if(o.prev){const d=o.prev.dir;if(d===st.d)delete PEND[s+'pv'];if(st.d===undefined)st.d=d;else if(d!==st.d&&stable(s+'pv',d,60)){if(A.prev&&d!=='lateral'&&cool(s+'p',30))notify(`${L} · previsión ${d}`,`La lectura combinada pasa a ${d} (acuerdo ${ACU[o.prev.conf]||o.prev.conf})${o.prev.objetivo&&o.prev.objetivo.precio?`, objetivo ${eur(o.prev.objetivo.precio)}`:''}.`,s,s+'pv');st.d=d}}
     const e=o.z.sup.find(g=>!g.proj),x=o.z.res.find(g=>!g.proj),inE=!!e&&p<=e.hi*1.001,inX=!!x&&p>=x.lo*.999;
     if(st.e===undefined){st.e=inE;st.x=inX}else{if(inE&&!st.e&&A.niv&&cool(s+'e',45))notify(`${L} entra en la Entrada 1`,`Precio ${eur(p)} · zona ${fp(e.lo)}–${fp(e.hi)} €.`,s,s+'e');if(inX&&!st.x&&A.niv&&cool(s+'x',45))notify(`${L} llega a la Salida 1`,`Precio ${eur(p)} · zona ${fp(x.lo)}–${fp(x.hi)} €.`,s,s+'x');st.e=inE;st.x=inX}
     const m=o.micro;if(A.mov&&m){const g=s==='PAXG'?.5:1,c15=m.mom_15m,c60=m.mom_60m;if(c15!=null&&Math.abs(c15)>=2.5*g&&cool(s+'m15',40))notify(`${L} ${c15>0?'se dispara':'se desploma'}`,`${pc(c15,1)} en 15 minutos · ahora ${eur(p)}.`,s,s+'mov');else if(c60!=null&&Math.abs(c60)>=4*g&&cool(s+'m60',90))notify(`${L} ${c60>0?'sube':'cae'} con fuerza`,`${pc(c60,1)} en la última hora · ahora ${eur(p)}.`,s,s+'mov')}
@@ -647,7 +671,7 @@ function alerts(){if(!ALERTS||window.ESTATICO)return;const A=PREF.al,now=Date.no
 const BELL_ON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15zM10 20a2 2 0 0 0 4 0"/></svg>',BELL_OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 16V11a6 6 0 0 1 9.5-4.9M18 11v5l1.5 2H8M10 20a2 2 0 0 0 4 0M4 4l16 16"/></svg>';
 function menu(){const A=PREF.al,sw=(k,l,v,sub)=>`<label class="sw"><input type="checkbox" data-k="${k}" ${v?'checked':''}><span>${l}${sub?`<br><span class="tiny">${sub}</span>`:''}</span></label>`,pm='Notification' in window?Notification.permission:'none';
   $('menu').innerHTML=`<div class="lbl" style="margin:6px 0 4px">Avisos</div>${sw('alerts','Activar avisos',ALERTS,pm==='granted'?'También como notificación del sistema si la pestaña no está a la vista':pm==='denied'?'Bloqueadas por el navegador: solo dentro de la página':'Se pedirá permiso al navegador')}
-  ${ALERTS?`<div class="lbl" style="margin:12px 0 4px">Qué avisar</div>`+sw('al:sig','Semáforo de compra o venta','al instante, tras 15 s estable')+sw('al:prev','Cambio de previsión','tras 1 min estable')+sw('al:niv','Precio entra en entrada o salida','al segundo')+sw('al:mov','Movimiento brusco','2,5 % en 15 min o 4 % en 1 h')+sw('al:news','Noticia de impacto alto','al publicarse')+sw('al:macro','Evento macro importante','15 min antes y al publicarse')+sw('al:pos','Objetivo o stop de mis posiciones',A.pos)+sw('snd','Sonido',PREF.snd):''}
+  ${ALERTS?`<div class="lbl" style="margin:12px 0 4px">Qué avisar</div>`+sw('al:sig','Cambio de decisión spot',A.sig,'Tras 15 s continuos')+sw('al:prev','Cambio de previsión',A.prev,'Tras 1 min estable')+sw('al:niv','Precio entra en entrada o salida',A.niv,'Al segundo')+sw('al:mov','Movimiento brusco',A.mov,'2,5 % en 15 min o 4 % en 1 h')+sw('al:news','Noticia de impacto alto',A.news,'Al publicarse')+sw('al:macro','Evento macro importante',A.macro,'15 min antes y al publicarse')+sw('al:pos','Objetivo o stop de mis posiciones',A.pos)+sw('snd','Sonido',PREF.snd):''}
   <div style="margin-top:12px"><button class="btn" data-a="test">Probar aviso</button></div>`;
   $('menu').querySelectorAll('[data-k^="al:"]').forEach(i=>i.checked=!!A[i.dataset.k.slice(3)])}
 $('bell').onclick=e=>{const m=$('menu');m.hidden=!m.hidden;if(!m.hidden)menu();e.stopPropagation()};
@@ -717,7 +741,22 @@ function vivoEstatico(){{const nw=Date.now(),ult=WSST.n.length?WSST.n[WSST.n.len
   const s=SEL,o=DATA[s];if(VIEW==='TRADE'&&o&&o.price){const m=MON[s];if(m&&m.p0){const f=o.price/m.p0,out={};for(const tf in m.proy)out[tf]=escP(m.proy[tf],f,o.price);o.proy=out}
     if(WSST.conectado&&(TR.length||BK.a.size)){const mi=microJS(s);if(mi)o.micro=mi}}
   const lat=WSST.lat.slice().sort((a,b)=>a-b);SALUD=Object.assign({},NUBE&&NUBE.salud,{ws:{conectado:WSST.conectado,msg_s:WSST.n.length/10,latencia_ms:lat.length?Math.round(lat[lat.length>>1]):null}});
+  for(const k in DATA)if(DATA[k]&&DATA[k].price)DATA[k].decision=decisionEstatica(DATA[k]);
   LASTT=WSST.conectado?Date.now():0;renderAll(false)}
+/* Decisión spot en la web publicada: misma regla que cripto/decision.py, pero la frescura se mide aquí. La foto de la nube
+   siempre tiene más de 120 s, así que cuenta el precio en vivo: WebSocket de Kraken conectado, ticker de la moneda recibido en
+   esta conexión (Kraken lo manda al suscribirse y con cada operación) y mensajes en los últimos 10 s. El semáforo y la lectura
+   salen de la foto: con más de 2 h (el mismo umbral del aviso de datos antiguos) la decisión pasa a «ND». */
+const SPOT_ANALISIS_MS=7200000;
+function decisionEstatica(o){const now=Date.now(),ult=WSST.n.length?WSST.n[WSST.n.length-1]:0,t=o.tkv&&o.tkv.t||0,p=o.prev||{},tm=o.tm,
+    z=((o.z||{}).sup||[]).find(g=>!g.proj),out=(accion,motivo)=>({accion,motivo,zona:z?[z.lo,z.hi]:null,cobertura:p.cobertura,precio_t:t,caduca:now+5000});
+  if(!(WSST.conectado&&t>=WSOPEN&&now-t>=0&&now-ult<=10000))return out('ND','Cotización pendiente de renovar');
+  if(!NUBE||now-NUBE.generado>SPOT_ANALISIS_MS)return out('ND','Análisis de la nube con más de 2 h: pendiente de renovar');
+  if(p.obsoleta||!(p.cobertura>=.5)||!tm)return out('ND','Análisis incompleto o pendiente de renovar');
+  if(tm.v==='C'&&p.dir!=='bajista')return out('C','Entrada técnica favorable y contexto compatible');
+  if(tm.v==='V'&&p.dir!=='alcista')return out('V','Se cumplen las condiciones técnicas de salida');
+  if((tm.v==='C'&&p.dir==='bajista')||(tm.v==='V'&&p.dir==='alcista'))return out('E','El contexto y el semáforo discrepan');
+  return out('E','Esperar confirmación del semáforo')}
 /* al tocar una moneda se empieza a descargar su archivo antes de que termine el toque (la vista cambia sin esperar) */
 if(window.ESTATICO)document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('[data-s]');if(b&&COINS[b.dataset.s])moneda(b.dataset.s).catch(()=>{})},{passive:true});
 if(window.ESTATICO){setInterval(vivoEstatico,1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){poll();if(!KW)krakenWS()}})}
@@ -854,12 +893,14 @@ function heroUpdate(){const L=coins(),P=panorama(),live=!!(SALUD&&SALUD.ws&&SALU
   $('hl').innerHTML=`<div class="tone ${tone}"><i></i><span class="lbl">Estado del mercado · ${hm(now)}</span></div><h1 class="tit">${P?P.head[1]:'Analizando el mercado…'}</h1><p class="subt">${P?`Lectura combinada de ${n} activos: ${P.pb} bajistas, ${P.pl} laterales y ${P.pa} alcistas. Síntesis de técnico, sentimiento, derivados, noticias y agenda. Solo análisis: no opera.`:'Reuniendo precios, noticias, derivados y agenda de los activos.'}</p>`;
   $('panL').innerHTML=`<div class="pan-t"><span class="lbl">Mercado en vivo</span><span class="chip ${live?'pos':'warn'}">${live?'● en vivo':'sin conexión'}</span></div>`+L.map((s,g)=>{const o=DATA[s],p=o&&o.price,fl=p&&PRV[s]&&p!==PRV[s]?(p>PRV[s]?'fu':'fd'):'';
     return`<button class="fila" data-s="${s}" data-g="${g}" title="Abrir el estudio de ${COINS[s].n}"><span class="sym">${lab(s)}</span><span class="px ${fl}">${p?fp(p):'…'}</span><span class="chg ${cls(o&&o.chg)}">${o&&o.chg!=null?pc(o.chg,1):''}</span></button>`}).join('');
-  $('panR').innerHTML=`<div class="pan-t"><span class="lbl">Lectura técnica</span><span class="chip ion">corto · largo</span></div>`+L.map((s,g)=>{const o=DATA[s],sc=puntuacion(o),lb=o&&o.price?liveB(o):{};
-    return`<button class="fila" data-s="${s}" data-g="${g}" title="Abrir el estudio de ${COINS[s].n}"><span class="sym">${lab(s)}</span><span class="mb" title="Puntuación técnica ${sc==null?'—':f0(sc)}/100"><i style="width:${sc==null?0:clamp(sc,0,100).toFixed(0)}%"></i></span>${bTag(lb.s)}${bTag(o&&o.bL)}</button>`}).join('')+`<p class="nota">La luz dorada de cada franja sube con su puntuación técnica. Cada precio nuevo lanza una onda: menta si sube, coral si baja.</p>`;
-  const C=L.filter(s=>DATA[s]&&DATA[s].tm&&DATA[s].tm.v==='C').map(lab),V=L.filter(s=>DATA[s]&&DATA[s].tm&&DATA[s].tm.v==='V').map(lab),ev=CAL.find(e=>e.rel>=2&&e.t>now);
-  $('hb').innerHTML=`<div class="${C.length?'si':''}"><span class="lbl">Semáforo de momento</span><b>${C.length?`Compra favorable en ${C.join(', ')}`:'Ninguna compra favorable ahora'}</b><span class="sm">${V.length?`Venta favorable en ${V.join(', ')}. `:''}Es un mapa de niveles, no una orden.</span></div>
+  $('panR').innerHTML=`<div class="pan-t"><span class="lbl">Decisión spot</span><span class="chip ion">por activo</span></div>`+L.map((s,g)=>{
+    const o=DATA[s],d=lecturaSpot(o);
+    return `<button class="fila" data-s="${s}" data-g="${g}" title="${esc(d.motivo)} · ${esc(siguienteSpot(o))}"><span class="sym">${lab(s)}</span><b class="${d.accion==='C'?'up':d.accion==='V'?'dn':'dim'}">${textoSpot(s,o)}</b></button>`
+  }).join('')+`<p class="nota">Abre un activo para ver el motivo, la cobertura y las zonas de precio.</p>`;
+  const C=L.filter(s=>DATA[s]&&lecturaSpot(DATA[s]).accion==='C').map(lab),V=L.filter(s=>DATA[s]&&lecturaSpot(DATA[s]).accion==='V').map(lab),ev=CAL.find(e=>e.rel>=2&&e.t>now);
+  $('hb').innerHTML=`<div class="${C.length?'si':''}"><span class="lbl">Decisión spot</span><b>${C.length?`Valorar entrada en ${C.join(', ')}`:'Ninguna compra favorable ahora'}</b><span class="sm">${V.length?`Revisar salida en ${V.join(', ')}. `:''}La tabla explica el motivo de cada decisión.</span></div>
   <div><span class="lbl">Próximo evento macro</span>${ev?`<b>${esc(ev.titulo)} <span class="dim">${esc(ev.pais)}</span></b><span class="cuenta">${cdn(ev.t-now)}</span><span class="sm">${ev.impacto==='Alto'?'Impacto alto':'Impacto medio'}${ev.prevision?' · previsión '+esc(ev.prevision):''}</span>`:'<b>Sin eventos importantes</b><span class="sm">La agenda de la próxima semana se publica el domingo.</span>'}</div>
-  <div><span class="lbl">Sentimiento</span>${SENT?`<b class="${SENT.valor>=60?'up':SENT.valor<40?'dn':''}">${f0(SENT.valor)}/100 · ${esc(SENT.lectura)}</b><span class="sm">${CTX.fg?`Miedo y codicia ${CTX.fg.value} · `:''}compuesto de 6 fuentes</span>`:'<b>Calculando…</b>'}</div>`;
+  <div><span class="lbl">Sentimiento</span>${SENT?`<b class="${SENT.valor>=60?'up':SENT.valor<40?'dn':''}">${f0(SENT.valor)}/100 · ${esc(SENT.lectura)}</b><span class="sm">${CTX.fg?`Miedo y codicia ${CTX.fg.value} · `:''}${SENT.componentes.length} componentes disponibles</span>`:'<b>Calculando…</b>'}</div>`;
   NUC.set({coins:L.map(s=>{const o=DATA[s],sc=puntuacion(o);return{sym:s,etq:lab(s),score:sc==null?0:sc/100,objetivo:o&&o.tm&&o.tm.v==='C'?1:0,txt:`${lab(s)}: ${sc==null?'sin datos':'puntuación técnica '+f0(sc)+' de 100'}`}})})}
 const NUC=crearNucleo($('nuc'),$('stage'),s=>go('TRADE',s));['hl','panL','panR','hb'].forEach(id=>memoH($(id)));
 $('stage').addEventListener('click',e=>{const r=e.target.closest('.fila');if(r)go('TRADE',r.dataset.s)});

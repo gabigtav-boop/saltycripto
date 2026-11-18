@@ -92,6 +92,9 @@ TOPICS = [
 TOPIC_RX = [(n, w, re.compile(p, re.I), re.compile(pos, re.I), re.compile(neg, re.I), g) for n, w, p, pos, neg, g in TOPICS]
 CRYPTO_ONLY = {"Regulación", "ETF e institucionales", "Seguridad", "Adopción y tecnología", "Apalancamiento"}
 NOT_BTC = re.compile(r"\bbitcoin (cash|sv|gold)\b|\bbch\b", re.I)
+# El tema «Dólar y bonos» describe al dólar estadounidense: «Australian Dollar steadies…» es otra divisa y no debe leerse como
+# debilidad o fortaleza del dólar para el mercado cripto ni el oro.
+NON_USD = re.compile(r"\b(australian|canadian|new zealand|hong kong|singapore|aussie|kiwi)\s+dollars?\b|\b(aud|cad|nzd)\b|\bloonie\b", re.I)
 GEN_POS = re.compile(r"\b(surg\w*|soar\w*|rall\w*|jump\w*|climb\w*|gain\w*|record high|all-time high|ath|rebound\w*|recover\w*|breaks? above|outperform\w*|sube\w*|dispara\w*|repunta\w*|máximo\w*|alcista\w*|optimis\w*|boost\w*|upgrade\w*|approv\w*)\b", re.I)
 GEN_NEG = re.compile(r"\b(plung\w*|crash\w*|tumbl\w*|slump\w*|sink\w*|fall\w*|drop\w*|slid\w*|declin\w*|sell-?off|wiped out|picada|en picado|lunes negro|lowest|dump\w*|breaks? below|fear\w*|panic\w*|cae\w*|desplom\w*|hund\w*|bajista\w*|pierde\w*|caída\w*|warn\w*|risk\w*|concern\w*|worr\w*|downgrade\w*)\b", re.I)
 NEGATORS = re.compile(r"\b(no|not|n't|without|sin|fails? to|unlikely|denies|niega)\s+(\w+\s+){0,2}$", re.I)
@@ -161,8 +164,8 @@ def _hits(rx, text):
 
 def analizar(item, tipo="cripto", peso=1.0):
     """Clasifica una noticia: temas, activos afectados, dirección (-1..1), fuerza (0..10) y motivos."""
-    tt = item["titulo"]
-    desc = item.get("desc", "")
+    tt = NON_USD.sub(" ", item["titulo"])
+    desc = NON_USD.sub(" ", item.get("desc", ""))
     full = tt + ". " + desc
     clean_t, clean_d = NOT_BTC.sub(" ", tt), NOT_BTC.sub(" ", desc)
     coins = [s for s, rx in COIN_RX.items() if rx.search(clean_t)] or [s for s, rx in COIN_RX.items() if rx.search(clean_d)][:2]
@@ -174,8 +177,8 @@ def analizar(item, tipo="cripto", peso=1.0):
     for name, w, rx, prx, nrx, g in TOPIC_RX:
         if not rx.search(full) or (name in CRYPTO_ONLY and not is_crypto):
             continue
-        p = sum(s for _, s in _hits(prx, tt)) * 2 + sum(s for _, s in _hits(prx, item.get("desc", "")))
-        n = sum(s for _, s in _hits(nrx, tt)) * 2 + sum(s for _, s in _hits(nrx, item.get("desc", "")))
+        p = sum(s for _, s in _hits(prx, tt)) * 2 + sum(s for _, s in _hits(prx, desc))
+        n = sum(s for _, s in _hits(nrx, tt)) * 2 + sum(s for _, s in _hits(nrx, desc))
         temas.append({"tema": name, "peso": w})
         if p or n:
             d = (p - n) / (abs(p) + abs(n))
@@ -215,7 +218,18 @@ def analizar(item, tipo="cripto", peso=1.0):
     lect = "Positiva" if dir_ >= .2 else "Negativa" if dir_ <= -.2 else "Neutral"
     return {"temas": [t["tema"] for t in temas], "monedas": coins, "dir": dir_, "fuerza": round(fuerza, 2),
             "nivel": nivel, "lectura": lect, "afecta": afecta, "motivos": list(dict.fromkeys(motivos))[:5],
-            "es_cripto": is_crypto}
+            "es_cripto": is_crypto, "clase": clase_lectura(pos_w, neg_w, dir_)}
+
+
+def clase_lectura(pos_w, neg_w, dir_):
+    """Distingue lo que `lectura` (Positiva/Negativa/Neutral) mezcla: sin ninguna palabra de lectura el análisis NO sabe nada
+    (insuficiente), no que la noticia sea neutral; con palabras a favor y en contra a la vez la noticia es mixta. `lectura` y
+    `dir` no cambian (la interfaz y el pulso los siguen usando igual)."""
+    if pos_w <= 0 and neg_w <= 0:
+        return "insuficiente"
+    if pos_w > 0 and neg_w > 0 and min(pos_w, neg_w) / (pos_w + neg_w) >= .25:
+        return "mixta"
+    return "positiva" if dir_ >= .2 else "negativa" if dir_ <= -.2 else "neutral"
 
 
 def _tokens(t):
@@ -260,11 +274,21 @@ def precio_en(velas, t):
 
 def reaccion(n, velas1m, velas1h, ahora):
     """Mueve del precio desde la publicación: a 60 min y hasta ahora. Confirma o contradice la lectura."""
-    v = velas1m if velas1m and n["t"] >= velas1m[0]["t"] else velas1h
-    p0 = precio_en(v, n["t"])
+    # Apertura de la vela que cubre el instante. Evita anticipar su cierre.
+    def apertura(rows, t, paso):
+        import bisect
+        i = bisect.bisect_right(rows, t, key=lambda r: r["t"]) - 1
+        if i < 0 or t >= rows[i]["t"] + paso:
+            return None
+        return rows[i].get("o") or (rows[i-1]["c"] if i and rows[i-1]["t"] + paso == rows[i]["t"] else None)
+
+    v, paso = (velas1m, 60000) if velas1m and velas1m[0]["t"] <= n["t"] else (velas1h, 3600000)
+    if not v or ahora < n["t"] or v[-1]["t"] < n["t"] or ahora - v[-1]["t"] > 2 * paso:
+        return None
+    p0 = apertura(v, n["t"], paso)
     if not p0:
         return None
-    p60 = precio_en(v, n["t"] + 36e5) if ahora - n["t"] >= 36e5 else None
+    p60 = apertura(v, n["t"] + 3600000, paso) if ahora >= n["t"] + 3600000 else None
     pn = v[-1]["c"]
     r60 = (p60 / p0 - 1) * 100 if p60 else None
     rn = (pn / p0 - 1) * 100
@@ -439,15 +463,19 @@ class Fundamental:
         for n in lista:
             age = max(0, (ahora - n["t"]) / 36e5)
             w = n["fuerza"] * math.exp(-age / 8 * math.log(2))
+            leida = n.get("clase", "") != "insuficiente"       # sin la clave (datos antiguos) se cuenta como antes
             for a, d in n["afecta"].items():
-                s, ww, c = acc.get(a, (0.0, 0.0, 0))
-                acc[a] = (s + d * w, ww + w, c + 1)
+                s, ww, c, cl = acc.get(a, (0.0, 0.0, 0, 0))
+                acc[a] = (s + d * w, ww + w, c + 1, cl + leida)
         out = {}
-        for a, (s, ww, c) in acc.items():
+        for a, (s, ww, c, cl) in acc.items():
             if ww <= 0:
                 continue
             sc = max(-100, min(100, s / max(ww, 6) * 100))
-            out[a] = {"score": sc, "n": c, "lectura": "Positivo" if sc >= 15 else "Negativo" if sc <= -15 else "Neutral"}
+            # n_lectura: noticias que sí tenían palabras de lectura. Con 0 el «0» del score es falta de información, no una
+            # lectura neutra, y la previsión no lo usa. (El score se calcula igual que antes: las noticias sin lectura siguen
+            # diluyendo el denominador; ver ANALISIS_FACTORES.md.)
+            out[a] = {"score": sc, "n": c, "n_lectura": cl, "lectura": "Positivo" if sc >= 15 else "Negativo" if sc <= -15 else "Neutral"}
         return out
 
 

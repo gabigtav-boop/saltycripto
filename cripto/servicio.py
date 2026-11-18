@@ -8,6 +8,7 @@ Capas de actualización:
 El motor v21 (motor.py) es una traducción verificada contra el JavaScript original (tests/test_paridad.py)."""
 import json
 import pathlib
+import sqlite3
 import math
 import statistics
 import threading
@@ -16,6 +17,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from . import fuentes
 from . import hora
+from .decision import Registro, decision, FRESCO_MS
 from .envivo import Flujo
 from .indicadores import ema, holes
 from .motor import (LONG, SHORT, TFS, analyze, backtest, bias, book_sum, fin, gs, validate, zones)
@@ -24,7 +26,7 @@ from .prevision import prevision
 from .historico import Historico
 from .proyeccion import calibrar, compacto, proyectar
 from .sentimiento import compuesto, derivados, lectura_derivados
-from .validacion import con_intervalo
+from .validacion import con_intervalo, intervalo_ic
 
 COINS = {"BTC": "XBT/EUR", "ETH": "ETH/EUR", "XRP": "XRP/EUR", "SOL": "SOL/EUR", "HYPE": "HYPE/EUR",
          "SUI": "SUI/EUR", "ZEC": "ZEC/EUR", "PAXG": "PAXG/EUR"}
@@ -72,6 +74,10 @@ CONSERVAR = ("vivo", "micro", "tkv", "calib", "proy", "prev")
 
 
 def heredar(nuevo, viejo):
+    if "_observadas" in viejo:
+        nuevo["_observadas"] = {tf: {t: vela for t, vela in velas.items() if t >= raw[-1]["t"]}
+                                for tf, velas in viejo["_observadas"].items()
+                                if (raw := nuevo.get("_raw", {}).get(tf))}
     for k in CONSERVAR:
         if k in viejo:
             nuevo[k] = viejo[k]
@@ -150,6 +156,9 @@ class Servicio:
         self.fast_v = 0
         self._snap = (None, None)
         self.net = net
+        self.registro = Registro() if net else None
+        self.error_registro = None
+        self.tick_recibido = {}
         # tiempo real y capas nuevas
         self.flujo = None
         self.fund = Fundamental()
@@ -168,6 +177,7 @@ class Servicio:
         self.rnews = {}
         self.calib = {}          # (moneda, tf) -> (clave de la última vela cerrada, calibración)
         self.hist = Historico(net=net)
+        self.bt_largo = {}       # moneda -> (clave, muestras del backtest sobre toda la historia diaria)
         self._ciclo = 0
 
     # ---------- estado ----------
@@ -205,10 +215,12 @@ class Servicio:
         """Último precio de Kraken. La foto de toda la carga se hizo al empezar: para las últimas monedas tendría ya cerca
         de un minuto, así que si es más vieja de EDAD_TICKER segundos se vuelve a pedir ese par."""
         if key in self.tk and (not self.tk_t or time.time() - self.tk_t < EDAD_TICKER):   # sin marca de edad (datos cargados a mano), se usa tal cual
+            self.tick_recibido[key] = int(self.tk_t * 1000) if self.tk_t else now_ms()
             return float(self.tk[key]["c"][0])
         d = self.k.get("Ticker?pair=" + key)
         x = d[next(iter(d))]
         self.tk[key] = x
+        self.tick_recibido[key] = now_ms()
         return float(x["c"][0])
 
     def tick_all(self):
@@ -347,6 +359,7 @@ class Servicio:
             except Exception:  # noqa: BLE001
                 errs.append(tid + " sin datos")
         o = self.finish(sym, price, res, prev, errs, r1h, r1d, book, now)
+        o["_precio_t"] = now if now is not None else self.tick_recibido.get(key, now_ms())
         o["_raw"] = raws
         o["_prev"] = prev
         return o
@@ -414,9 +427,35 @@ class Servicio:
             fin(o)
             self.version += 1
 
+    def muestras_largas(self):
+        """Backtest (la misma función que usa la pantalla) sobre TODA la historia diaria de cada moneda. Se guarda por moneda y
+        solo se rehace cuando cierra una vela diaria nueva; se calcula fuera del cerrojo."""
+        out = {}
+        for s, o in list(self.data.items()):
+            if not o or not o.get("raw1d"):
+                continue
+            try:
+                rows = self.hist.serie(s, "1d", o["raw1d"])
+                clave = (rows[-1]["t"], len(rows))
+                c = self.bt_largo.get(s)
+                if not c or c[0] != clave:
+                    b = backtest(rows)
+                    c = (clave, b["SM"] if b else None)
+                    self.bt_largo[s] = c
+                if c[1]:
+                    out[s] = {"bt": {"SM": c[1]}}
+            except Exception as e:  # noqa: BLE001
+                print(f"historia completa {s}: {e!r}", flush=True)
+        return out
+
     def do_validate(self):
+        try:
+            largo = intervalo_ic(self.muestras_largas())
+        except Exception as e:  # noqa: BLE001
+            print(f"validación larga: {e!r}", flush=True)
+            largo = None
         with self.lock:
-            self.val = con_intervalo(validate(self.data), self.data)
+            self.val = con_intervalo(validate(self.data), self.data, largo)
             self.version += 1
 
     # ---------- carga completa (cada 10 min) ----------
@@ -592,14 +631,38 @@ class Servicio:
         now = now_ms()
         fl = self.flujo
         self._ciclo += 1
-        lentos = self._ciclo % 10 == 1   # diario y semanal apenas cambian: cada 10 s
+
         with self.lock:
             items = list(self.data.items())
         for s, o in items:
             if not o or not o.get("res") or not o.get("d1"):
+                if o:
+                    o["decision"] = decision(o, now)
+                    self.registrar_decision(s, o, now)
                 continue
             ws = WSV2[s]
-            p = (fl.precio(ws) if fl else None) or o.get("price")
+            p = o.get("price")
+            stamp = o.get("precio_t", o.get("_precio_t", o.get("t", 0)))
+            fuente = o.get("precio_fuente", "REST")
+            ws_price = fl.precio(ws) if fl else None
+            ticker = fl.ticker.get(ws) if fl else None
+            if ws_price and ticker and int(ticker["t"] * 1000) >= stamp and abs(ws_price / o["d1"]["last"] - 1) <= .35:
+                p, stamp, fuente = ws_price, int(ticker["t"] * 1000), "WebSocket"
+            conf = fl.confirmacion(ws, p) if fl and p else None
+            if conf and int(conf * 1000) > stamp:
+                stamp = int(conf * 1000)     # el libro en vivo confirma que el último precio sigue vigente
+            stamp = min(stamp, now)          # el hilo del WebSocket puede apuntar una hora posterior al inicio del ciclo
+            with self.lock:
+                o["precio_t"], o["precio_fuente"] = stamp, fuente
+            if not 0 <= now - stamp <= FRESCO_MS:
+                with self.lock:
+                    if o.get("prev"):
+                        o["prev"]["obsoleta"] = True
+                    o["micro"] = None
+                    o["proy"] = {}
+                    o["decision"] = decision(o, now)
+                self.registrar_decision(s, o, now)
+                continue
             tkr = fl.ticker.get(ws) if fl else None
             prev_tf = (o.get("vivo") or {}).get("tf") or {}
             vivo = {}
@@ -609,14 +672,36 @@ class Servicio:
                     raw = raws.get(tid)
                     if not raw or tid not in o["res"]:
                         continue
-                    if tid in ("1d", "1w") and not lentos and tid in prev_tf:
-                        x = dict(prev_tf[tid])
-                        v = dict(x["vela"])
-                        v["h"], v["l"], v["c"] = max(v["h"], p), min(v["l"], p), p
-                        x["vela"] = v
-                        vivo[tid] = x
+                    rl = vela_viva(raw, TF_MS[tid], p, stamp)
+                    anteriores = o.setdefault("_observadas", {}).setdefault(tid, {})
+                    vela = rl[-1]
+                    conocida = anteriores.get(vela["t"])
+                    if conocida:
+                        vela["h"] = max(vela["h"], conocida["h"])
+                        vela["l"] = min(vela["l"], conocida["l"])
+                        if vela["t"] > raw[-1]["t"]:
+                            vela["o"] = conocida["o"]
+                    elif vela["t"] > raw[-1]["t"]:
+                        previa = anteriores.get(vela["t"] - TF_MS[tid])
+                        if previa:
+                            vela["o"] = previa["c"]
+                            vela["h"], vela["l"] = max(p, previa["c"]), min(p, previa["c"])
+                    anteriores[vela["t"]] = vela
+                    if vela["t"] != raw[-1]["t"]:
+                        # Conservar también la última vela cerrada durante este tramo en vivo.
+                        rl = [anteriores.get(v["t"], v) if v["t"] >= raw[-1]["t"] else v for v in rl]
+                    clave = (id(raw), vela["t"], vela["h"], vela["l"], vela["c"], vela["v"])
+                    cache = o.setdefault("_analisis_vivo", {})
+                    previa_tf = prev_tf.get(tid)
+                    if previa_tf and cache.get(tid) == clave:
+                        vivo[tid] = dict(previa_tf, vela=vela)
                         continue
-                    rl = vela_viva(raw, TF_MS[tid], p, now)
+                    if (tid in ("1d", "1w") and self._ciclo % 10 != 1 and previa_tf
+                            and cache.get(tid) and previa_tf["vela"]["t"] == vela["t"]):
+                        # Mantener la cadencia original del indicador lento; la vela sí sigue cada tic.
+                        vivo[tid] = dict(previa_tf, vela=vela)
+                        continue
+                    cache[tid] = clave
                     a = analyze(rl, False)
                     if a and a["score"] is not None:
                         vivo[tid] = {"score": a["score"], "rsi": a["rsi"], "v": a["v"], "cats": a["cats"], "rg": a["rg"],
@@ -637,7 +722,12 @@ class Servicio:
                     if tkr:
                         o["tkv"] = {k: tkr.get(k) for k in ("bid", "ask", "high", "low", "volume", "vwap", "change_pct")} | {"t": int(tkr.get("t", 0) * 1000)}
                     fin(o)
-                    o["prev"] = prevision(o, self.deriv_fresco(s), self.pulso.get(s), self.sent)
+                    try:
+                        o["prev"] = prevision(o, self.deriv_fresco(s), self.pulso.get(s), self.sent)
+                    except Exception as e:  # noqa: BLE001  (un dato defectuoso de una moneda no debe parar el ciclo de las demás)
+                        print(f"previsión {s}: {e!r}", flush=True)
+                        if o.get("prev"):
+                            o["prev"]["obsoleta"] = True            # se conserva la última válida, marcada como desactualizada
                     proy = {}
                     for tf, c in (o.get("calib") or {}).items():
                         try:
@@ -649,12 +739,22 @@ class Servicio:
                             proy[tf] = x
                     o["proy"] = proy
                     o["t"] = now
+                    o["decision"] = decision(o, now)
+                self.registrar_decision(s, o, now)
         with self.lock:
             self.fast_v += 1
             self.rt_ms = (time.perf_counter() - t0) * 1000
             self.rt_t = now
 
     # ---------- noticias, derivados y sentimiento (cada minuto) ----------
+    def registrar_decision(self, simbolo, o, ahora):
+        if self.registro:
+            try:
+                self.registro.guardar(simbolo, o, o["decision"], ahora)
+                self.error_registro = None
+            except (OSError, ValueError, sqlite3.Error) as error:
+                self.error_registro = str(error)
+
     def velas_ref(self):
         v1m, v1h = {}, {}
         for s in COINS:
@@ -737,17 +837,17 @@ class Servicio:
 
     def calc_sentimiento(self):
         with self.lock:
-            fg = self.ctx.get("fg")
+            fg = self.ctx.get("fg") if now_ms() - self.ctx.get("t_fg", 0) <= 36 * 3600000 else None
             bl = [o.get("bL") for o in self.data.values() if o and o.get("bL") in ("AL", "NE", "BA")]
             amp = statistics.mean(100 if b == "AL" else 50 if b == "NE" else 0 for b in bl) if bl else None
             crypto = [s for s in COINS if s != "PAXG"]
             dv = {s: self.deriv_fresco(s) or {} for s in crypto}
             fund = [dv[s]["funding"] for s in crypto if dv[s].get("funding") is not None]
             lp = [dv[s]["largos_pct"] for s in crypto if dv[s].get("largos_pct") is not None]
-            pm = self.pulso.get("MERCADO", {}).get("score")
-            pb = self.pulso.get("BTC", {}).get("score")
+            pm = self.pulso.get("MERCADO", {}).get("score") if self.pulso.get("MERCADO", {}).get("n_lectura", 1) else None
+            pb = self.pulso.get("BTC", {}).get("score") if self.pulso.get("BTC", {}).get("n_lectura", 1) else None
             pulse = (pm if pb is None else pb if pm is None else (pm + pb) / 2) if (pm is not None or pb is not None) else None
-            self.sent = compuesto(fg=float(fg["value"]) if fg else None, mc24=self.ctx.get("mc"), amplitud=amp,
+            self.sent = compuesto(fg=float(fg["value"]) if fg else None, mc24=self.ctx.get("mc") if now_ms() - self.ctx.get("t_cg", 0) <= 900000 else None, amplitud=amp,
                                   funding_med=statistics.median(fund) if fund else None,
                                   largos_med=statistics.median(lp) if lp else None, pulso=pulse)
             self.version += 1
@@ -762,11 +862,12 @@ class Servicio:
                     self.main(False)
                 elif not self.busy:
                     if not self.last:
-                        if not self.data:
-                            self.main(False)
+                        self.main(bool(self.data))
                     elif time.time() - self.last > 600:
                         self.main(True)
-                    elif not (self.flujo and self.flujo.conectado):
+                    elif (not (self.flujo and self.flujo.conectado) or
+                          any(o.get("price") and now_ms() - o.get("precio_t", o.get("_precio_t", 0)) > FRESCO_MS
+                              for o in list(self.data.values()))):
                         self.live_rest()
             except Exception as e:  # noqa: BLE001  (un fallo puntual no puede parar las recargas)
                 print(f"ciclo principal: {e!r}", flush=True)
@@ -789,7 +890,8 @@ class Servicio:
                         o["chg"] = (p / o["ref24"] - 1) * 100
                     o["z"] = zones(o["d1"], p, o.get("book"), o["res"].get("1w"))
                     fin(o)
-                    o["t"] = now_ms()
+                    o["precio_t"] = o["t"] = now_ms()
+                    o["precio_fuente"] = "REST"
                 self.bar = f"kraken · respaldo REST {hms()}"
                 self.version += 1
         except Exception:  # noqa: BLE001
@@ -835,7 +937,7 @@ class Servicio:
     # ---------- salidas para la web ----------
     def salud(self):
         fl = self.flujo.salud() if self.flujo else {"conectado": False}
-        return {"ws": fl, "rt_ms": self.rt_ms, "rt_t": self.rt_t, "noticias": {k: dict(v) for k, v in list(self.fund.estado.items())}, "cal_ok": self.fund.cal_ok,
+        return {"registro_t": self.registro.ultimo_registro if self.registro else None, "registro_error": self.error_registro, "ws": fl, "rt_ms": self.rt_ms, "rt_t": self.rt_t, "noticias": {k: dict(v) for k, v in list(self.fund.estado.items())}, "cal_ok": self.fund.cal_ok,
                 "historico": self.hist.resumen(),
                 "deriv_t": self.deriv_t, "deriv_ok": sum(1 for x in self.deriv.values() if x.get("ok")), "last": int(self.last * 1000),
                 "uptime": int(time.time() - self.inicio)}
@@ -887,7 +989,7 @@ class Servicio:
                 if not o or not o.get("price"):
                     continue
                 vv = o.get("vivo") or {}
-                coins[s] = {"price": o["price"], "chg": o.get("chg"), "z": zona_web(o.get("z")), "tm": o.get("tm"), "crit": o.get("crit"),
+                coins[s] = {"decision": o.get("decision"), "precio_t": o.get("precio_t"), "precio_fuente": o.get("precio_fuente"), "price": o["price"], "chg": o.get("chg"), "z": zona_web(o.get("z")), "tm": o.get("tm"), "crit": o.get("crit"),
                             "conf": o.get("conf"), "tkv": o.get("tkv"),
                             "vivo": {k: v for k, v in vv.items() if k != "tf"} | {"tf": {t: {"score": x["score"], "rsi": x["rsi"], "v": x["v"], "cats": x["cats"]} for t, x in (vv.get("tf") or {}).items()}} if vv else None,
                             "micro": o.get("micro"), "prev": o.get("prev")}

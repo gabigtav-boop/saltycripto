@@ -197,11 +197,13 @@ class Historico:
             fuente, nuevas = self._descargar(sym, tf, 1000, rows[-1]["t"] + 1)
             if fuente and fuente != h["fuente"]:
                 # cambió el mercado de origen (p. ej. Binance no responde y se usa Coinbase): no se mezclan
-                # mercados en una misma serie; se rehace entera con la fuente nueva
+                # mercados en una misma serie; se rehace entera con la fuente nueva (si no es más antigua)
                 fuente, nuevas = self._descargar(sym, tf, objetivo, None)
-                if nuevas:
+                if nuevas and nuevas[-1]["t"] >= rows[-1]["t"]:
                     rows = []
                     h["tope"] = len(nuevas) < objetivo * .9
+                else:
+                    nuevas = []
         else:
             fuente, nuevas = self._descargar(sym, tf, objetivo, None)
             if nuevas:
