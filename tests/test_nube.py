@@ -172,3 +172,9 @@ def test_arreglos_del_iphone_18_nov():
     assert "--bg:#d3dde0" in HTML and "kk=claro?2.6:1" in HTML        # claro menos deslumbrante y esfera visible
     for largo in ("Qué dicen juntos el análisis técnico", "ningún método (analogías, regresión", "Comprobado fuera de muestra ("):
         assert largo not in HTML, largo                               # textos grises resumidos
+
+
+def test_la_pagina_no_se_desplaza_en_horizontal_en_el_movil():
+    """18 nov: la etiqueta del veredicto («ventaja reciente, no confirmada con toda la historia») no se partía y ensanchaba la página a 506 px."""
+    assert "html{background:var(--bg);overflow-x:clip}" in HTML       # red de seguridad: nada arrastra la página hacia los lados
+    assert ".tag{max-width:100%;white-space:normal;overflow-wrap:anywhere}" in HTML  # en el móvil las etiquetas largas pasan de línea
