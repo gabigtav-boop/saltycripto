@@ -320,7 +320,13 @@ $('tabs').onclick=$('tabbar').onclick=e=>{const b=e.target.closest('button');if(
 /* en la web publicada la hora de la foto siempre es vieja: cuenta la cotización recibida en el navegador */
 function cotizacionViva(o){if(window.ESTATICO){const t=o.tkv&&o.tkv.t||0,ult=WSST.n.length?WSST.n[WSST.n.length-1]:0;return WSST.conectado&&t>=WSOPEN&&Date.now()-ult<=10000}return !!o.precio_t&&Date.now()-o.precio_t<=120000}
 /* lectura spot: UNA definición (lib/spot.js) para portada, tabla, ficha y avisos; la caducidad se reevalúa aquí */
-function lecturaSpot(o){return SPOT.lectura(o,Date.now())}
+function lecturaSpot(o){return SPOT.lectura(vistaSpot(o),Date.now())}
+/* Web publicada: la foto siempre tiene más de 120 s, así que su `precio_t` no sirve para la regla de frescura. Mientras el
+   WebSocket confirma el precio, decisionEstatica() pone en `decision.precio_t` la hora de esa confirmación; la lectura se hace
+   sobre una vista con esa hora (sin tocar el dato de la foto). Antes se usaba el `precio_t` de la foto y todo salía
+   «Pendiente de datos» (20 nov 2026). */
+function vistaSpot(o){const d=o&&o.decision;return window.ESTATICO&&d&&typeof d.precio_t==='number'&&d.precio_t>(o.precio_t||0)?Object.assign({},o,{precio_t:d.precio_t}):o}
+function datosSpot(){if(!window.ESTATICO)return DATA;const V={};for(const k in DATA)V[k]=vistaSpot(DATA[k]);return V}
 function siguienteSpot(o){
   const d=lecturaSpot(o);
   if(d.accion==='E'&&d.zona)return 'Vigilar '+fp(d.zona[0])+'–'+fp(d.zona[1])+' € · 24 h · '+(d.revisar||'');
@@ -358,7 +364,7 @@ function gauge(v){const R=56,cx=75,cy=68,pt=(a,r)=>[cx+r*Math.cos(Math.PI*(1-a/1
 function spark(o){const x=o&&o.res&&(o.res['4h']||o.res['1d']);if(!x)return'';const c=x.rows.slice(-60).map(k=>k.c);if(c.length<5)return'';const mn=Math.min(...c),mx=Math.max(...c),W=96,H=26,P=c.map((v,i)=>(i*W/(c.length-1)).toFixed(1)+','+(H-2-(v-mn)/(mx-mn||1)*(H-4)).toFixed(1)).join(' '),col=c[c.length-1]>=c[0]?'var(--up)':'var(--dn)';
   return`<svg class="sp" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${P}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`}
 const med=a=>{a=a.filter(x=>x!=null).sort((x,y)=>x-y);return a.length?a[Math.floor(a.length/2)]:null};
-function panorama(){const ids=coins().filter(s=>COINS[s].cr!==false&&lecturaSpot(DATA[s]).apto&&DATA[s].bL&&DATA[s].bL!=='ND'),n=ids.length;if(!n)return null;const RS=SPOT.resumen(coins(),DATA,COINS,hasPos,Date.now(),lab);
+function panorama(){const ids=coins().filter(s=>COINS[s].cr!==false&&lecturaSpot(DATA[s]).apto&&DATA[s].bL&&DATA[s].bL!=='ND'),n=ids.length;if(!n)return null;const RS=SPOT.resumen(coins(),datosSpot(),COINS,hasPos,Date.now(),lab);
   const al=ids.filter(s=>DATA[s].bL==='AL').length,ba=ids.filter(s=>DATA[s].bL==='BA').length,L=s=>liveB(DATA[s]),sba=ids.filter(s=>L(s).s==='BA').length,sal=ids.filter(s=>L(s).s==='AL').length;
   const C=ids.filter(s=>lecturaSpot(DATA[s]).accion==='C'),V=ids.filter(s=>lecturaSpot(DATA[s]).accion==='V'),pv=ids.filter(s=>lecturaSpot(DATA[s]).accion!=='ND').map(s=>DATA[s].prev).filter(Boolean),pts=[];
   const tec=al>=n*.6?1:ba>=n*.6?-1:al>ba+1?.5:ba>al+1?-.5:0;
@@ -1253,7 +1259,7 @@ function crearNucleo(cv,host,onPick){
 const cdn=ms=>{if(ms<=0)return'ahora';const s=Math.floor(ms/1e3),d=Math.floor(s/86400),r=s%86400;return(d?d+' d ':'')+[Math.floor(r/3600),Math.floor(r%3600/60),r%60].map(x=>String(x).padStart(2,'0')).join(':')};
 const puntuacion=o=>{if(!o)return null;const v=o.vivo||{},a=[v.ts!=null?v.ts:o.ts,v.tl!=null?v.tl:o.tl].filter(x=>x!=null);return a.length?a.reduce((x,y)=>x+y,0)/a.length:null};
 function heroUpdate(){const L=coins(),P=panorama(),live=!!(SALUD&&SALUD.ws&&SALUD.ws.conectado&&Date.now()-LASTT<5000),now=Date.now(),
-    RS=SPOT.resumen(L,DATA,COINS,hasPos,now,lab),[na,nt]=RS.cobertura,pend=!na,
+    RS=SPOT.resumen(L,datosSpot(),COINS,hasPos,now,lab),[na,nt]=RS.cobertura,pend=!na,
     tone=pend||!P?'warn':P.head[0]==='up'?'pos':P.head[0]==='dn'?'neg':'warn';
   /* con cero activos aptos el titular es «Decisión pendiente de datos»: nunca se combina con una lectura de compra */
   $('hl').innerHTML=`<div class="tone ${tone}"><i></i><span class="lbl">Estado del mercado · ${hm(now)}</span></div><h1 class="tit">${pend?'Decisión pendiente de datos':P?P.head[1]:'Lectura de mercado incompleta'}</h1><p class="subt">${pend?(sinVivo()?(window.ESTATICO?'Sin conexión en vivo con Kraken: ningún activo tiene una cotización renovada.':'Sin precios en vivo: ningún activo tiene una cotización de menos de 120 s.')+' La última lectura se conserva como anterior y los avisos que dependen de ella quedan en suspenso.':BUSY||!L.some(s=>DATA[s]&&DATA[s].decision)?(window.ESTATICO?'Cargando la foto de la nube…':'Cargando datos del motor…'):window.ESTATICO&&NUBE&&now-NUBE.generado>SPOT_ANALISIS_MS?'Lectura pendiente de un análisis reciente de la nube (el último tiene más de 2 h).':`Ninguno de los ${nt} activos cripto tiene datos vigentes para evaluar.`):`${na} de ${nt} activos cripto evaluados${RS.faltan.length?` · faltan ${esc(SPOT.lista(RS.faltan.map(lab)))}`:''}${P?`: ${P.pb} ${P.pb===1?'bajista':'bajistas'}, ${P.pl} ${P.pl===1?'lateral':'laterales'}, ${P.pa} ${P.pa===1?'alcista':'alcistas'}`:''}. Solo análisis, no opera.`}</p>`;
