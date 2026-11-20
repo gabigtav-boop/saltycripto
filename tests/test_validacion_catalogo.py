@@ -221,10 +221,12 @@ def test_hueco_de_seguimiento_se_resume_en_una_linea(tmp_path):
     p = sv.evid.detalle("BTC", t - t % HORA)["emision"]["precio"]
     guardar(sv.evid, "BTC", velas(t, t + 3 * HORA, p), t + 3 * HORA)     # luego nada: el servicio se apagó
     sv.ciclo_evidencias(t + 2 * DIA)
+    assert sv.hist_ev["activos"]["BTC"]["sin_seguimiento"] == 0       # las velas de 15 min aún pueden cubrirlo
+    sv.ciclo_evidencias(t + 8 * DIA)                                  # fuera del alcance de 7,5 días
     r = sv.hist_ev["activos"]["BTC"]
     assert r["sin_seguimiento"] == 1 and r["motivo_sin_seguimiento"].startswith("Servicio apagado")
-    lin = sv._mensajes_historial(sv.hist_ev, t + 2 * DIA)
-    assert lin[-1] == "1 proyección sin seguimiento en las últimas 48 h (BTC): servicio apagado."
+    lin = sv._mensajes_historial(sv.hist_ev, t + 8 * DIA)
+    assert lin[-1] == "1 proyección sin seguimiento en los últimos 9 días (BTC): servicio apagado."
 
 
 def test_evaluador_no_relee_cada_30_s_una_emision_con_hueco(tmp_path):

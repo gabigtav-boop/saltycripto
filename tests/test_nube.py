@@ -90,16 +90,18 @@ def test_tickers_de_palabras_corrientes(titulo, esperado):
     assert analizar({"titulo": titulo, "desc": ""}, "cripto", 1.0)["monedas"] == esperado
 
 
-# ---------- web: lectura de números en formato español (calculadora de posición) ----------
+# ---------- web: lectura de cantidades (calculadora de posición, web/lib/cantidades.js) ----------
 @pytest.mark.skipif(shutil.which("node") is None, reason="necesita Node.js")
 def test_calculadora_entiende_numeros_en_formato_espanol():
-    m = re.search(r"const num=x=>\{.*?return isFinite\(v\)&&v>0\?v:0\}", HTML)
-    assert m, "no se encontró num() en la web"
-    casos = {"3.200": 3200, "1.500,25": 1500.25, "1500.25": 1500.25, "0,0031": .0031, "0.05": .05, "1.5": 1.5,
-             "58.965": 58965, "1.234.567": 1234567, "abc": 0, "-3": 0, "": 0}
-    js = m.group(0) + ";console.log(JSON.stringify(" + str(list(casos)).replace("'", '"') + ".map(num)))"
+    """Lo inequívoco se lee; «3.200» o «58.965» (un punto y tres cifras) son AMBIGUOS: no se aplican hasta elegir lectura."""
+    casos = {"1.500,25": 1500.25, "1500.25": 1500.25, "0,0031": .0031, "0.05": .05, "1.5": 1.5, "1.234.567": 1234567,
+             "3.200": "ambiguo", "58.965": "ambiguo", "abc": "error", "-3": "error", "": "vacio"}
+    js = (f"const fs=require('fs'),vm=require('vm'),c=vm.createContext({{Intl}});"
+          f"vm.runInContext(fs.readFileSync({str(RAIZ / 'web' / 'lib' / 'cantidades.js')!r},'utf8'),c);"
+          f"console.log(JSON.stringify({list(casos)!r}.map(x=>{{const r=c.CANT.leer(x,'eur');return r.estado==='ok'?r.v:r.estado}})))")
     out = subprocess.run(["node", "-e", js], capture_output=True, text=True, check=True).stdout
-    assert [round(x, 6) for x in __import__("json").loads(out)] == [round(v, 6) for v in casos.values()]
+    got = __import__("json").loads(out)
+    assert [round(x, 6) if isinstance(x, float) else x for x in got] == [round(v, 6) if isinstance(v, float) else v for v in casos.values()]
 
 
 def test_web_tiene_las_protecciones_de_iphone():

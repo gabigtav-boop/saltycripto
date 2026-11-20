@@ -1,0 +1,76 @@
+{
+ "descripcion": "Resultado original del evaluador de esperas (esperas-v1) sobre la base de claude.zip auditada. Referencia histórica bajo su supuesto original: compra inmediata al precio de la decisión, salida en la apertura del tramo de 15 min de las 24 h, coste 0,10 % por lado, observaciones horarias solapadas. No se recalcula ni se reescribe.",
+ "zip_sha256": "b3cc2e4758072dd4299556264e121a61375f2b86e48965e60c7174081b7202f7",
+ "base_sha256": "3643b9ee30a219adc758e3581fd56303129187d20b450380a5302b6104e98ada",
+ "ahora_ms": 1795134225949,
+ "evaluador": "esperas-v1 (estudios/evaluar_spot.py::evaluar, 20 nov 2026)",
+ "informe": {
+  "coste": 0.001,
+  "total": 2041,
+  "evaluadas": 63,
+  "excluidas": {
+   "otra decisión (no «Esperar»)": 1435,
+   "repetida en la misma hora": 434,
+   "pendientes de 24 h": 109
+  },
+  "activos": {
+   "BTC": {
+    "n": 2,
+    "zona_tocada": 2,
+    "espera": -0.021767183534597834,
+    "inmediata": -0.02661519824014985,
+    "repartida": -0.02200184856082757
+   },
+   "HYPE": {
+    "n": 11,
+    "zona_tocada": 8,
+    "espera": 0.00115432371270026,
+    "inmediata": -0.0006240385199399431,
+    "repartida": -0.003910128766546622
+   },
+   "ZEC": {
+    "n": 9,
+    "zona_tocada": 9,
+    "espera": -0.012802581128898217,
+    "inmediata": -0.02233261704332807,
+    "repartida": -0.02566878196994537
+   },
+   "SUI": {
+    "n": 10,
+    "zona_tocada": 6,
+    "espera": -0.0003264310567914763,
+    "inmediata": -0.010368178770827264,
+    "repartida": -0.011181057342409184
+   },
+   "ETH": {
+    "n": 11,
+    "zona_tocada": 8,
+    "espera": 0.0032677101847226053,
+    "inmediata": -0.004847571240600252,
+    "repartida": -0.008813471146503403
+   },
+   "XRP": {
+    "n": 7,
+    "zona_tocada": 2,
+    "espera": -0.002314427176490473,
+    "inmediata": -0.010277848572604656,
+    "repartida": -0.0070257417140516575
+   },
+   "SOL": {
+    "n": 9,
+    "zona_tocada": 3,
+    "espera": -0.0018937136364226312,
+    "inmediata": -0.004229738271079,
+    "repartida": -0.007336008756856965
+   },
+   "PAXG": {
+    "n": 4,
+    "zona_tocada": 1,
+    "espera": -0.0023543019985700075,
+    "inmediata": -0.021915729159240616,
+    "repartida": -0.021026794396806298
+   }
+  },
+  "metodo": "Misma salida (apertura del tramo de 15 min de las 24 h) y mismo coste por lado para las tres alternativas; observaciones horarias solapadas; velas de 15 min de Kraken REST."
+ }
+}

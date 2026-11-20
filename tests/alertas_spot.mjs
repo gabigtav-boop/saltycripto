@@ -6,6 +6,7 @@ const lectura=html.slice(html.indexOf('function lecturaSpot'),html.indexOf('cons
 const alertas=html.slice(html.indexOf('function stable('),html.indexOf('const BELL_ON'));
 const frescoJs=html.slice(html.indexOf('fresco=o=>'),html.indexOf(';',html.indexOf('fresco=o=>')));
 const ctx=vm.createContext({window:{}});   // la web publicada (window.ESTATICO) no avisa: aquí se prueba la del servidor
+vm.runInContext(fs.readFileSync(new URL('../web/lib/spot.js',import.meta.url),'utf8'),ctx);
 vm.runInContext(`
 let now=1000,LASTT=now,AS={},PEND={},SEEN=null,ALERTS=true,PREF={al:{sig:true,niv:true,mov:true,pos:true,prev:true}},NEWS=[],CAL=[];
 Date.now=()=>now;
@@ -19,7 +20,7 @@ const paso=(t,precio,fresco=true)=>{now=LASTT=t;o.price=precio;if(fresco)o.preci
 for(const [t,v] of [[1000,'E'],[2000,'C'],[30000,'C'],[60000,'C']])
   vm.runInContext(`now=LASTT=${t};o.precio_t=now;o.tm.v=o.decision.accion='${v}';o.decision.caduca=now+120000;alerts()`,ctx);
 assert.equal(vm.runInContext('msgs.length',ctx),0);
-assert.equal(vm.runInContext('now=1e9;textoSpot("BTC",o)',ctx),'Datos insuficientes');
+assert.equal(vm.runInContext('now=1e9;textoSpot("BTC",o)',ctx),'Pendiente de datos');
 // 2) con datos vigentes, entrar en la Entrada 1 avisa
 vm.runInContext('AS={};msgs.length=0;paso(100000,110);paso(101000,98)',ctx);
 assert.equal(vm.runInContext('msgs.length',ctx),1);

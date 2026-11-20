@@ -163,10 +163,13 @@ def test_hueco_pendiente_mientras_rest_puede_rellenarlo_y_luego_sin_seguimiento(
     guardar(alm, "BTC", antes, T0)
     guardar(alm, "BTC", despues, T0 + DIA)
     assert alm.evaluar_pendientes(hueco + 2 * HORA) == 0            # no ha vencido
-    # si el hueco aún pudiera rellenarse por REST seguiría pendiente; aquí ya es antiguo: sin seguimiento
-    assert alm.evaluar_pendientes(T0 + DIA + 5 * MIN) == 1
+    # el hueco de 1 min ya no se puede rellenar, pero las velas de 15 min sí (7,5 días): sigue pendiente
+    assert alm.evaluar_pendientes(T0 + DIA + 5 * MIN) == 0
+    # pasados 7 días sin velas de 15 min: sin seguimiento, con las dos causas
+    assert alm.evaluar_pendientes(T0 + 8 * DIA, forzar=True) == 1
     d = alm.detalle("BTC", em["hora_utc"])
     assert d["estado"] == "sin_seguimiento" and "30 min" in d["motivo"] and "Servicio apagado" in d["motivo"]
+    assert "velas de 15 min" in d["motivo"]
     assert d["resultado"]["huecos"][0][1] - d["resultado"]["huecos"][0][0] >= 29 * MIN
     # un hueco reciente (rellenable por REST) deja la emisión pendiente, no la da por perdida
     em2 = emision(T0 + HORA)
@@ -176,6 +179,42 @@ def test_hueco_pendiente_mientras_rest_puede_rellenarlo_y_luego_sin_seguimiento(
                                                              (T0 + HORA + DIA - 10 * MIN, T0 + HORA + DIA + 5 * MIN)],
                           T0 + HORA + DIA + 4 * MIN)
     assert res is None
+
+
+def velas15(t0, t1, precio=100.0, cambios=None):
+    out = []
+    for q in range(t0 - t0 % (15 * MIN), t1, 15 * MIN):
+        v = {"t": q, "o": precio, "h": precio, "l": precio, "c": precio, "v": 1.0, "n": 3}
+        v.update((cambios or {}).get(q, {}))
+        out.append(v)
+    return out
+
+
+def test_app_abierta_un_rato_al_dia_se_verifica_con_velas_de_15_min(tmp_path):
+    """Sin minutos de la ventana (la app estuvo cerrada), la emisión se comprueba con velas de 15 min de Kraken REST."""
+    alm = Almacen(tmp_path / "e.sqlite3")
+    em = emision()
+    alm.emitir(em)
+    q = lambda t: t - t % (15 * MIN)                                             # noqa: E731
+    cambios = {q(T0 + 6 * HORA): {"h": 104.5, "l": 99.0},                        # toca S1 (104)
+               q(T0 + 7 * HORA): {"n": 0, "l": 90.0},                            # sin operaciones: no cuenta como toque
+               q(T0 + DIA) - 15 * MIN: {"c": 101.0}}                             # último tramo completo: precio final
+    filas = velas15(T0 - HORA, T0 + DIA + HORA, cambios=cambios)
+    assert alm.evaluar_pendientes(T0 + DIA + 10 * MIN) == 0                      # aún sin velas de 15 min
+    alm.guardar_rest15("BTC", filas, filas[-1]["t"], T0 + DIA + HORA)
+    assert alm.evaluar_pendientes(T0 + DIA + 2 * HORA, forzar=True) == 1
+    d = alm.detalle("BTC", em["hora_utc"])
+    r = d["resultado"]
+    assert d["estado"] == "verificada" and r["version"] == EVM.VERSION_EVAL_15 and r["resolucion"] == "15m"
+    assert r["precio_final"] == 101.0 and r["publicada"] == {"dentro50": True, "dentro80": True}
+    toc = {g["id"]: g["tocado"] for g in r["niveles"]}
+    assert toc == {"S1": True, "E1": False}
+    # con los minutos completos se sigue usando la resolución de 1 min
+    em2 = emision(T0 + HORA)
+    alm.emitir(em2)
+    guardar(alm, "BTC", velas(T0 + HORA - 5 * MIN, T0 + HORA + DIA + 5 * MIN), T0 + HORA + DIA + 5 * MIN)
+    alm.evaluar_pendientes(T0 + HORA + DIA + 5 * MIN, forzar=True)
+    assert alm.detalle("BTC", em2["hora_utc"])["resultado"]["version"] == EVM.VERSION_EVAL
 
 
 def test_evaluador_idempotente_y_recupera_pendientes_al_reiniciar(tmp_path):
@@ -454,23 +493,46 @@ def test_evaluacion_spot_misma_salida_costes_y_exclusiones(tmp_path):
     t = T0
     o = {"price": 100.0, "precio_fuente": "WebSocket"}
     reg.guardar("BTC", o, {"accion": "E", "motivo": "a", "zona": [94.0, 96.0], "precio_t": t, "cobertura": 1}, t)
-    reg.guardar("BTC", o, {"accion": "C", "motivo": "b", "zona": None, "precio_t": t + 1000}, t + 1000)        # misma hora
+    reg.guardar("BTC", o, {"accion": "C", "motivo": "b", "zona": None, "precio_t": t + 1000}, t + 1000)        # otra decisión
+    reg.guardar("BTC", o, {"accion": "E", "motivo": "b2", "zona": [94.0, 96.0], "precio_t": t + 2000}, t + 2000)  # misma hora
     reg.guardar("ETH", o, {"accion": "C", "motivo": "c", "zona": None, "precio_t": t}, t)                     # otra decisión
     reg.guardar("ETH", o, {"accion": "E", "motivo": "d", "zona": None, "precio_t": t + HORA}, t + HORA)        # sin zona
     reg.guardar("SOL", o, {"accion": "E", "motivo": "e", "zona": [1.0, 2.0], "precio_t": t}, t)               # sin precios
+    q0 = t - t % (15 * MIN) + 15 * MIN
     with sqlite3.connect(ruta) as db:
-        db.executemany("INSERT INTO precios VALUES(?,?,?,?)",
-                       [("BTC", i // MIN, i, 95.0 if i == t + 30 * MIN else 110.0 if i >= t + DIA else 100.0)
-                        for i in range(t + MIN, t + DIA + 2 * MIN, MIN)])
-        r = evaluar_spot.informe(db, t + DIA + 3 * MIN, .001)
+        db.executescript(EVM.ESQUEMA)
+        db.executemany("INSERT INTO velas_15m_rest VALUES(?,?,?,?,?,?,?,?,0)",
+                       [("BTC", q, *((100.0, 100.0, 95.0, 100.0) if q == q0 + 30 * MIN else (110.0,) * 4 if q >= t + DIA else (100.0,) * 4), 1.0, 2)
+                        for q in range(q0, t + DIA + 30 * MIN, 15 * MIN)])
+        r = evaluar_spot.informe(db, t + DIA + 30 * MIN, .001)
     ex = r["excluidas"]
-    assert ex["repetida en la misma hora"] == 1 and ex["otra decisión (no «Esperar»)"] == 1
-    assert ex["«Esperar» sin zona"] == 1 and ex["sin seguimiento suficiente"] == 1
-    assert r["evaluadas"] == 1 and r["total"] == 5
+    assert ex["repetida en la misma hora"] == 1 and ex["otra decisión (no «Esperar»)"] == 2
+    assert ex["«Esperar» sin zona"] == 1 and ex["esperando velas de 15 min"] == 1      # SOL: aún descargable
+    with sqlite3.connect(ruta) as db:
+        assert evaluar_spot.informe(db, t + 8 * DIA, .001)["excluidas"]["sin seguimiento suficiente"] == 1
+    assert r["evaluadas"] == 1 and r["total"] == 6
     a = r["activos"]["BTC"]
     neto = lambda p: 110 * .999 / (p * 1.001) - 1                     # noqa: E731
-    assert a["espera"] == pytest.approx(neto(95)) and a["inmediata"] == pytest.approx(neto(100))
+    # orden límite en el borde superior (96): el tramo abre a 100 y baja a 95 → compra a 96
+    assert a["espera"] == pytest.approx(neto(96)) and a["inmediata"] == pytest.approx(neto(100))
     assert a["repartida"] == pytest.approx((neto(100) + neto(100)) / 2) and a["zona_tocada"] == 1
+
+
+def test_evaluacion_spot_no_pierde_la_espera_si_la_hora_empezo_con_otra_decision(tmp_path):
+    """Al arrancar, la primera decisión de la hora suele ser «ND» (precio pendiente): la «Esperar» posterior de esa misma
+    hora debe evaluarse, no descartarse como repetida."""
+    ruta = tmp_path / "d.sqlite3"
+    reg = Registro(ruta)
+    t = T0
+    o = {"price": 100.0, "precio_fuente": "WebSocket"}
+    reg.guardar("BTC", o, {"accion": "ND", "motivo": "x", "zona": None, "precio_t": 0}, t)
+    reg.guardar("BTC", o, {"accion": "E", "motivo": "a", "zona": [94.0, 96.0], "precio_t": t + 5000}, t + 5000)
+    with sqlite3.connect(ruta) as db:
+        db.executescript(EVM.ESQUEMA)
+        db.executemany("INSERT INTO velas_15m_rest VALUES(?,?,?,?,?,?,?,?,0)",
+                       [("BTC", q, 100.0, 100.0, 100.0, 100.0, 1.0, 2) for q in range(t - t % (15 * MIN), t + DIA + 30 * MIN, 15 * MIN)])
+        r = evaluar_spot.informe(db, t + DIA + 30 * MIN, .001)
+    assert r["evaluadas"] == 1 and "repetida en la misma hora" not in r["excluidas"]
 
 
 def test_avisos_del_navegador_y_caducidad():
@@ -483,3 +545,15 @@ def test_pagina_incluye_evidencias_y_avisos():
     for x in ("function evRender", "/api/evidencias?s=", "/api/avisos/entrega", "Diarias sin solapar", "function tabAvi",
               "velas ${TF} · horizonte", "Sin seguimiento", "Muestra pequeña"):
         assert x in html, x
+
+
+def test_omision_de_la_hora_se_borra_si_luego_se_emite(tmp_path):
+    """Tras un reinicio dentro de la misma hora, una omisión anotada antes no puede convivir con la emisión."""
+    sv, t = servicio_con(tmp_path, "BTC")
+    hora = t - t % HORA
+    sv.evid.omision("BTC", hora, "precio no vigente", t)
+    with patch.object(servicio, "now_ms", return_value=t + 60_000):
+        sv.tiempo_real()
+    with sv.evid._db() as db:
+        assert not db.execute("SELECT 1 FROM omisiones_proy WHERE simbolo='BTC' AND hora=?", (hora,)).fetchone()
+        assert db.execute("SELECT 1 FROM proyecciones WHERE simbolo='BTC' AND hora=?", (hora,)).fetchone()

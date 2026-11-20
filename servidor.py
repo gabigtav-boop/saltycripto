@@ -13,6 +13,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
 from cripto import catalogo
+from cripto import eventos as ev_clave
 from cripto.evidencias import ACTIVOS as EV_ACTIVOS
 from cripto.servicio import COINS, Servicio, now_ms
 from estudios import evaluar_spot
@@ -134,11 +135,25 @@ class H(BaseHTTPRequestHandler):
             if s not in COINS or tf not in TFS_OK:
                 return self._send(400, b"{}")
             return self._send(200, SV.velas(s, tf).encode())
+        if u.path == "/api/eventos":
+            return self._json({"lista": SV.ev_pub, "candidatos": SV.ev_cand, "error": SV.eventos.error,
+                               "tipos": ev_clave.TIPOS, "certezas": ev_clave.CERTEZAS})
+        if u.path == "/api/coste":
+            s, lado, tipo = q.get("s", [""])[0], q.get("lado", ["compra"])[0], q.get("tipo", ["mercado"])[0]
+            try:
+                mk, tk = float(q.get("maker", [".004"])[0]), float(q.get("taker", [".008"])[0])
+                lim = float(q["limite"][0]) if q.get("limite") else None
+            except ValueError:
+                return self._send(400, b"{}")
+            if s not in COINS or lado not in ("compra", "venta") or tipo not in ("mercado", "limite") or not (0 <= mk < .1 and 0 <= tk < .1):
+                return self._send(400, b"{}")
+            return self._send(200, json.dumps(SV.coste(s, lado, mk, tk, tipo, lim), ensure_ascii=False,
+                                              default=lambda x: None).replace("Infinity", "null").encode())
         if u.path == "/api/health":
             return self._send(200, json.dumps(SV.salud()).encode())
         if u.path.startswith("/api/evid") or u.path in ("/api/minutos", "/api/avisos", "/api/niveles", "/api/spot", "/api/historial"):
             return self._evidencias(u.path, q)
-        if u.path.startswith("/vendor/") or u.path in ("/favicon.svg",):
+        if u.path.startswith(("/vendor/", "/lib/")) or u.path in ("/favicon.svg",):
             return self._static(u.path.lstrip("/"))
         self._send(404, b"{}")
 
@@ -176,7 +191,8 @@ class H(BaseHTTPRequestHandler):
                             return self._json({"total": 0, "evaluadas": 0, "excluidas": {}, "activos": {}})
                         _SPOT["body"] = evaluar_spot.informe(db, ahora, .001)
                     _SPOT["t"] = ahora
-                return self._json(_SPOT["body"])
+                # el evaluador nuevo (C/E/V/ND) se calcula en segundo plano: aquí solo se lee el último resumen
+                return self._json(dict(_SPOT["body"], v2=SV.spot_inf, v2_error=SV.spot_error))
         except (ValueError, sqlite3.Error) as e:
             return self._send(500, json.dumps({"error": str(e)[:200]}).encode())
         return self._send(404, b"{}")
@@ -211,6 +227,20 @@ class H(BaseHTTPRequestHandler):
                     return self._send(400, b"{}")
             except (TypeError, ValueError):
                 return self._send(400, b"{}")
+        elif p == "/api/eventos":
+            try:
+                if b.get("accion") == "anadir":
+                    i = SV.eventos.anadir(dict(b.get("evento") or {}, creado=now_ms()))
+                elif b.get("accion") == "quitar" and isinstance(b.get("id"), str):
+                    i = SV.eventos.quitar(b["id"])
+                elif b.get("accion") == "descartar" and isinstance(b.get("clave"), str):
+                    i = SV.eventos.descartar(b["clave"])
+                else:
+                    return self._send(400, b"{}")
+            except (TypeError, ValueError, OSError) as e:
+                return self._send(400, json.dumps({"error": str(e)[:160]}, ensure_ascii=False).encode())
+            SV.recalc_eventos()
+            return self._send(200, json.dumps({"ok": True, "id": i}).encode())
         elif p == "/api/prefs" and isinstance(b.get("off"), list):
             SV.off = {s for s in b["off"] if s in COINS}
             if SV.last:
@@ -237,10 +267,17 @@ def main():
     ap.add_argument("--port", type=int, default=8502)
     ap.add_argument("--no-open", action="store_true", help="no abrir el navegador")
     a = ap.parse_args()
-    srv = Servidor(("127.0.0.1", a.port), H)
+    from cripto.version import RAIZ, VERSION
+    try:
+        srv = Servidor(("127.0.0.1", a.port), H)
+    except OSError as e:
+        # el lanzador lee esta línea para distinguir «puerto ocupado» de otros fallos
+        print(f"ERROR_PUERTO_OCUPADO {a.port}: {e}", flush=True)
+        raise SystemExit(3)
+    SV.puerto = a.port
     SV.start()
     url = f"http://localhost:{a.port}"
-    print(f"Saltycripto en {url}  ·  Ctrl+C para salir", flush=True)
+    print(f"Saltycripto {VERSION} en {url} · carpeta {RAIZ} · Ctrl+C para salir", flush=True)
     if not a.no_open:
         threading.Timer(.8, webbrowser.open, (url,)).start()
     try:

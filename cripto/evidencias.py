@@ -39,6 +39,7 @@ from .decision import RUTA
 
 VERSION_CALCULO = "proy-vol-1h-24h/1"       # proyección publicada (cripto/proyeccion.py, temporalidad 1 h)
 VERSION_EVAL = "eval-1m-kraken/1"
+VERSION_EVAL_15 = "eval-15m-kraken/1"      # respaldo: con la app abierta un rato al día, la ventana se comprueba en velas de 15 min
 VERSION_REF = "ref-hist-30d/1"
 VERSION_EXP = "exp-vol-corta/1"
 ACTIVOS = SIMBOLOS               # todas las monedas del catálogo pasan por el mismo flujo
@@ -48,6 +49,8 @@ DIA = 24 * HORA
 H_VELAS = 24                     # velas de 1 h del horizonte
 FRESCO = 120_000                 # misma edad máxima de la cotización que la decisión spot
 MARGEN = 3 * MIN                 # tras vencer, margen para que la última vela quede guardada
+Q = 15 * MIN
+REST15_ALCANCE = 7 * DIA         # Kraken REST da 720 velas de 15 min (7,5 días): un hueco más antiguo ya no puede rellenarse
 REST_ALCANCE = 690 * MIN         # Kraken REST da 720 velas de 1 min: un hueco más antiguo ya no puede rellenarse
 GRACIA_WS = 10_000               # una vela de 1 min del WebSocket se da por cerrada 10 s después de terminar su minuto
 TRAMOS = (0, .1, .3, .5, .7, .9, 1.0000001)
@@ -79,6 +82,8 @@ CREATE TABLE IF NOT EXISTS sesiones (inicio INTEGER PRIMARY KEY, latido INTEGER 
 CREATE TABLE IF NOT EXISTS libro (simbolo TEXT NOT NULL, minuto INTEGER NOT NULL, t INTEGER, bid REAL, ask REAL,
   spread_pct REAL, niveles_compra INTEGER, niveles_venta INTEGER, alcance_compra_pct REAL, alcance_venta_pct REAL, compra_01 REAL, venta_01 REAL,
   compra_05 REAL, venta_05 REAL, compra_1 REAL, venta_1 REAL, PRIMARY KEY (simbolo, minuto)) WITHOUT ROWID;
+CREATE TABLE IF NOT EXISTS velas_15m_rest (simbolo TEXT NOT NULL, t INTEGER NOT NULL, o REAL, h REAL, l REAL, c REAL,
+  v REAL, n INTEGER, recibida INTEGER, PRIMARY KEY (simbolo, t)) WITHOUT ROWID;
 CREATE TABLE IF NOT EXISTS velas_15m (simbolo TEXT NOT NULL, t INTEGER NOT NULL, o REAL, h REAL, l REAL, c REAL, v REAL,
   n INTEGER, minutos INTEGER, minutos_ops INTEGER, fuente TEXT, PRIMARY KEY (simbolo, t)) WITHOUT ROWID;
 """
@@ -307,6 +312,45 @@ def evaluar_emision(em, velas, tramos, ahora, sesiones=None):
                 maximo=max(v["h"] for v in ops), minimo=min(v["l"] for v in ops))
 
 
+def evaluar_emision_15(em, velas15, ahora):
+    """Respaldo con velas de 15 min de Kraken REST (incluyen los tramos sin operaciones, así que cubren todo su periodo).
+    Ventana: tramos de 15 min completos entre emisión y vencimiento (se pierden como mucho 15 min en cada extremo);
+    precio final = cierre del último tramo con operaciones; toque = máximo o mínimo de un tramo con operaciones.
+    None si falta algún tramo que aún puede descargarse."""
+    t0, t1 = em["t_emision"], em["t_vence"]
+    q0, q1 = -(-t0 // Q) * Q, t1 - t1 % Q
+    if ahora < t1 + MARGEN:
+        return None
+    faltan = [q for q in range(q0, q1, Q) if q not in velas15]
+    base = {"version": VERSION_EVAL_15, "resolucion": "15m", "ventana": [q0, q1], "minutos": (q1 - q0) // MIN,
+            "regla": "Tramos de 15 min completos entre emisión y vencimiento (Kraken REST, mismo par); precio final = cierre "
+                     "del último tramo con operaciones; toque = máximo o mínimo de un tramo con operaciones."}
+    if faltan:
+        if ahora - faltan[0] < REST15_ALCANCE:
+            return None
+        return dict(base, estado="sin_seguimiento", minutos_sin_datos=len(faltan) * 15,
+                    motivo=f"Sin velas de 15 min: {len(faltan)} tramos de la ventana ya no se pueden descargar")
+    ops = [velas15[q] for q in range(q0, q1, Q) if _tiene_ops(velas15[q])]
+    if not ops:
+        return dict(base, estado="sin_seguimiento", motivo="sin operaciones en toda la ventana: no hay precio de vencimiento")
+    pf = float(ops[-1]["c"])
+
+    def rangos(x):
+        return {"dentro50": _dentro(x.get("b50"), pf), "dentro80": _dentro(x.get("b80"), pf)} if x else None
+
+    niveles = []
+    for g in em["niveles"]:
+        sube = g["lado"] == "sube"
+        toques = [v for v in ops if (v["h"] >= g["borde"] if sube else v["l"] <= g["borde"])]
+        niveles.append({"id": g["id"], "lado": g["lado"], "borde": g["borde"], "tocado": bool(toques),
+                        "t_toque": toques[0]["t"] if toques else None,
+                        "extremo": max(v["h"] for v in ops) if sube else min(v["l"] for v in ops)})
+    return dict(base, estado="verificada", motivo=None, precio_final=pf, t_precio_final=ops[-1]["t"] + Q,
+                minutos_con_ops=len(ops) * 15, fuentes={"rest15": len(ops)}, publicada=rangos(em),
+                referencia=rangos(em.get("referencia")), experimental=rangos(em.get("experimental")), niveles=niveles,
+                maximo=max(v["h"] for v in ops), minimo=min(v["l"] for v in ops))
+
+
 def _causa_hueco(huecos, sesiones):
     if sesiones is None:
         return "Hueco de datos"
@@ -381,9 +425,13 @@ def historial(items, simbolos, ahora):
         k50 = sum(1 for x in d if (x["res"].get("publicada") or {}).get("dentro50"))
         k80 = sum(1 for x in d if (x["res"].get("publicada") or {}).get("dentro80"))
         sin = [x for x in vig if x["estado"] == "sin_seguimiento"]
+        h80 = sum(1 for x in ver if (x["res"].get("publicada") or {}).get("dentro80"))
+        h50 = sum(1 for x in ver if (x["res"].get("publicada") or {}).get("dentro50"))
         r = {"n_emisiones": len(vig), "n_horarias": len(ver), "n_diarias": n,
+             # cobertura con TODAS las horarias: orientativa (24 ventanas de un día miran casi el mismo movimiento)
+             "cob80_h": h80 / len(ver) if ver else None, "cob50_h": h50 / len(ver) if ver else None,
              "pendientes": sum(1 for x in vig if x["estado"] == "pendiente"), "sin_seguimiento": len(sin),
-             "sin_seguimiento_48h": sum(1 for x in sin if ahora - x["t_emision"] <= 2 * DIA),
+             "sin_seguimiento_48h": sum(1 for x in sin if ahora - x["t_emision"] <= 9 * DIA),
              "motivo_sin_seguimiento": sin[-1]["motivo"] if sin else None,
              "otras_versiones": len(its) - len(vig),
              "cob50": k50 / n if n else None, "cob80": k80 / n if n else None,
@@ -410,6 +458,11 @@ def historial(items, simbolos, ahora):
         ok = glob["ic80"][0] <= .8 <= glob["ic80"][1] and glob["ic50"][0] <= .5 <= glob["ic50"][1]
         glob["estado"] = "en_linea" if ok else "desviada"
     glob["aportes"] = aportes
+    nh = sum(por[s]["n_horarias"] for s in simbolos)
+    glob["horarias"] = {"n": nh, "cob80": sum((por[s]["cob80_h"] or 0) * por[s]["n_horarias"] for s in simbolos) / nh if nh else None,
+                        "cob50": sum((por[s]["cob50_h"] or 0) * por[s]["n_horarias"] for s in simbolos) / nh if nh else None,
+                        "pendientes": sum(por[s]["pendientes"] for s in simbolos),
+                        "max_diarias": max((por[s]["n_diarias"] for s in simbolos), default=0)}
     return {"t": ahora, "version": VERSION_CALCULO, "muestra_min_dia": MUESTRA_MIN_DIA, "muestra_min": MUESTRA_MIN,
             "activos": por, "global": glob}
 
@@ -573,6 +626,19 @@ class Almacen:
                               ON CONFLICT(simbolo, fuente, desde) DO UPDATE SET hasta=max(hasta, excluded.hasta)""", (s, d, h))
         return len(nuevas)
 
+    def guardar_rest15(self, s, filas, ultimo_cerrado, ahora):
+        """Velas de 15 min de Kraken REST ya cerradas (t ≤ `last`). No cambian una vez cerradas: se insertan una vez."""
+        cerradas = [r for r in filas if r["t"] <= ultimo_cerrado]
+        with self.lock, self._db() as db, db:
+            return db.executemany("INSERT OR IGNORE INTO velas_15m_rest VALUES (?,?,?,?,?,?,?,?,?)",
+                                  [(s, v["t"], v["o"], v["h"], v["l"], v["c"], v["v"], v.get("n"), ahora) for v in cerradas]).rowcount
+
+    def velas15(self, s, q0, q1):
+        with self._db() as db:
+            return {r[0]: {"t": r[0], "o": r[1], "h": r[2], "l": r[3], "c": r[4], "v": r[5], "n": r[6]}
+                    for r in db.execute("SELECT t,o,h,l,c,v,n FROM velas_15m_rest WHERE simbolo=? AND t>=? AND t<? ORDER BY t",
+                                        (s, q0, q1))}
+
     def guardar_volumen(self, s, filas):
         with self.lock, self._db() as db, db:
             db.executemany("INSERT OR IGNORE INTO volumen_1m VALUES (?,?,?,?,?,?,?, 'kraken-ws-operaciones')",
@@ -635,6 +701,16 @@ class Almacen:
                 continue
             m0, m1 = techo(em["t_emision"]), piso(em["t_vence"])
             res = evaluar_emision(em, self.velas(s, m0, m1), self.tramos(s, m0, m1), ahora, ses)
+            if res is not None and res["estado"] == "sin_seguimiento" and res.get("huecos"):
+                # huecos de 1 min que ya no se pueden rellenar (la app estuvo cerrada): se comprueba con velas de 15 min
+                r15 = evaluar_emision_15(em, self.velas15(s, m0 - Q, m1 + Q), ahora)
+                if r15 is None:
+                    self._revisada[(s, hora)] = ahora
+                    continue
+                if r15["estado"] == "verificada":
+                    res = r15
+                else:
+                    res = dict(res, motivo=res["motivo"] + " (y " + r15["motivo"][0].lower() + r15["motivo"][1:] + ")")
             if res is None:
                 self._revisada[(s, hora)] = ahora
                 continue

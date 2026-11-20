@@ -5,7 +5,7 @@ Lo usa GitHub Actions con frecuencia (ver el cron) (.github/workflows/publicar.y
     .venv/bin/python -m http.server -d publico 8600   → y se abre http://localhost:8600
 
 Qué genera en publico/:
-  index.html, favicon.svg, vendor/…   la misma interfaz, en modo estático
+  index.html, favicon.svg, vendor/…   la misma interfaz, en modo estático (lib/: decisión spot, cantidades, costes, movimiento)
   datos/estado.json                   el análisis completo de las 8 monedas (como /api/state)
   datos/moneda/<SÍMBOLO>.json         velas de las 5 temporalidades y el rango probable completo (para el Estudio)
   datos/evidencias/…                  proyecciones 1 h · 24 h guardadas y su verificación (Datos › Diagnóstico)
@@ -21,11 +21,13 @@ import sys
 import time
 
 from cripto import catalogo
+from cripto import eventos as ev_clave
 from cripto.servicio import COINS, Servicio, ligero
 
 RAIZ = pathlib.Path(__file__).resolve().parent
 WEB = RAIZ / "web"
 SALIDA = RAIZ / "publico"
+EVENTOS = RAIZ / "eventos.json"   # eventos clave curados (salidas a bolsa, ETF, leyes…): se editan en el repositorio
 TFS = ["1m", "1h", "4h", "1d", "1w"]
 EV_LISTA = 48          # emisiones por moneda en la lista del diagnóstico (y con su detalle publicado)
 
@@ -86,6 +88,7 @@ def main():
     sv.con_ws = False                      # sin conexión en vivo: todo por REST
     sv.registro = None                     # el registro de decisiones spot (SQLite) es del Mac: aquí cada ejecución es una foto suelta
     sv.avisos = None                       # los avisos trazables necesitan el servidor encendido: solo en el Mac
+    sv.eventos = ev_clave.Eventos(EVENTOS)  # lista del repositorio (datos/ es una caché que no se publica)
     print("· análisis completo (Kraken, Coinbase, CoinGecko, histórico, rango)…", flush=True)
     sv.main(False)
     if not sv.data:
@@ -107,6 +110,7 @@ def main():
     (SALIDA / "vendor").mkdir(parents=True)
     shutil.copy(WEB / "vendor" / "lightweight-charts.js", SALIDA / "vendor" / "lightweight-charts.js")
     shutil.copy(WEB / "favicon.svg", SALIDA / "favicon.svg")
+    shutil.copytree(WEB / "lib", SALIDA / "lib")      # spot.js, cantidades.js, costes.js, movimiento.js
     html = (WEB / "index.html").read_text()
     html = html.replace("<script>\n\"use strict\";", "<script>window.ESTATICO=true;</script>\n<script>\n\"use strict\";", 1)
     (SALIDA / "index.html").write_text(html)
@@ -116,8 +120,11 @@ def main():
     # estado general
     estado = json.loads(sv.snapshot())
     salud = sv.salud()
+    for k in ("raiz", "pid", "puerto"):    # identidad local del proceso: no se publica (el repositorio es público)
+        salud.pop(k, None)
+    # mínimos e incrementos de cada par (AssetPairs de Kraken): la web calcula con ellos el coste de 25/50/100 €
     estado["nube"] = {"generado": int(time.time() * 1000), "duracion_s": round(time.time() - t0, 1),
-                      "salud": salud}
+                      "salud": salud, "reglas": sv.reglas}
     total = escribir(SALIDA / "datos" / "estado.json", estado)
 
     # por moneda: velas de cada temporalidad (para el gráfico) y rango probable completo (abanico, casos y niveles)

@@ -1,0 +1,41 @@
+{
+ "eventos": [
+  {
+   "id": "anthropic-ipo-2026",
+   "titulo": "Anthropic sale a bolsa en el Nasdaq (ANT)",
+   "tipo": "salida_bolsa",
+   "certeza": "confirmado",
+   "impacto": "alto",
+   "fecha": 1795098600000,
+   "fecha_txt": "",
+   "hora_exacta": false,
+   "activos": [
+    "MERCADO"
+   ],
+   "canal": "Liquidez (la mayor salida a bolsa de la historia absorbe capital de riesgo) y apetito por la inteligencia artificial; puede arrastrar a los tokens ligados a la IA.",
+   "datos": "Precio de salida 83 $, apertura 111,50 $, cierre 97,17 $ (+17 %). Ese día el Nasdaq cayó y varias tecnológicas de IA bajaron un 2-4 %.",
+   "fuente": "https://www.npr.org/2026/11/19/nx-s1-6042558/anthropic-ipo-breaks-records-100-billion",
+   "origen": "manual",
+   "creado": 1795098600000
+  },
+  {
+   "id": "openai-ipo",
+   "titulo": "Salida a bolsa de OpenAI",
+   "tipo": "salida_bolsa",
+   "certeza": "probable",
+   "impacto": "alto",
+   "fecha": null,
+   "fecha_txt": "Sin fecha · solicitud confidencial ante la SEC (junio de 2026); se apunta a 2027",
+   "hora_exacta": false,
+   "activos": [
+    "MERCADO"
+   ],
+   "canal": "Mismo canal que Anthropic: capital que se mueve hacia la IA cotizada y apetito de riesgo.",
+   "datos": "",
+   "fuente": "https://www.cnbc.com/2026/06/08/openai-confidentially-files-for-ipo-prepping-wall-street-for-ai-debut.html",
+   "origen": "manual",
+   "creado": 1795098600000
+  }
+ ],
+ "descartados": []
+}

@@ -77,6 +77,11 @@ TOPICS = [
     ("Bolsa y apetito de riesgo", 1.5, r"\b(stocks?|nasdaq|s&p|wall street|dow|equities|acciones|bolsa|risk assets?)\b",
      r"\b(rall\w*|record high|surg\w*|gain\w*|climb\w*|sube\w*|máximos)\b",
      r"\b(sell-?off|plung\w*|tumbl\w*|slump\w*|fall\w*|drop\w*|cae\w*|desplom\w*|rout)\b", -1),
+    # Salidas a bolsa de empresas grandes (Anthropic, OpenAI…): canal de liquidez y de apetito de riesgo. Peso bajo: la
+    # dirección para las criptomonedas es ambigua (atrae capital de riesgo, pero también lo resta). Propone eventos clave.
+    ("Salidas a bolsa", 1.0, r"\b(ipos?|initial public offering|salida a bolsa|sale a bolsa|saldr[aá] a bolsa|goes public|going public|public debut|stock market debut|debut on (the )?(nasdaq|nyse)|files? for (an )?ipo|s-1 filing|direct listing)\b",
+     r"\b(soar\w*|surg\w*|pops?|popped|jump\w*|rall\w*|record|oversubscribed|above (the )?(range|expectations)|dispara\w*)\b",
+     r"\b(postpon\w*|delay\w*|pull(s|ed)? (its|the) ipo|shelv\w*|slump\w*|tumbl\w*|below (the )?range|withdraw\w*|aplaza\w*|cae\w*)\b", 0),
     ("Apalancamiento", 1.5, r"\b(liquidat\w*|liquidaci\w*|leverage\w*|apalanca\w*|short squeeze|open interest|funding)\b",
      r"\b(short squeeze|shorts? liquidated|short liquidations)\b",
      r"\b(longs? liquidated|long liquidations|liquidations? (top|hit|surge)|deleverag\w*|cascade)\b", 0),
@@ -473,7 +478,7 @@ class Fundamental:
 
 HORIZ = {"Política monetaria": "días", "Inflación": "días", "Empleo y crecimiento": "días", "Geopolítica": "horas a días",
          "Aranceles y comercio": "días", "Regulación": "días a semanas", "ETF e institucionales": "días", "Seguridad": "horas",
-         "Adopción y tecnología": "días", "Dólar y bonos": "días", "Bolsa y apetito de riesgo": "horas", "Apalancamiento": "horas"}
+         "Adopción y tecnología": "días", "Dólar y bonos": "días", "Bolsa y apetito de riesgo": "horas", "Apalancamiento": "horas", "Salidas a bolsa": "días"}
 NOMBRE = {"MERCADO": "el mercado cripto", "PAXG": "el oro"}
 
 

@@ -7,9 +7,9 @@ Capas de actualización:
   · cada 10 min    → recarga completa del motor v21: velas, histórico y validación
 El motor v21 (motor.py) es una traducción verificada contra el JavaScript original (tests/test_paridad.py)."""
 import json
+import math
 import pathlib
 import sqlite3
-import math
 import statistics
 import threading
 import time
@@ -30,6 +30,8 @@ from .avisos import Avisos
 from .catalogo import CATALOGO, CRIPTO, campo
 from .evidencias import ACTIVOS as EV_ACTIVOS, GRACIA_WS, Almacen, construir_emision
 from .validacion import con_intervalo, intervalo_ic
+from . import eventos as ev_clave
+from . import acumulacion as acu
 
 COINS = campo("kraken")           # símbolo → wsname de la API REST de Kraken (todo sale del catálogo)
 WSV2 = campo("ws")                # nombres del WebSocket v2
@@ -44,6 +46,7 @@ EDAD_PRECIO_EXTERNO = 15 * 60          # precio de Coinbase o CoinGecko usado pa
 EDAD_DERIVADOS = 30 * 60               # derivados que entran en la previsión y en el sentimiento
 EDAD_TICKER = 20                       # precio de Kraken de la carga completa: se pide de nuevo si es más viejo
 REST_1M_CADA = 10 * 60_000             # velas REST de 1 min para las evidencias (y tras cada reconexión)
+ESTUDIO11 = pathlib.Path(__file__).resolve().parent.parent / "estudios" / "resultados_estudio11.json"
 HISTORIAL_CADA = 5 * 60_000            # validación interna con lo verificado (cuánta evidencia respalda las proyecciones)
 
 
@@ -149,12 +152,13 @@ def vela_viva(raw, tf_ms, price, t):
 
 
 class Servicio:
-    def __init__(self, kraken=None, net=True, almacen=None, avisos=None):
+    def __init__(self, kraken=None, net=True, almacen=None, avisos=None, eventos=None):
         self.k = kraken or fuentes.Kraken()
         self.lock = threading.RLock()
         self.data = {}
         self.pairs = {}
         self.prec = {}
+        self.reglas = {}     # mínimos e incrementos de cada par de Kraken (AssetPairs), para estimar costes
         self.tk = {}
         self.cache = {}
         self.bt = {}
@@ -179,6 +183,7 @@ class Servicio:
         self.net = net
         self.registro = Registro() if net else None
         self.error_registro = None
+        self.spot_inf, self.spot_error = None, None        # evaluación spot (ciclo_spot, cada 10 min en segundo plano)
         self.tick_recibido = {}
         # tiempo real y capas nuevas
         self.flujo = None
@@ -210,9 +215,17 @@ class Servicio:
         self.av_ultimo = self.avisos.ultimo_id() if self.avisos else 0
         self._sin_emitir = {}
         self._rest_1m_t = 0
+        self._rest_15m_t = 0
         self._reconex_vistas = 0
         self.hist_ev, self._hist_t, self._hist_cambios = None, 0, -1   # validación interna (al cambiar o cada 5 min)
         self.calidad_t, self._calidad = 0, None
+        # eventos clave (salidas a bolsa, ETF, leyes…): lista curada en datos/eventos.json; las noticias solo proponen
+        self.eventos = eventos or ev_clave.Eventos(ev_clave.RUTA if net else None)
+        self.ev_pub, self.ev_cand = [], []
+        # acumulación en caídas: misma señal que el estudio 11; el veredicto del estudio decide el texto
+        self.estudio11 = self._cargar_estudio11()
+        self._acum = {}                                   # moneda -> (clave, lectura base)
+        self._fund_hist = self._cargar_funding_hist() if net else {}
 
     # ---------- estado ----------
     def bump(self):
@@ -235,6 +248,10 @@ class Servicio:
             self.pairs[s] = e[0] if e else None
             if e:
                 self.prec[s] = (e[1].get("pair_decimals", 8), e[1].get("lot_decimals", 8))
+                fl = lambda k: float(e[1][k]) if e[1].get(k) not in (None, "") else None   # noqa: E731
+                self.reglas[s] = {"par": e[1].get("wsname"), "ordermin": fl("ordermin"), "costmin": fl("costmin"),
+                                  "lot_decimals": e[1].get("lot_decimals", 8), "pair_decimals": e[1].get("pair_decimals", 8),
+                                  "tick_size": fl("tick_size")}
 
     def ohlc(self, key, minutes):
         ck = (key, minutes)
@@ -674,7 +691,7 @@ class Servicio:
         for s, o in items:
             if not o or not o.get("res") or not o.get("d1"):
                 if o:
-                    o["decision"] = decision(o, now)
+                    o["decision"] = decision(o, now, o.get("decision"))
                     self.registrar_decision(s, o, now)
                 continue
             ws = WSV2[s]
@@ -703,7 +720,8 @@ class Servicio:
                         o["prev"]["obsoleta"] = True
                     o["micro"] = None
                     o["proy"] = {}
-                    o["decision"] = decision(o, now)
+                    o["acum"] = None
+                    o["decision"] = decision(o, now, o.get("decision"))
                     o["procedencia"]["calculo_t"] = None          # no se recalcula con un precio caducado
                 self.registrar_decision(s, o, now)
                 self.evidencias_en_vivo(s, o, now, False, op)
@@ -784,8 +802,18 @@ class Servicio:
                             proy[tf] = x
                     o["proy"] = proy
                     o["t"] = now
-                    o["decision"] = decision(o, now)
+                    o["decision"] = decision(o, now, o.get("decision"))
+                    try:
+                        o["acum"] = self.acumulacion(s, o, now)
+                    except Exception as e:  # noqa: BLE001
+                        print(f"acumulación {s}: {e!r}", flush=True)
+                        o["acum"] = None
                 self.registrar_decision(s, o, now)
+                if self.registro and o.get("acum"):
+                    try:
+                        self.registro.guardar_acum(s, o["acum"], p, now)
+                    except (OSError, ValueError, sqlite3.Error) as error:
+                        self.error_registro = str(error)
                 self.evidencias_en_vivo(s, o, now, bool(fl and getattr(fl, "conectado", False)), op)
         cal = self.calidad(now)
         cal.pop("t", None)
@@ -900,7 +928,9 @@ class Servicio:
                     out["mensajes"]["estudio"][s] = (
                         f"En {r['n_diarias']} días verificados, el rango del 80 % contuvo el precio el {round(r['cob80'] * 100)} % "
                         f"de las veces: la proyección de 24 h ha sido más {r['sentido']} de lo que indica.")
-            out["historial"] = {"estado": hist["global"]["estado"], "activos": hist["global"]["activos"],
+            G = hist["global"]
+            out["historial"] = {"estado": G["estado"], "activos": G["activos"], "muestra_min_dia": hist["muestra_min_dia"],
+                                "global": {k: G.get(k) for k in ("cob50", "cob80", "ic50", "ic80", "horarias")},
                                 "por_activo": {s: {k: r[k] for k in ("estado", "n_diarias", "n_horarias", "pendientes", "sin_seguimiento")}
                                                for s, r in hist["activos"].items()}}
         return out
@@ -934,7 +964,7 @@ class Servicio:
         if sin:
             n = sum(r["sin_seguimiento_48h"] for r in sin.values())
             causa = next(iter(sin.values()))["motivo_sin_seguimiento"] or ""
-            lin.append(f"{n} proyecci{'ones' if n > 1 else 'ón'} sin seguimiento en las últimas 48 h"
+            lin.append(f"{n} proyecci{'ones' if n > 1 else 'ón'} sin seguimiento en los últimos 9 días"
                        f" ({', '.join(sin)}){': ' + causa.split(':')[0].lower() if causa else ''}.")
         return lin
 
@@ -978,6 +1008,21 @@ class Servicio:
                 print(f"velas REST 1 min {s}: {e!r}", flush=True)
         self._rest_1m_t = ahora
 
+    def sync_rest_15m(self, ahora):
+        """Velas de 15 min de Kraken por REST (los últimos 7,5 días): con la app abierta un rato al día bastan para
+        comprobar las proyecciones de 24 h y la evaluación spot."""
+        for s in self.activos_ev():
+            key = self.pairs.get(s)
+            try:
+                r = self.k.get(f"OHLC?pair={key}&interval=15")
+                k = next(x for x in r if x != "last")
+                filas = fuentes.sanear([{"t": int(x[0]) * 1000, "o": float(x[1]), "h": float(x[2]), "l": float(x[3]),
+                                         "c": float(x[4]), "v": float(x[6]), "n": int(x[7])} for x in r[k]])
+                self.evid.guardar_rest15(s, filas, int(r["last"]) * 1000, ahora)
+            except Exception as e:  # noqa: BLE001
+                print(f"velas REST 15 min {s}: {e!r}", flush=True)
+        self._rest_15m_t = ahora
+
     def ciclo_evidencias(self, ahora=None):
         """Cada 30 s: guarda las velas de 1 min cerradas, la cobertura, el volumen y el libro de BTC y ETH; pide velas REST
         cada 10 min o tras una reconexión; anota las horas sin emisión y evalúa las proyecciones vencidas."""
@@ -998,6 +1043,8 @@ class Servicio:
             if self.net and self.pairs and (ahora - self._rest_1m_t >= REST_1M_CADA or reconex != self._reconex_vistas):
                 self._reconex_vistas = reconex
                 self.sync_rest_1m(ahora)
+            if self.net and self.pairs and ahora - self._rest_15m_t >= 30 * 60_000:
+                self.sync_rest_15m(ahora)
             hora = ahora - ahora % 3600000
             for (s, h), motivo in list(self._sin_emitir.items()):
                 if h < hora:
@@ -1014,16 +1061,112 @@ class Servicio:
             self.ev_error = str(e)[:160]
             print(f"evidencias: {e!r}", flush=True)
 
+    def ciclo_spot(self, ahora=None):
+        """Evaluación spot C/E/V/ND (estudios/evaluar_spot.registrar): fuera del ciclo de precios y de las peticiones que
+        dibujan la portada; guarda los resultados definitivos de cada escenario y deja el resumen listo para /api/spot."""
+        if not self.registro:
+            return
+        ahora = ahora or now_ms()
+        from estudios import evaluar_spot as evs
+        try:
+            r = evs.registrar(self.registro.ruta, ahora, dict(WSV2))
+            with self.lock:
+                self.spot_inf = {"t": ahora, "escenarios": r, "referencia_v1": evs.referencia_v1()}
+            self.spot_error = None
+        except (OSError, ValueError, sqlite3.Error) as e:
+            self.spot_error = str(e)[:160]
+
     def _loop_evid(self):
         time.sleep(5)
+        ultimo_spot = 0
         while True:
             try:
                 self.ciclo_evidencias()
             except Exception as e:  # noqa: BLE001
                 print(f"ciclo de evidencias: {e!r}", flush=True)
+            if time.time() - ultimo_spot >= 600:
+                ultimo_spot = time.time()
+                try:
+                    self.ciclo_spot()
+                except Exception as e:  # noqa: BLE001
+                    print(f"evaluación spot: {e!r}", flush=True)
             time.sleep(30)
 
     # ---------- noticias, derivados y sentimiento (cada minuto) ----------
+    # ---------- acumulación en caídas ----------
+    @staticmethod
+    def _cargar_estudio11():
+        try:
+            r = json.loads(ESTUDIO11.read_text())
+        except (OSError, ValueError):
+            return None
+        def mon(m):
+            e = (m.get("episodios") or {}).get("90") or {}
+            a = m.get("acumulacion") or {}
+            return {"desde": m.get("desde"), "episodios": e.get("episodios"), "mediana90": e.get("mediana"),
+                    "base90": e.get("base_mediana"), "peor90": e.get("peor"), "positivos90": e.get("positivos"),
+                    "ventaja": a.get("ventaja_media"), "placebo": a.get("placebo_media"), "sin_invertir": a.get("sin_invertir_medio"),
+                    "precio_tramos": a.get("precio_tramos"), "precio_placebo": a.get("precio_tramos_placebo")}
+        cat = (r.get("conjunto") or {}).get("catalogo") or {}
+        return {"veredicto": r.get("veredicto"), "version": r.get("version"), "generado": r.get("generado"),
+                "conjunto": {k: cat.get(k) for k in ("ventaja_media", "placebo_media", "p", "precio_tramos", "precio_tramos_placebo", "p_precio")},
+                "monedas": {s: mon(m) for s, m in (r.get("monedas") or {}).items()}}
+
+    @staticmethod
+    def _cargar_funding_hist():
+        """Últimas 72 h del registro horario de derivados (para el funding medio de 3 días de la señal)."""
+        out = {}
+        try:
+            with DERIV_LOG.open("rb") as f:
+                f.seek(0, 2)
+                f.seek(max(0, f.tell() - 400_000))
+                lineas = f.read().decode("utf-8", "ignore").splitlines()[1:]
+        except OSError:
+            return out
+        corte = now_ms() - 72 * 3600_000
+        for ln in lineas:
+            try:
+                x = json.loads(ln)
+            except ValueError:
+                continue
+            if x.get("t", 0) >= corte and isinstance(x.get("funding"), (int, float)) and math.isfinite(x["funding"]):
+                out.setdefault(x["s"], []).append((x["t"], x["funding"]))
+        return out
+
+    def funding_3d(self, s, ahora):
+        v = [f for t, f in self._fund_hist.get(s, []) if ahora - t <= 72 * 3600_000]
+        return sum(v) / len(v) if len(v) >= 6 else None
+
+    def acumulacion(self, s, o, now):
+        """Condiciones de acumulación con las velas diarias cerradas (cacheado hasta que cambia la vela, el miedo y codicia
+        o el signo del funding) y los tramos con el precio de ahora. Solo activos cripto."""
+        if not CATALOGO[s].get("cripto", True) or not o.get("raw1d"):
+            return None
+        rows = o["raw1d"]
+        if rows and rows[-1]["t"] + 864e5 > now:
+            rows = rows[:-1]                              # la vela de hoy aún no ha cerrado
+        if len(rows) < 92:
+            return None
+        fg = self.ctx.get("fg") if now - self.ctx.get("t_fg", 0) <= 36 * 3600000 else None
+        fng = float(fg["value"]) if fg else None
+        f3 = self.funding_3d(s, now)
+        clave = (rows[-1]["t"], fng, None if f3 is None else f3 < 0)
+        c = self._acum.get(s)
+        if not c or c[0] != clave:
+            base = acu.lectura_viva(rows, fng, f3, None, rows[-1]["c"], self.estudio11)
+            c = (clave, base)
+            self._acum[s] = c
+        base = c[1]
+        if not base:
+            return None
+        a = dict(base)
+        if a.get("tramos") is not None:
+            atr = (a.get("atr_pct") or 0) / 100 * rows[-1]["c"] or None
+            a["tramos"] = acu.tramos(o["price"], (o.get("z") or {}).get("sup"), atr)
+        e = self.estudio11 or {}
+        a["historico"] = {"veredicto": e.get("veredicto"), "moneda": (e.get("monedas") or {}).get(s), "conjunto": e.get("conjunto")}
+        return a
+
     def registrar_decision(self, simbolo, o, ahora):
         if self.registro:
             try:
@@ -1070,8 +1213,40 @@ class Servicio:
                 self.pulso = pul
                 self.rnews = rn
                 self.version += 1
-        except Exception:  # noqa: BLE001
-            pass
+        except Exception as e:  # noqa: BLE001
+            print(f"noticias: {e!r}", flush=True)
+        self.recalc_eventos()
+
+    def series_1h(self, simbolos):
+        """Velas de 1 h continuas (histórico profundo + Kraken) para medir la reacción a los eventos clave."""
+        out = {}
+        for s in simbolos:
+            o = self.data.get(s) or {}
+            raw = (o.get("_raw") or {}).get("1h") or []
+            try:
+                out[s] = self.hist.serie(s, "1h", raw) if raw else self.hist.cargar(s, "1h")["rows"]
+            except Exception:  # noqa: BLE001
+                out[s] = raw
+        return out
+
+    def recalc_eventos(self):
+        """Eventos clave con su estado (hoy, previsto, pasado, sin fecha), su reacción y los candidatos de las noticias."""
+        try:
+            self.eventos.recargar()
+            ahora = now_ms()
+            items = list(self.eventos.items)
+            act = {"BTC"} | {a for e in items for a in e["activos"] if a in COINS}
+            with self.lock:
+                vivos = {s: o["price"] for s, o in self.data.items() if o and o.get("price") and o.get("precio_t")
+                         and 0 <= ahora - o["precio_t"] <= FRESCO_MS}
+            pub = ev_clave.publico(items, ahora, self.series_1h(sorted(act)), vivos)
+            cand = ev_clave.candidatos(self.noticias, items, self.eventos.descartados, ahora)
+            with self.lock:
+                if (pub, cand) != (self.ev_pub, self.ev_cand):      # solo se pide el estado completo si algo cambió
+                    self.ev_pub, self.ev_cand = pub, cand
+                    self.version += 1
+        except Exception as e:  # noqa: BLE001
+            print(f"eventos clave: {e!r}", flush=True)
 
     def actualizar_derivados(self):
         try:
@@ -1103,6 +1278,11 @@ class Servicio:
         t = now_ms()
         lin = [json.dumps({"t": t, "s": s, **{k: x.get(k) for k in ("funding", "largos_pct", "top_largos_pct", "oi_usd", "oi_24h", "fuente")}},
                           separators=(",", ":")) for s, x in d.items() if x.get("ok")]
+        for s, x in d.items():
+            if x.get("ok") and isinstance(x.get("funding"), (int, float)) and math.isfinite(x["funding"]):
+                h = self._fund_hist.setdefault(s, [])
+                h.append((t, x["funding"]))
+                del h[:-80]
         if not lin:
             return
         try:
@@ -1218,9 +1398,33 @@ class Servicio:
             threading.Thread(target=f, daemon=True).start()
 
     # ---------- salidas para la web ----------
+    def coste(self, s, lado, maker, taker, tipo="mercado", limite=None):
+        """Coste de 25/50/100 € con el libro verificado de Kraken (25 niveles) o, si no hay libro vigente, con el mejor
+        bid/ask del ticker (estimación parcial). Ver cripto/costes.py."""
+        from cripto import costes
+        ws = WSV2[s]
+        fl = self.flujo
+        libro = None
+        if fl and getattr(fl, "conectado", False):
+            with fl.lock:
+                lb = fl.libros.get(ws)
+                if lb and lb.valido:
+                    a, b = lb.sorted()
+                    libro = {"asks": a, "bids": b, "t": int(lb.t * 1000), "completo": True, "fuente": f"libro WebSocket {ws} (25 niveles, CRC32)"}
+        if libro is None:
+            tk = (self.data.get(s) or {}).get("tkv") or {}
+            if tk.get("bid") and tk.get("ask"):
+                libro = {"asks": [(tk["ask"], float("inf"))], "bids": [(tk["bid"], float("inf"))], "t": tk.get("t"),
+                         "completo": False, "fuente": f"mejor bid/ask del ticker {ws}"}
+        r = costes.tabla(lado, libro, now_ms(), self.reglas.get(s), maker, taker, tipo, limite)
+        r.update(simbolo=s, par=ws, reglas=self.reglas.get(s))
+        return r
+
     def salud(self):
         fl = self.flujo.salud() if self.flujo else {"conectado": False}
-        return {"registro_t": self.registro.ultimo_registro if self.registro else None, "registro_error": self.error_registro, "ws": fl, "rt_ms": self.rt_ms, "rt_t": self.rt_t, "noticias": {k: dict(v) for k, v in list(self.fund.estado.items())}, "cal_ok": self.fund.cal_ok,
+        from cripto.version import identidad
+        return {**identidad(), "puerto": getattr(self, "puerto", None), "inicio": int(self.inicio * 1000),
+                "registro_t": self.registro.ultimo_registro if self.registro else None, "registro_error": self.error_registro, "ws": fl, "rt_ms": self.rt_ms, "rt_t": self.rt_t, "noticias": {k: dict(v) for k, v in list(self.fund.estado.items())}, "cal_ok": self.fund.cal_ok,
                 "historico": self.hist.resumen(), "evidencias_error": self.ev_error, "av": self.av_ultimo,
                 "evid_eval_t": self.evid.ultima_eval if self.evid else None,
                 "deriv_t": self.deriv_t, "deriv_ok": sum(1 for x in self.deriv.values() if x.get("ok")), "deriv_n": len(COINS),
@@ -1258,7 +1462,8 @@ class Servicio:
                   "bar": self.bar, "busy": self.busy, "last": int(self.last * 1000), "err": self.err,
                   "pairs": {s: (p is not None) for s, p in self.pairs.items()},
                   "noticias": self.noticias, "pulso": self.pulso, "cal": self.fund.cal, "deriv": self.deriv,
-                  "sent": self.sent, "rnews": self.rnews, "calidad": self._calidad}
+                  "sent": self.sent, "rnews": self.rnews, "calidad": self._calidad,
+                  "eventos": {"lista": self.ev_pub, "candidatos": self.ev_cand, "error": self.eventos.error}}
             body = json.dumps(ligero(st), ensure_ascii=False, separators=(",", ":")).encode()
             self._snap = (self.version, body)
             return body
@@ -1277,7 +1482,7 @@ class Servicio:
                 coins[s] = {"decision": o.get("decision"), "precio_t": o.get("precio_t"), "precio_fuente": o.get("precio_fuente"), "price": o["price"], "chg": o.get("chg"), "z": zona_web(o.get("z")), "tm": o.get("tm"), "crit": o.get("crit"),
                             "conf": o.get("conf"), "tkv": o.get("tkv"),
                             "vivo": {k: v for k, v in vv.items() if k != "tf"} | {"tf": {t: {"score": x["score"], "rsi": x["rsi"], "v": x["v"], "cats": x["cats"]} for t, x in (vv.get("tf") or {}).items()}} if vv else None,
-                            "micro": o.get("micro"), "prev": o.get("prev"),
+                            "micro": o.get("micro"), "prev": o.get("prev"), "acum": o.get("acum"),
                             "procedencia": o.get("procedencia"), "fuentes": o.get("fuentes")}
             out = {"v": self.version, "f": self.fast_v, "t": now_ms(), "coins": coins, "salud": self.salud(), "bar": self.bar,
                    "busy": self.busy, "calidad": self._calidad}

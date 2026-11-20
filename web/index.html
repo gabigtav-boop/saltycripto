@@ -87,6 +87,10 @@ td{padding:10px 12px;border-bottom:1px solid var(--ln);text-align:right;white-sp
 /* ---------- mercado ---------- */
 .pts{display:grid;grid-template-columns:1fr 1fr;gap:12px 22px;margin-top:16px}
 .pt{display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start;font-size:13px;color:var(--ink2)}.pt i{display:grid;place-items:center;width:26px;height:26px;border:1px solid var(--ln2);font:700 11px var(--mono);font-style:normal}.pt b{color:var(--ink)}
+.fia{display:flex;align-items:center;gap:10px;font:620 19px/1.2 var(--sans);letter-spacing:-.02em;margin:2px 0 10px}.fia i{width:10px;height:10px;border-radius:50%;background:var(--steel);flex:none}.fia.up i{background:var(--up)}.fia.wa i{background:var(--wa)}.fia.dn i{background:var(--dn)}
+.prog{height:5px;background:var(--s3);margin:2px 0 8px}.prog i{display:block;height:100%;background:var(--ac)}
+.evf{display:grid;gap:8px;margin-top:10px}.evf2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.evf input,.evf select{width:100%;min-height:32px;padding:5px 8px;border:1px solid var(--ln2);background:var(--s1);color:var(--ink);font:13px var(--sans)}
+.lnk{background:none;border:0;padding:0;color:var(--acx);font:inherit;cursor:pointer;text-decoration:underline}
 .kpi{padding:15px 18px}.kpi .v{font:620 clamp(21px,1.9vw,27px)/1.1 var(--sans);letter-spacing:-.03em;margin-top:8px}.kpi .s{font:500 12px var(--mono);margin-top:4px}
 .gauge{display:flex;flex-direction:column;align-items:center}.cmp{display:grid;grid-template-columns:1fr 64px 88px;gap:10px;align-items:center;padding:3px 0;font-size:12.5px;color:var(--mut)}.cmp b{font:500 11.5px var(--mono);text-align:right}
 .sp{display:block;width:96px;height:26px;margin-left:auto}
@@ -110,7 +114,7 @@ details.more{margin-top:12px}details.more summary{cursor:pointer;font:600 10.5px
 .tfg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.tfc{padding:10px;text-align:center;border:1px solid var(--ln);background:var(--s2)}.tfc b{display:block;font:600 11px var(--mono);letter-spacing:.1em;color:var(--steel)}.tfc span{font:600 13px var(--sans)}
 .cat{display:grid;grid-template-columns:100px 1fr 54px;gap:12px;align-items:center;padding:5px 0;font-size:13px}.cat span:last-child{text-align:right;font:500 11.5px var(--mono)}
 .sigs{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px}.sg{display:flex;justify-content:space-between;gap:6px;padding:7px 10px;border:1px solid var(--ln);background:var(--s2);font-size:12.5px}.sg b{font:500 11px var(--mono)}
-.pg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.pg.p5{grid-template-columns:repeat(5,minmax(0,1fr))}.pf{display:grid;gap:5px;font:600 10px/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--steel);min-width:0}.pf input{width:100%;min-width:0;height:38px;border:1px solid var(--ln2);background:var(--bg);color:var(--ink);padding:0 11px;font:500 13px var(--mono);letter-spacing:0;text-transform:none}.pf input:focus{border-color:var(--ac);outline:0}
+.pg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.pg.p5{grid-template-columns:repeat(5,minmax(0,1fr))}.pf-h{font:400 11px/1.4 var(--sans);letter-spacing:0;text-transform:none;color:var(--mut);min-height:0}.pf-h.wa{color:var(--wa)}.pf-h .btn{margin-top:4px;padding:3px 8px;font-size:11px}.pf{display:grid;gap:5px;font:600 10px/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--steel);min-width:0}.pf input{width:100%;min-width:0;height:38px;border:1px solid var(--ln2);background:var(--bg);color:var(--ink);padding:0 11px;font:500 13px var(--mono);letter-spacing:0;text-transform:none}.pf input:focus{border-color:var(--ac);outline:0}
 .btn{display:inline-flex;align-items:center;gap:8px;min-height:30px;border:1px solid var(--ln2);background:var(--ionb);padding:0 13px;font:600 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);transition:color .15s,border-color .15s,background .15s,transform .1s}.btn:hover{color:var(--ink);border-color:var(--ac);background:var(--acb)}.btn:active{transform:translateY(1px)}.btn svg{width:13px;height:13px;flex:none}.btn.go:after{content:"→";color:var(--ac);font-size:12px;letter-spacing:0;transition:transform .15s}.btn.go:hover:after{transform:translateX(3px)}
 /* ---------- noticias ---------- */
 .dg{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--gap)}.dg>.card:first-child{grid-row:span 2;justify-content:center;background:linear-gradient(160deg,rgba(255,200,87,.07),transparent 62%),var(--card)}.dg>.card:first-child .h{font-size:15px}.dg>.card:first-child p{font-size:13px}@media(max-width:1180px){.dg{grid-template-columns:repeat(3,minmax(0,1fr))}.dg>.card:first-child{grid-row:auto;grid-column:span 3}}@media(max-width:860px){.dg{grid-template-columns:1fr 1fr}.dg>.card:first-child{grid-column:span 2}}.dgc{padding:14px 16px;cursor:pointer;transition:border-color .15s}.dgc:hover{border-color:var(--ln2)}.dgc .h{display:flex;align-items:center;gap:8px;font-weight:600}.dgc .s{font:600 12px var(--mono);margin-left:auto}.dgc p{margin:8px 0 0;font-size:12.5px;color:var(--mut);line-height:1.45}
@@ -220,6 +224,10 @@ body[data-v=ALL] .tape{display:none}
 <div class="menu" id="menu" hidden></div><div class="nots" id="nots" aria-live="polite"></div>
 <script src="catalogo.js"></script>
 <script src="vendor/lightweight-charts.js"></script>
+<script src="lib/spot.js"></script>
+<script src="lib/cantidades.js"></script>
+<script src="lib/costes.js"></script>
+<script src="lib/movimiento.js"></script>
 <script>
 "use strict";
 /* ---------- configuración ---------- */
@@ -262,28 +270,32 @@ function morphKids(a,b){const y=b.childNodes;for(let i=0;i<y.length;i++){const o
 const morphInto=(el,h)=>{const t=document.createElement('template');t.innerHTML=h;morphKids(el,t.content)};
 const memoH=el=>{if(!el||el._m)return;el._m=1;const D=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');Object.defineProperty(el,'innerHTML',{get(){return D.get.call(this)},set(h){if(this._h!==h){this._h=h;if(this.firstChild&&h)morphInto(this,h);else D.set.call(this,h)}}})};
 /* ---------- estado ---------- */
-let CALS=null,CALI=null,DATA={},CTX={},MK={},ORDER=Object.keys(COINS),VAL,NEWS=[],PULSO={},RNEWS={},CAL=[],DERIV={},SENT=null,SALUD=null,BAR='',BUSY=false,ERR=null,SV=-1,LASTT=0;
+let EVK={lista:[],candidatos:[],error:null},EVF={},CALS=null,CALI=null,DATA={},CTX={},MK={},ORDER=Object.keys(COINS),VAL,NEWS=[],PULSO={},RNEWS={},CAL=[],DERIV={},SENT=null,SALUD=null,BAR='',BUSY=false,ERR=null,SV=-1,LASTT=0;
 let VIEW='ALL',SEL='BTC',TF='4h',TAB='tec',NF='all',ES=null,PRV={},ALERTS=false,HZ='S',OPENN=new Set();
 let PREF={tf:'4h',ema:true,zon:true,snd:true,al:{sig:true,cruce:true,prev:true,niv:true,mov:true,news:true,macro:true,pos:true}},POS={};
 try{const p=JSON.parse(localStorage.getItem('salty_pref')||'{}');Object.assign(PREF,p);PREF.al=Object.assign({sig:true,cruce:true,prev:true,niv:true,mov:true,news:true,macro:true,pos:true},p.al||{});ALERTS=localStorage.getItem('salty_alerts')==='1';POS=JSON.parse(localStorage.getItem('ci_pos')||'{}')||{};const h=location.hash.slice(1).split('/');if(['ALL','TRADE','NEWS','DATA'].includes(h[0]))VIEW=h[0];if(COINS[h[1]])SEL=h[1]}catch(e){}
 if(typeof POS!=='object'||Array.isArray(POS))POS={};if(PREF.cas===undefined)PREF.cas=true;TF=PREF.tf||'4h';
 const save=()=>{try{localStorage.setItem('salty_pref',JSON.stringify(PREF))}catch(e){}},savePos=()=>{try{localStorage.setItem('ci_pos',JSON.stringify(POS))}catch(e){}};
 const coins=()=>ORDER.filter(s=>COINS[s]);
-const derivOk=()=>!CALI||!CALI.derivados||CALI.derivados.ok,fresco=o=>window.ESTATICO?!!(o&&cotizacionViva(o)):!!(o&&o.precio_t&&Math.abs(Date.now()-o.precio_t)<=120000);
+const derivOk=()=>!CALI||!CALI.derivados||CALI.derivados.ok,fresco=o=>window.ESTATICO?!!(o&&cotizacionViva(o)):!!o&&SPOT.precioVigente(o.precio_t,Date.now());
 /* todos los activos con datos pero ninguno con cotización reciente: la portada no dice «analizando» */
 const sinVivo=()=>!!(CALI&&!CALI.vigentes.length&&CALI.caducados.length&&CALI.caducados.every(x=>x.motivo!=='cargando'));
 const avisoBreve=L=>(L||[]).map(m=>`<div class="msg t-wa">${esc(m)}</div>`).join('');
 /* ---------- conexión con el motor ---------- */
 const rowsOf=a=>(a||[]).map(x=>({t:x[0],o:x[1],h:x[2],l:x[3],c:x[4],v:x[5]}));
 function hydrate(o){if(o.res){for(const k in o.res)o.res[k].rows=rowsOf(o.res[k].rows);o.d1=o.res['1d']}if(o.raw1d)o.raw1d=o.raw1d.map(x=>({h:x[0],l:x[1],c:x[2]}));if(!o.errs)o.errs=[];return o}
-const LIVEK=['procedencia','fuentes','decision','precio_t','precio_fuente','price','chg','z','tm','crit','conf','tkv','vivo','micro','prev','proy','t'];
+const LIVEK=['acum','procedencia','fuentes','decision','precio_t','precio_fuente','price','chg','z','tm','crit','conf','tkv','vivo','micro','prev','proy','t'];
 function apply(st){SV=st.v;const D={};for(const s in st.data){const o=hydrate(st.data[s]),old=DATA[s];o._p0=o.price;if(window.ESTATICO){if(old&&old.tkv&&old.tkv.t)for(const k of ['price','chg','tkv'])o[k]=old[k]}else if(old&&old.t>o.t)for(const k of LIVEK)if(old[k]!==undefined)o[k]=old[k];D[s]=o}
-  DATA=D;CTX=st.ctx||{};MK=st.mk||{};if(st.order&&st.order.length)ORDER=st.order;VAL=st.val==='pending'?undefined:st.val;NEWS=st.noticias||[];PULSO=st.pulso||{};RNEWS=st.rnews||{};CAL=st.cal||[];DERIV=st.deriv||{};SENT=st.sent;if(st.calidad){CALI=st.calidad;CALS=st.calidad}BAR=st.bar;BUSY=st.busy;ERR=st.err;
+  DATA=D;CTX=st.ctx||{};MK=st.mk||{};if(st.order&&st.order.length)ORDER=st.order;VAL=st.val==='pending'?undefined:st.val;NEWS=st.noticias||[];PULSO=st.pulso||{};RNEWS=st.rnews||{};CAL=st.cal||[];DERIV=st.deriv||{};SENT=st.sent;if(st.eventos)EVK=st.eventos;if(st.calidad){CALI=st.calidad;CALS=st.calidad}BAR=st.bar;BUSY=st.busy;ERR=st.err;
   renderAll(true);alerts()}
 let polling=false;async function poll(){if(polling)return;polling=true;try{
   if(window.ESTATICO){const r=await fetch('datos/estado.json',{cache:'no-cache'});if(!r.ok)throw new Error(r.status);const st=await r.json();  /* no-cache: GitHub devuelve 304 (unos bytes) si no hay análisis nuevo */if(st.nube&&st.nube.generado!==SV){NUBE=st.nube;st.v=st.nube.generado;CC.clear();apply(st);if(VIEW==='TRADE'){await moneda(SEL);CHK='';loadChart()}}}
   else{const r=await fetch('/api/state?v='+SV,{cache:'no-store'});if(r.status===200)apply(await r.json())}}catch(e){if(!Object.keys(DATA).length){const f=$('app').firstElementChild;if(f&&f.classList.contains('empty'))f.textContent='No se pudo cargar el análisis. Reintentando…';setTimeout(poll,5000)}}polling=false}
 setInterval(window.ESTATICO?poll:()=>{poll();if(!LASTT||Date.now()-LASTT>5000){PEND={};renderAll(false)}},window.ESTATICO?60000:5000);
+/* sin mensajes del motor la caducidad se sigue evaluando cada segundo (portada y estudio); al volver del reposo, en el acto.
+   En la web publicada lo hace vivoEstatico cada segundo. */
+if(!window.ESTATICO){setInterval(()=>{if((!LASTT||Date.now()-LASTT>1500)&&(VIEW==='ALL'||VIEW==='TRADE'))renderAll(false)},1000);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){if(Date.now()-LASTT>5000)PEND={};renderAll(false);poll()}})}
 function stream(){if(window.ESTATICO)return krakenWS();if(ES)ES.close();ES=new EventSource('/api/stream'+(VIEW==='TRADE'?'?sel='+SEL+'&tf='+TF:''));ES.onmessage=e=>onTick(JSON.parse(e.data));ES.onerror=()=>{LASTT=0;PEND={};renderStatus()}}
 function onTick(t){LASTT=Date.now();if(t.salud){SALUD=t.salud;avisosSrv()}if(t.calidad)CALI=t.calidad;BAR=t.bar;BUSY=t.busy;
   for(const s in t.coins){const o=DATA[s];if(!o)continue;PRV[s]=o.price;Object.assign(o,t.coins[s]);if(VIEW==='ALL'&&PRV[s]&&o.price&&o.price!==PRV[s])NUC.tick(s,o.price>PRV[s]?1:-1)}
@@ -291,7 +303,7 @@ function onTick(t){LASTT=Date.now();if(t.salud){SALUD=t.salud;avisosSrv()}if(t.c
   if(t.v!==SV)poll();renderAll(false);alerts()}
 /* ---------- render general ---------- */
 function renderAll(slow){renderTape();renderStatus();
-  if(VIEW==='ALL'){heroUpdate();viewMercado(slow)}else if(VIEW==='TRADE')viewEstudio(slow);else if(VIEW==='NEWS'){if(slow||!$('nwl'))viewNews()}else if(VIEW==='DATA')viewData()}
+  if(VIEW==='ALL'){heroUpdate();viewMercado(slow)}else if(VIEW==='TRADE')viewEstudio(slow);else if(VIEW==='NEWS'){if((slow||!$('nwl'))&&!editandoEv())viewNews()}else if(VIEW==='DATA')viewData()}
 function renderStatus(){const w=SALUD&&SALUD.ws,live=w&&w.conectado&&Date.now()-LASTT<5000;
   $('stt').innerHTML=window.ESTATICO?`<i class="dot ${WSST.conectado?'on':'bad'}"></i><span class="tx">${BUSY?'Actualizando…':WSST.conectado?'Precios en vivo':'Conectando…'}${NUBE&&!BUSY?' · análisis '+ago(NUBE.generado):''}</span><span>${hm(Date.now())}</span>`:`<i class="dot ${live?'on':LASTT?'bad':''}"></i><span class="tx">${BUSY?esc(BAR):live?`En vivo · ${w.latencia_ms!=null?w.latencia_ms+' ms':''}`:LASTT?'Reconectando…':'Conectando…'}</span><span>${hm(Date.now())}</span>`;
   $('rf').disabled=BUSY;$('rf').classList.toggle('spin',!!BUSY);
@@ -307,24 +319,35 @@ addEventListener('popstate',()=>{const h=location.hash.slice(1).split('/');if(['
 $('tabs').onclick=$('tabbar').onclick=e=>{const b=e.target.closest('button');if(b)go(b.dataset.v,b.dataset.v==='TRADE'?SEL:null)};
 /* en la web publicada la hora de la foto siempre es vieja: cuenta la cotización recibida en el navegador */
 function cotizacionViva(o){if(window.ESTATICO){const t=o.tkv&&o.tkv.t||0,ult=WSST.n.length?WSST.n[WSST.n.length-1]:0;return WSST.conectado&&t>=WSOPEN&&Date.now()-ult<=10000}return !!o.precio_t&&Date.now()-o.precio_t<=120000}
-function lecturaSpot(o){
-  const d=o&&o.decision;
-  if(!d||Date.now()>d.caduca)return {accion:'ND',motivo:'Cotización pendiente de renovar'};
-  return d;
-}
+/* lectura spot: UNA definición (lib/spot.js) para portada, tabla, ficha y avisos; la caducidad se reevalúa aquí */
+function lecturaSpot(o){return SPOT.lectura(o,Date.now())}
 function siguienteSpot(o){
   const d=lecturaSpot(o);
-  if(d.accion==='ND')return 'Revisar al renovar los datos';
-  if(d.accion==='E'&&d.zona)return 'Vigilar '+fp(d.zona[0])+'–'+fp(d.zona[1])+' € · 24 h';
-  return 'Revisar al cambiar la señal';
+  if(d.accion==='E'&&d.zona)return 'Vigilar '+fp(d.zona[0])+'–'+fp(d.zona[1])+' € · 24 h · '+(d.revisar||'');
+  return d.revisar||'Revisar al cambiar la señal';
 }
-function textoSpot(s,o){
-  const d=lecturaSpot(o), pos=hasPos(s);
-  if(d.accion==='ND')return 'Datos insuficientes';
-  if(d.accion==='V')return pos?'Revisar salida':'Evitar entrada';
-  if(d.accion==='C')return pos?'Revisar ampliación':'Valorar entrada';
-  return pos?'Mantener en observación':'Esperar';
-}
+function textoSpot(s,o){return SPOT.texto(lecturaSpot(o).accion,hasPos(s))}
+const ESTH={insuficiente:'muestra insuficiente',en_linea:'en línea con lo indicado',desviada:'desviada'};
+function spotBox(s,o){const d=lecturaSpot(o),p=(o&&o.prev)||{},w=SALUD&&SALUD.ws,HA=CALI&&CALI.historial&&CALI.historial.por_activo,H=HA&&HA[s],ed=d.precio_t?Math.round((Date.now()-d.precio_t)/1000):null;
+  if(window.ESTATICO)return spotBoxEstatico(s,o,d,p,H);
+  return`<div class="lbl">Decisión spot</div><p><b class="${d.accion==='C'?'up':d.accion==='V'?'dn':d.accion==='ND'?'wa':''}">${textoSpot(s,o)}</b> · ${esc(d.motivo)}</p>
+  ${d.anterior?`<p class="tiny">Lectura anterior, ya no vigente: ${SPOT.texto(d.anterior.accion,hasPos(s))} · ${esc(d.anterior.motivo)}${d.anterior.precio_t?' (precio de '+hms(d.anterior.precio_t)+')':''}. Los avisos que dependen de este dato quedan en suspenso.</p>`:''}
+  <p class="tiny">${esc(siguienteSpot(o))}</p>
+  ${kv('Último precio válido',d.apto&&d.precio_t?`${hms(d.precio_t)} <span class="dim">· hace ${Math.max(0,ed)} s · ${esc((o&&o.precio_fuente)||'—')}${o&&o.precio_fuente==='REST'&&w&&!w.conectado?' · flujo en vivo caído, precio confirmado por REST':''}</span>`:o&&o.precio_t?`<span class="wa">${hms(o.precio_t)} · ${o.precio_t>Date.now()?'hora futura, no válida':'caducado'}</span>`:'<span class="dim">ninguno</span>')}
+  ${kv('Calidad del dato',p.cobertura!=null?`cobertura de factores ${Math.round(p.cobertura*100)} % <span class="dim">(mínimo 50 %)</span>${p.obsoleta?' · <span class="wa">previsión sin recalcular</span>':''}`:'<span class="dim">sin previsión</span>')}
+  ${kv('Acuerdo de factores',p.conf&&d.apto?`${ACU[p.conf]||p.conf} <span class="dim">· coincidencia entre factores, no probabilidad</span>`:'<span class="dim">—</span>')}
+  ${kv('Evidencia histórica',H?`${H.n_diarias} de ${(CALI.historial.muestra_min_dia)||20} días verificados · ${ESTH[H.estado]||esc(H.estado)}`:'<span class="dim">sin historial</span>')}`}
+/* web publicada: la cotización vale mientras el WebSocket de Kraken está vivo (cotizacionViva); se enseña la hora de la
+   última operación recibida y la antigüedad del análisis de la nube, que es lo que caduca aquí */
+function spotBoxEstatico(s,o,d,p,H){const t=o&&o.tkv&&o.tkv.t,N=NUBE&&NUBE.generado,viejo=N&&Date.now()-N>SPOT_ANALISIS_MS;
+  return`<div class="lbl">Decisión spot</div><p><b class="${d.accion==='C'?'up':d.accion==='V'?'dn':d.accion==='ND'?'wa':''}">${textoSpot(s,o)}</b> · ${esc(d.motivo)}</p>
+  ${d.anterior?`<p class="tiny">Lectura anterior, ya no vigente: ${SPOT.texto(d.anterior.accion,hasPos(s))} · ${esc(d.anterior.motivo)}.</p>`:''}
+  <p class="tiny">${esc(siguienteSpot(o))}</p>
+  ${kv('Precio en vivo',o&&cotizacionViva(o)?`Kraken conectado <span class="dim">· última operación ${t?hms(t):'—'}</span>`:'<span class="wa">sin conexión en vivo</span>')}
+  ${kv('Análisis de la nube',N?`<span class="${viejo?'wa':''}">hace ${ago(N)}</span>${viejo?' <span class="dim">· más de 2 h: decisión en suspenso</span>':''}`:'—')}
+  ${kv('Calidad del dato',p.cobertura!=null?`cobertura de factores ${Math.round(p.cobertura*100)} % <span class="dim">(mínimo 50 %)</span>${p.obsoleta?' · <span class="wa">previsión sin recalcular</span>':''}`:'<span class="dim">sin previsión</span>')}
+  ${kv('Acuerdo de factores',p.conf&&d.apto?`${ACU[p.conf]||p.conf} <span class="dim">· coincidencia entre factores, no probabilidad</span>`:'<span class="dim">—</span>')}
+  ${kv('Evidencia histórica',H?`${H.n_diarias} de ${(CALI.historial.muestra_min_dia)||20} días verificados · ${ESTH[H.estado]||esc(H.estado)}`:'<span class="dim">sin historial</span>')}`}
 const liveB=o=>o&&o.vivo?{s:o.vivo.bS,l:o.vivo.bL,ts:o.vivo.ts,tl:o.vivo.tl}:{s:o&&o.bS,l:o&&o.bL,ts:o&&o.ts,tl:o&&o.tl};
 const ACU={alta:'alto',media:'medio',baja:'bajo'};
 const prevTag=p=>p?.obsoleta?'Lectura anterior':p&&p.cobertura<.5?'Cobertura insuficiente':p?`<span class="${DIRC[p.dir]}" style="font-weight:600">${ARW[p.dir]} ${p.dir[0].toUpperCase()+p.dir.slice(1)}</span> <span class="dim">· acuerdo ${ACU[p.conf]||p.conf}</span>`:'<span class="dim">—</span>';
@@ -335,16 +358,18 @@ function gauge(v){const R=56,cx=75,cy=68,pt=(a,r)=>[cx+r*Math.cos(Math.PI*(1-a/1
 function spark(o){const x=o&&o.res&&(o.res['4h']||o.res['1d']);if(!x)return'';const c=x.rows.slice(-60).map(k=>k.c);if(c.length<5)return'';const mn=Math.min(...c),mx=Math.max(...c),W=96,H=26,P=c.map((v,i)=>(i*W/(c.length-1)).toFixed(1)+','+(H-2-(v-mn)/(mx-mn||1)*(H-4)).toFixed(1)).join(' '),col=c[c.length-1]>=c[0]?'var(--up)':'var(--dn)';
   return`<svg class="sp" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${P}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`}
 const med=a=>{a=a.filter(x=>x!=null).sort((x,y)=>x-y);return a.length?a[Math.floor(a.length/2)]:null};
-function panorama(){const ids=coins().filter(s=>DATA[s]&&cotizacionViva(DATA[s])&&DATA[s].bL&&DATA[s].bL!=='ND'),n=ids.length;if(!n)return null;
+function panorama(){const ids=coins().filter(s=>COINS[s].cr!==false&&lecturaSpot(DATA[s]).apto&&DATA[s].bL&&DATA[s].bL!=='ND'),n=ids.length;if(!n)return null;const RS=SPOT.resumen(coins(),DATA,COINS,hasPos,Date.now(),lab);
   const al=ids.filter(s=>DATA[s].bL==='AL').length,ba=ids.filter(s=>DATA[s].bL==='BA').length,L=s=>liveB(DATA[s]),sba=ids.filter(s=>L(s).s==='BA').length,sal=ids.filter(s=>L(s).s==='AL').length;
   const C=ids.filter(s=>lecturaSpot(DATA[s]).accion==='C'),V=ids.filter(s=>lecturaSpot(DATA[s]).accion==='V'),pv=ids.filter(s=>lecturaSpot(DATA[s]).accion!=='ND').map(s=>DATA[s].prev).filter(Boolean),pts=[];
   const tec=al>=n*.6?1:ba>=n*.6?-1:al>ba+1?.5:ba>al+1?-.5:0;
   pts.push([tec>0?'up':tec<0?'dn':'','T',`<b>Técnico.</b> ${ba} de ${n} bajistas a largo plazo y ${al} alcistas; a corto, ${sba} bajistas y ${sal} alcistas.`]);
-  pts.push([C.length?'up':V.length?'dn':'','S',`<b>Semáforo.</b> Valorar entrada en ${C.map(lab).join(', ')||'ninguno'}; venta en ${V.map(lab).join(', ')||'ninguno'}.`]);
+  pts.push([RS.tono==='pos'?'up':V.length?'dn':'','S',`<b>Decisión spot.</b> ${esc(RS.titular)}. ${RS.lineas.map(esc).join(' ')}`]);
   if(SENT)pts.push([SENT.valor>=60?'up':SENT.valor<40?'dn':'','◐',`<b>Sentimiento.</b> ${SENT.lectura} (${f0(SENT.valor)}/100)${CTX.fg?`, miedo y codicia en ${CTX.fg.value}`:''}.`]);
   const cr=derivOk()?coins().filter(s=>COINS[s].cr!==false&&DERIV[s]&&DERIV[s].ok):[];if(cr.length){const fu=med(cr.map(s=>DERIV[s].funding)),lp=med(cr.map(s=>DERIV[s].largos_pct)),oi=med(cr.map(s=>DERIV[s].oi_24h));
     pts.push([lp>=75?'wa':'','D',`<b>Derivados.</b> ${lp!=null?f0(lp)+' % de cuentas en largo, ':`funding mediano ${(fu*100).toFixed(4).replace('.',',')} %, `}${oi!=null?`interés abierto ${pc(oi,1)}: ${oi<=-3?'se cierran posiciones':oi>=3?'entra apalancamiento':'apalancamiento estable'}`:`${fu>=.00015?'euforia apalancada':fu<0?'dominan los cortos':'sin excesos de apalancamiento'}`}.`])}
   const rn=RNEWS.MERCADO;if(rn&&rn.n)pts.push([rn.dir==='alcista'?'up':rn.dir==='bajista'?'dn':'','N',`<b>Noticias.</b> ${esc(rn.efecto)}.`]);
+  const ac=ids.filter(s=>DATA[s].acum&&['zona','capitulacion'].includes(DATA[s].acum.estado));if(ac.length)pts.push(['wa','A',`<b>Acumulación.</b> Capitulación técnica en ${ac.map(lab).join(', ')}: ${ac.some(s=>DATA[s].acum.estado==='zona')?'zona de acumulación validada':'ventaja no demostrada en el histórico, solo contexto'}.`]);
+  const hk=(EVK.lista||[]).filter(e=>e.estado==='hoy');if(hk.length)pts.push(['wa','E',`<b>Evento clave hoy.</b> ${hk.map(e=>esc(e.titulo)).join('; ')}${evReac(hk[0],true)?' · '+esc(evReac(hk[0],true)):''}.`]);
   const ev=CAL.find(e=>e.rel>=2&&e.t>Date.now());pts.push([ev&&ev.rel>=3&&ev.t-Date.now()<864e5?'wa':'','M',ev?`<b>Agenda.</b> ${esc(ev.titulo)} (${ev.pais}) ${until(ev.t)}.`:'<b>Agenda.</b> Sin eventos importantes publicados para los próximos días.']);
   const pb=pv.filter(p=>p.dir==='bajista').length,pa=pv.filter(p=>p.dir==='alcista').length,partes=[tec,SENT?(SENT.valor-50)/50:null,rn&&rn.n?rn.score/100:null,pv.length?(pa-pb)/pv.length:null].filter(Number.isFinite),sc=partes.reduce((a,b)=>a+b,0)/partes.length;
   const head=sc>=.3?['up','Mercado alcista']:sc>=.1?['up','Sesgo alcista']:sc<=-.3?['dn','Mercado bajista']:sc<=-.1?['dn','Sesgo bajista']:['','Mercado mixto'];
@@ -358,7 +383,7 @@ function sigRow(s){const o=DATA[s];if(!o||!o.price)return`<tr><td>${ico(s)} <b s
   const L=liveB(o),fl=PRV[s]&&o.price!==PRV[s]?(o.price>PRV[s]?'fu':'fd'):'',rn=RNEWS[s];
   return`<tr class="cl" data-s="${s}"><td><span style="display:inline-flex;align-items:center;gap:10px">${ico(s,24)}<span><b style="font:600 13px var(--sans)">${lab(s)}</b><span class="dim hide-s" style="display:block;font:400 11px var(--sans)">${COINS[s].n}</span></span></span></td>
   <td class="${fl}" style="font-weight:600">${fp(o.price)}</td><td class="${cls(o.chg)}">${pc(o.chg)}</td><td class="hide-s">${spark(o)}</td>
-  <td>${bTag(L.s)}</td><td>${bTag(o.bL)}</td><td class="hide-s">${o.tm&&lecturaSpot(o).accion!=='ND'?`<span class="tag t-${o.tm.v}">${TMV[o.tm.v]}</span>`:'—'}</td><td style="white-space:normal;min-width:180px;max-width:250px"><b>${textoSpot(s,o)}</b><div class="tiny">${esc(lecturaSpot(o).motivo)}</div><div class="tiny">${siguienteSpot(o)} · ${lecturaSpot(o).precio_t?hm(lecturaSpot(o).precio_t):'sin hora'}</div></td>
+  <td>${bTag(L.s)}</td><td>${bTag(o.bL)}</td><td class="hide-s">${o.tm&&lecturaSpot(o).accion!=='ND'?`<span class="tag t-${o.tm.v}">${TMV[o.tm.v]}</span>`:'—'}</td><td style="white-space:normal;min-width:180px;max-width:250px"><b>${textoSpot(s,o)}</b><div class="tiny">${esc(lecturaSpot(o).motivo)}${lecturaSpot(o).anterior?' · anterior: '+SPOT.texto(lecturaSpot(o).anterior.accion,hasPos(s)).toLowerCase():''}</div><div class="tiny">${siguienteSpot(o)} · ${o.precio_t?hm(o.precio_t):'sin hora'}</div></td>
   <td>${prevTag(o.prev)}</td><td class="hide-s">${rn&&rn.n?`<span class="${rn.dir==='alcista'?'up':rn.dir==='bajista'?'dn':'mut'}">${rn.dir==='alcista'?'Positivas':rn.dir==='bajista'?'Negativas':'Mixtas'}</span>`:'<span class="dim">—</span>'}</td></tr>`}
 const hasEff=x=>x.afecta&&Object.keys(x.afecta).length&&Math.abs(x.dir)>=.2&&x.fuerza>=1;
 const effTag=x=>{const e=hasEff(x),c=e?(x.dir<0?'t-neg':'t-pos'):'t-ND';return`<span class="tag ${c}">${e?(x.dir<0?'▼':'▲'):'◆'} ${x.nivel}</span>`};
@@ -368,6 +393,50 @@ function calRows(n){const up=CAL.filter(e=>e.t>Date.now()-36e5).slice(0,n),row=e
   if(up.length)return up.map(row).join('');const past=CAL.filter(e=>e.rel>=2).slice(-4);return`<div class="cb sub" style="flex:0">La agenda de la próxima semana se publica el domingo.${past.length?' Últimos eventos importantes:':''}</div>${past.map(row).join('')}`}
 const DSRC={binance:'Binance',bybit:'Bybit',okx:'OKX',kraken:'Kraken Futures'};
 function derivSrc(){const f=[...new Set(coins().map(s=>DERIV[s]&&DERIV[s].ok&&DERIV[s].fuente).filter(Boolean))];return f.map(x=>DSRC[x]||x).join(' · ')}
+/* ---------- eventos clave (salidas a bolsa, ETF, leyes…): lista curada en datos/eventos.json ---------- */
+const TIPOEV={salida_bolsa:'Salida a bolsa',regulacion:'Regulación',etf:'ETF',red:'Actualización de red',desbloqueo:'Desbloqueo de tokens',macro:'Macro',empresa:'Empresa',otro:'Otro'},CERTEV={confirmado:'Confirmado',probable:'Probable',rumor:'Rumor'};
+const evDia=e=>e.fecha==null?'S/F':e.estado==='hoy'?'HOY':dfecha(e.fecha).replace(/\s*\d{2}$/,''),evH=h=>h<24?Math.max(1,Math.round(h))+' h':Math.round(h/24)+' d';
+function evReac(e,corto){const R=e.reaccion;if(!R)return'';return Object.values(R).map(r=>{const p=[];
+  if(r.desde&&!r['7d'])p.push(`${lab(r.activo)} ${pc(r.desde.pct,1)} desde el evento (${evH(r.desde.horas)})`);
+  if(!corto)for(const k of['24h','7d'])if(r[k])p.push(`${k==='24h'?'a 24 h':'a 7 días'} ${pc(r[k].pct,1)}${r[k].lectura?', '+r[k].lectura:''}`);
+  else if(r['7d'])p.push(`${lab(r.activo)} ${pc(r['7d'].pct,1)} a 7 días`);return p.join(' · ')}).filter(Boolean).join(' · ')}
+function evRow(e,o){o=o||{};const rc=evReac(e,o.corto);return`<div class="ev"><span class="w ${e.estado==='hoy'?'wa':'mut'}">${evDia(e)}</span><div><b style="font-weight:550">${esc(e.titulo)}</b> <span class="dim">${TIPOEV[e.tipo]||''}</span>
+  <div class="tiny">${CERTEV[e.certeza]||''}${e.fecha==null&&e.fecha_txt?' · '+esc(e.fecha_txt):''}${!o.corto&&e.canal?' · '+esc(e.canal):''}</div>${!o.corto&&e.datos?`<div class="tiny">${esc(e.datos)}</div>`:''}
+  ${rc?`<div class="tiny" style="color:var(--ink2)">${esc(rc)}${o.corto?'':'. Descriptivo: no demuestra causa.'}</div>`:''}${o.ctl?`<div class="tiny" style="margin-top:4px">${e.fuente?`<a href="${esc(e.fuente)}" target="_blank" rel="noopener noreferrer">fuente</a>${window.ESTATICO?'':' · '}`:''}${window.ESTATICO?'':`<button class="lnk" data-evq="${esc(e.id)}">quitar</button>`}</div>`:''}</div><span class="tag ${e.impacto==='alto'?'t-neg':'t-wa'}">${e.impacto==='alto'?'Alto':'Medio'}</span></div>`}
+function agendaRows(){const K=(EVK.lista||[]).filter(e=>e.estado!=='pasado'||Date.now()-e.fecha<3*864e5).slice(0,3);
+  return(K.length?`<div class="lbl" style="padding:8px 18px 4px">Eventos clave</div>${K.map(e=>evRow(e,{corto:true})).join('')}<div class="lbl" style="padding:14px 18px 4px">Macro</div>`:'')+calRows(K.length?4:6)}
+/* desfase de Canarias (h) en un instante: para pasar la fecha del formulario a UTC */
+const offCan=t=>{const h=+new Intl.DateTimeFormat('en-GB',{timeZone:'Atlantic/Canary',hour:'2-digit',hourCycle:'h23'}).format(t);return(h-new Date(t).getUTCHours()+24)%24};
+function evForm(){const f=EVF,op=(m,v)=>Object.entries(m).map(([k,l])=>`<option value="${k}"${v===k?' selected':''}>${l}</option>`).join('');
+  return`<details class="more" data-k="evadd"${f.abierto?' open':''}><summary>Añadir un evento</summary><form id="evk-f" class="evf">
+  <input name="titulo" maxlength="120" placeholder="Qué pasa (p. ej. «Salida a bolsa de OpenAI»)" value="${esc(f.titulo||'')}" required>
+  <div class="evf2"><select name="tipo">${op(TIPOEV,f.tipo||'salida_bolsa')}</select><select name="certeza">${op(CERTEV,f.certeza||'probable')}</select><select name="impacto">${op({alto:'Impacto alto',medio:'Impacto medio'},f.impacto||'alto')}</select></div>
+  <div class="evf2"><input type="date" name="dia" value="${esc(f.dia||'')}" title="Fecha (hora de Canarias); vacía si no se conoce"><input type="time" name="hora" value="${esc(f.hora||'')}" title="Hora (opcional)"><select name="activo">${op(Object.assign({MERCADO:'Mercado cripto'},...coins().map(s=>({[s]:lab(s)}))),f.activo||'MERCADO')}</select></div>
+  <input name="fecha_txt" maxlength="80" placeholder="Sin fecha exacta: cuándo se espera (p. ej. «2027»)" value="${esc(f.fecha_txt||'')}">
+  <input name="canal" maxlength="240" placeholder="Por qué puede mover las criptomonedas (opcional)" value="${esc(f.canal||'')}">
+  <input name="fuente" type="url" maxlength="300" placeholder="Enlace a la fuente (opcional)" value="${esc(f.fuente||'')}">
+  <div style="display:flex;gap:10px;align-items:center"><button class="btn go" type="submit">Añadir</button><span class="tiny" id="evk-m">${esc(f.msg||'')}</span></div></form></details>`}
+function evCard(){const L=EVK.lista||[],C=EVK.candidatos||[];
+  /* web publicada: solo lectura (la lista curada vive en eventos.json del repositorio; no hay servidor que la edite) */
+  if(window.ESTATICO)return card('','Eventos clave','<span class="t">salidas a bolsa, ETF, leyes…</span>',`<div style="padding-top:6px">${L.length?L.map(e=>evRow(e,{ctl:true})).join(''):'<div class="cb sub">Sin eventos clave.</div>'}</div>
+  <div class="cb" style="flex:0"><div class="tiny">La reacción del precio tras cada evento es descriptiva: no demuestra causa ni entra en la previsión.</div></div>`);
+  return card('','Eventos clave','<span class="t">salidas a bolsa, ETF, leyes…</span>',`<div style="padding-top:6px">${L.length?L.map(e=>evRow(e,{ctl:true})).join(''):'<div class="cb sub">Sin eventos clave. Añade uno abajo.</div>'}</div>
+  ${C.length?`<div class="cb" style="flex:0;padding-bottom:4px"><div class="lbl">Propuestos por las noticias</div><div class="tiny">Solo se añaden si los confirmas.</div></div>${C.map(c=>`<div class="ev"><span class="w mut">${hc(c.t)}</span><div><span style="font-size:12.5px">${esc(c.titulo)}</span><div class="tiny">${c.actualiza?`Puede actualizar «${esc(c.actualiza.titulo)}» · `:''}${esc(c.fuente||'')}${c.cobertura>1?' · '+c.cobertura+' medios':''} · <button class="lnk" data-evu="${esc(c.clave)}">usar</button> · <button class="lnk" data-evd="${esc(c.clave)}">descartar</button></div></div><span class="tag t-ac">${esc(TIPOEV[c.tipo]||'')}</span></div>`).join('')}`:''}
+  <div class="cb" style="flex:0">${evForm()}<div class="tiny" style="margin-top:8px">La reacción del precio tras cada evento es descriptiva: no demuestra causa ni entra en la previsión.</div></div>`)}
+const editandoEv=()=>{const a=document.activeElement;return!!(a&&a.closest&&a.closest('#evk-f'))};
+function evBindNews(){const r=$('evk');if(!r)return;
+  r.addEventListener('input',e=>{const f=e.target.closest('#evk-f');if(f){EVF[e.target.name]=e.target.value}});
+  r.addEventListener('toggle',e=>{if(e.target.dataset&&e.target.dataset.k==='evadd')EVF.abierto=e.target.open},true);
+  r.addEventListener('submit',async e=>{e.preventDefault();const f=new FormData(e.target),g=k=>(f.get(k)||'').trim();let fecha=null;const d=g('dia');
+    if(d){const[y,m,dd]=d.split('-').map(Number),[hh,mi]=(g('hora')||'12:00').split(':').map(Number),u=Date.UTC(y,m-1,dd,hh,mi);fecha=u-offCan(u)*36e5}
+    const ev={titulo:g('titulo'),tipo:g('tipo'),certeza:g('certeza'),impacto:g('impacto'),fecha,hora_exacta:!!(d&&g('hora')),fecha_txt:g('fecha_txt'),activos:[g('activo')||'MERCADO'],canal:g('canal'),fuente:g('fuente'),origen:EVF.origen||'manual'};
+    const r2=await fetch('/api/eventos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accion:'anadir',evento:ev})}).then(async x=>({ok:x.ok,j:await x.json().catch(()=>({}))})).catch(()=>({ok:false,j:{}}));
+    if(r2.ok){EVF={msg:'Añadido.'};document.activeElement&&document.activeElement.blur();await poll();viewNews()}else{EVF.msg=r2.j.error||'No se pudo añadir.';$('evk-m').textContent=EVF.msg}});
+  r.addEventListener('click',async e=>{const b=e.target.closest('[data-evq],[data-evd],[data-evu]');if(!b)return;
+    if(b.dataset.evq){if(!confirm('¿Quitar este evento de la lista?'))return;await jpost('/api/eventos',{accion:'quitar',id:b.dataset.evq})}
+    else if(b.dataset.evd)await jpost('/api/eventos',{accion:'descartar',clave:b.dataset.evd});
+    else{const c=(EVK.candidatos||[]).find(x=>x.clave===b.dataset.evu);if(c){const d=new Date(c.t),p=n=>String(n).padStart(2,'0'),loc=new Date(c.t+offCan(c.t)*36e5);EVF={abierto:true,titulo:c.titulo.slice(0,120),tipo:c.tipo,certeza:'probable',impacto:'alto',fuente:c.url||'',activo:(c.activos||[])[0]||'MERCADO',dia:`${loc.getUTCFullYear()}-${p(loc.getUTCMonth()+1)}-${p(loc.getUTCDate())}`,origen:'noticia',msg:'Revisa los datos y pulsa Añadir.'}}}
+    await poll();viewNews()})}
 function derivTable(){const ids=coins().filter(s=>DERIV[s]&&DERIV[s].ok);if(!ids.length)return'<div class="empty">Cargando derivados…</div>';
   const hasLP=ids.some(s=>DERIV[s].largos_pct!=null),hasTop=ids.some(s=>DERIV[s].top_largos_pct!=null),hasOI=ids.some(s=>DERIV[s].oi_24h!=null);
   return`<table><thead><tr><th>Activo</th><th>Funding 8 h</th>${hasLP?'<th>Cuentas en largo</th>':''}${hasTop?'<th class="hide-s">Top traders</th>':''}${hasOI?'<th>Interés abierto 24 h</th>':'<th class="hide-s">Interés abierto</th>'}</tr></thead><tbody>${ids.map(s=>{const d=DERIV[s];return`<tr class="cl" data-s="${s}"><td>${ico(s,18)} <b style="font-family:var(--sans);margin-left:6px">${lab(s)}</b></td><td class="${d.funding>=.00015?'wa':d.funding<0?'up':''}">${d.funding!=null?(d.funding*100).toFixed(4).replace('.',',')+' %':'—'}</td>${hasLP?`<td class="${d.largos_pct>=75?'wa':''}">${d.largos_pct!=null?f0(d.largos_pct)+' %':'<span class="dim">—</span>'}</td>`:''}${hasTop?`<td class="hide-s">${d.top_largos_pct!=null?f0(d.top_largos_pct)+' %':'<span class="dim">—</span>'}</td>`:''}${hasOI?`<td class="${cls(d.oi_24h)}">${pc(d.oi_24h,1)}</td>`:`<td class="hide-s">${d.oi_usd?cmp(d.oi_usd)+' $':'—'}</td>`}</tr>`}).join('')}</tbody></table>${!hasLP?'<p class="tiny" style="padding:8px 18px 4px">La fuente disponible ahora no publica el reparto de cuentas en largo; se muestra lo que sí hay.</p>':''}`}
@@ -383,9 +452,9 @@ function viewMercado(slow){if(!$('mk')){$('app').innerHTML=`<div class="grid" id
   <section class="card c3 kpi" id="k1"></section><section class="card c3 kpi" id="k2"></section><section class="card c3 kpi" id="k3"></section><section class="card c3 kpi" id="k4"></section>
   <div class="sec">Mercados<small>señales y previsión de cada activo</small></div>
   ${card('c12','Activos','<span class="t hide-s">Corto: 1 h y 4 h en vivo · Largo: diario y semanal · Lectura: los factores con dato (hasta 7) combinados</span>','<div class="mlist" id="mk-list"></div><div class="mtab" style="overflow-x:auto;padding-top:6px"><table><thead><tr><th>Activo</th><th>Precio €</th><th>24 h</th><th class="hide-s">12 días</th><th>Corto</th><th>Largo</th><th class="hide-s">Semáforo</th><th>Decisión spot</th><th>Lectura</th><th class="hide-s">Noticias</th></tr></thead><tbody id="mk-sig"></tbody></table></div>')}
-  <div class="sec">Contexto<small>noticias y agenda macro</small></div>
+  <div class="sec">Contexto<small>noticias, eventos clave y agenda macro</small></div>
   ${card('c7','Lo que mueve el mercado','<button class="btn go" data-go="NEWS">Ver noticias</button>','<div id="mk-news" style="flex:1"></div>')}
-  ${card('c5','Agenda macro','<span class="t">Alto y medio impacto · hora de Canarias</span>','<div id="mk-cal" style="padding-top:8px;flex:1"></div>')}
+  ${card('c5','Agenda','<span class="t">eventos clave y macro · hora de Canarias</span>','<div id="mk-cal" style="padding-top:8px;flex:1"></div>')}
   <div class="sec">Posicionamiento y fiabilidad<small>derivados e histórico del sistema</small></div>
   ${card('c7','Derivados','<span class="t" id="mk-dsrc"></span>','<div id="mk-der" style="overflow-x:auto;padding-top:6px"></div>')}
   ${card('c5','¿Funciona el sistema?','<span class="t">Histórico sin información futura</span>','<div id="mk-val"></div>')}
@@ -403,7 +472,7 @@ function viewMercado(slow){if(!$('mk')){$('app').innerHTML=`<div class="grid" id
   if(slow){$('mk-sent').innerHTML=SENT?`<div class="gauge">${gauge(SENT.valor)}<div style="font:600 22px var(--mono);margin-top:-6px">${f0(SENT.valor)}</div><div class="${SENT.valor>=60?'up':SENT.valor<40?'dn':''}" style="font-weight:600;margin-bottom:10px">${SENT.lectura}</div></div>${SENT.componentes.map(c=>`<div class="cmp"><span>${c.nombre}</span><div class="bar"><i style="left:0;width:${c.valor}%;background:${c.valor>=60?'var(--up)':c.valor<40?'var(--dn)':'var(--mut)'}"></i></div><b>${esc(c.dato)}</b></div>`).join('')}`:'<div class="empty">Calculando…</div>';
     const top=NEWS.filter(x=>Date.now()-x.t<864e5).map(x=>({x,k:x.fuerza*Math.exp(-(Date.now()-x.t)/36e5/10)})).sort((a,b)=>b.k-a.k).slice(0,5).map(y=>y.x);
     $('mk-news').innerHTML=`<div class="cb" style="padding-bottom:6px;flex:0">${digest(RNEWS.MERCADO)}</div>${top.map(x=>`<div class="nr"><span class="tm"><b>${hc(x.t)}</b><i>${ago(x.t)}</i></span><span class="ti" title="${esc(x.titulo)}">${esc(x.titulo)}</span>${effTag(x)}</div>`).join('')}`;
-    $('mk-cal').innerHTML=calRows(6);{const d=$('mk-der'),sx=d.scrollLeft;d.innerHTML=derivTable();d.scrollLeft=sx}$('mk-dsrc').textContent=derivSrc();$('mk-val').innerHTML=valBody()}}
+    $('mk-cal').innerHTML=agendaRows();{const d=$('mk-der'),sx=d.scrollLeft;d.innerHTML=derivTable();d.scrollLeft=sx}$('mk-dsrc').textContent=derivSrc();$('mk-val').innerHTML=valBody()}}
 /* ---------- ESTUDIO ---------- */
 let CHART=null,CS=null,VS=null,L20=null,L50=null,L200=null,CHK='',PLINES=[],ZK='';const TZ=(()=>{const n=Date.now(),a=FMH.formatToParts(n),h=+a.find(x=>x.type==='hour').value,m=+a.find(x=>x.type==='minute').value,u=new Date(n);let d=(h*60+m)-(u.getUTCHours()*60+u.getUTCMinutes());if(d<-720)d+=1440;if(d>720)d-=1440;return d*60})(),tsec=t=>Math.floor(t/1000)+TZ;
 function viewEstudio(slow){const s=SEL,o=DATA[s];if(!$('es')){$('app').innerHTML=`<div class="grid" id="es">
@@ -415,11 +484,13 @@ function viewEstudio(slow){const s=SEL,o=DATA[s];if(!$('es')){$('app').innerHTML
   ${card('c4','Lectura de los datos','<span class="t">hasta 7 factores, ahora</span>','<div class="cb" id="es-prev"></div>')}
   ${card('c4','Niveles clave','<span class="t">★ zona más fuerte</span>','<div class="cb" id="es-niv"></div>')}
   ${card('c4','Libro y flujo','<span class="t">hacia dónde empuja</span>','<div class="cb" id="es-flu"></div>')}
+  <div class="sec">Acumulación en caídas<small>condiciones de capitulación y lo que dice el histórico</small></div>
+  ${card('c12','Acumulación spot','<span class="t">largo plazo · velas diarias cerradas</span>','<div class="cb" id="es-acu"></div>')}
   <div class="sec">Detalle<small>resumen técnico, derivados y tu posición</small></div>
   <section class="card c12"><div class="btabs" id="btabs">${[['tec','Técnico'],['der','Derivados'],['fia','Fiabilidad'],['avi','Avisos'],['pos','Mi posición']].filter(t=>!(window.ESTATICO&&t[0]==='avi')).map(t=>`<button data-t="${t[0]}">${t[1]}</button>`).join('')}</div><div id="tabc"></div></section>
   <div class="sec">Noticias<small>lo último que puede mover el precio</small></div>
   ${card('c12','Noticias','<span class="t" id="es-nt"></span>','<div id="es-news" style="flex:1"></div>')}</div>`;
-    ['es-hero','es-prev','es-proj','es-niv','es-flu','es-news','tabc','leg','cases','pchip'].forEach(id=>memoH($(id)));
+    ['es-hero','es-prev','es-proj','es-niv','es-flu','es-acu','es-news','tabc','leg','cases','pchip'].forEach(id=>memoH($(id)));
     $('rst').onclick=()=>resetView();
     $('tfb').onclick=e=>{const b=e.target.closest('button');if(!b)return;TF=PREF.tf=b.dataset.tf;save();CHK='';CASEPIN=null;PSIG='';loadChart();stream()};
     $('oema').onchange=e=>{PREF.ema=e.target.checked;save();medias()};$('ozon').onchange=e=>{PREF.zon=e.target.checked;save();ZK='';zoneLines()};$('ocas').onchange=e=>{PREF.cas=e.target.checked;save();CASEPIN=null;PSIG='';projArrow()};
@@ -430,11 +501,26 @@ function viewEstudio(slow){const s=SEL,o=DATA[s];if(!$('es')){$('app').innerHTML
   $('es-hero').innerHTML=`<div class="hero"><div style="display:flex;align-items:center;gap:12px">${ico(s,40)}<div><div style="font:650 18px var(--sans)">${COINS[s].n}</div><div class="tiny">${lab(s)}/EUR${MK[s]&&MK[s].rk?' · #'+MK[s].rk+' por capitalización':''}</div></div></div>
   <div><div class="px ${fl}">${fp(o.price)} <span style="font-size:15px;color:var(--mut)">€</span></div><div class="m ${cls(o.chg)}" style="font-size:12.5px;margin-top:4px">${pc(o.chg)} en 24 h</div></div>
   <div class="stats"><div><span>Máx. 24 h</span><b>${fp(k.high)}</b></div><div><span>Mín. 24 h</span><b>${fp(k.low)}</b></div><div class="hide-s"><span>Volumen 24 h</span><b>${cmp(k.volume)}</b></div><div><span>Volatilidad</span><b>${o.d1&&o.d1.atrPct?f1(o.d1.atrPct)+' %/día':'—'}</b></div><div class="hide-s"><span>Spread</span><b>${sp!=null?sp.toFixed(3).replace('.',',')+' %':'—'}</b></div><div><span>Lectura</span><b>${prevTag(o.prev)}</b></div></div></div>${COINS[s].note?`<div class="tiny" style="padding:0 18px 12px">${COINS[s].note}</div>`:''}${(CALI&&CALI.mensajes.estudio[s])?`<div style="padding:0 18px 14px">${avisoBreve([CALI.mensajes.estudio[s]])}</div>`:''}`;
-  prevCard(o);projCard(o);nivCard(o);fluCard(o);projArrow();$('es-sn').textContent=COINS[s].n;if(slow)newsCard(s);if(!CHART||CHK!==s+TF)loadChart();zoneLines();renderTab(slow)}
-function prevCard(o){const p=o.prev,el=$('es-prev');if(lecturaSpot(o).accion==='ND'){el.innerHTML='<div class="empty">'+esc(lecturaSpot(o).motivo)+'</div>';return}if(!p){el.innerHTML='<div class="empty">Calculando previsión…</div>';return}
+  prevCard(o);projCard(o);nivCard(o);fluCard(o);acuCard(o);projArrow();$('es-sn').textContent=COINS[s].n;if(slow)newsCard(s);if(!CHART||CHK!==s+TF)loadChart();zoneLines();renderTab(slow)}
+/* Acumulación en caídas: misma señal que el estudio 11. Mientras el estudio no demuestre ventaja, se presenta como contexto. */
+function acuCard(o){const el=$('es-acu');if(!el)return;const a=o.acum;
+  if(COINS[o.sym].cr===false){el.innerHTML='<div class="empty">No aplica al oro: la señal se estudió con criptomonedas.</div>';return}
+  if(!a){el.innerHTML=`<div class="empty">${lecturaSpot(o).accion==='ND'?esc(lecturaSpot(o).motivo):'Hacen falta al menos 92 velas diarias cerradas.'}</div>`;return}
+  const H=a.historico||{},M=H.moneda,G=H.conjunto||{},cl=a.estado==='zona'?'up':a.estado==='capitulacion'?'wa':a.estado==='caida'?'':'',
+    ck=c=>c.ok===true?'<b class="up">Sí</b>':c.ok===false?'<span class="dim">No</span>':'<span class="dim">sin dato</span>',
+    lst=a.condiciones.map(c=>kv(esc(c.n)+(c.k==='caida'?` <span class="dim">(obligatoria · ${esc(a.regla_caida||'1 − C/M ≥ 6·ATR/C')})</span>`:''),ck(c))).join(''),
+    dd=a.dd90!=null?`${pc(a.dd90*100,1)} desde el máximo de 90 días${a.caida_atr!=null?` (${f1(a.caida_atr)} rangos diarios)`:''}`:'',
+    T=a.tramos,pp=v=>v==null?'—':pc(v*100,1),mm=(v,mas,menos)=>v==null?'—':`un ${f1(Math.abs(v*100))} % ${v>=0?mas:menos}`;
+  const hist=M?`En ${lab(o.sym)} (desde ${M.desde.slice(0,4)}): tras ${M.episodios} episodios parecidos, a 90 días la mediana fue ${pp(M.mediana90)} (cualquier día ${pp(M.base90)}) y el peor ${pp(M.peor90)}. Esperar a esta señal con el dinero parado compró ${mm(M.ventaja,'más','menos')} de moneda que comprar cada semana.`
+    :G.ventaja_media!=null?`Este activo no estaba en el estudio. En las monedas estudiadas, esperar a esta señal con el dinero parado compró ${mm(G.ventaja_media,'más','menos')} de moneda que comprar cada semana.`:'';
+  const ver=H.veredicto==='demostrada'?'<div class="msg t-pos">Ventaja demostrada en el histórico con el protocolo del estudio 11.</div>':`<div class="msg t-wa">Ventaja no demostrada: úsalo como contexto, no como señal de compra.${G.precio_tramos!=null?` Lo único favorable: las compras en días de señal pagaron ${mm(G.precio_tramos,'más','menos')} que el precio medio de la compra semanal; en días al azar, ${mm(G.precio_tramos_placebo,'más','menos')}.`:''}</div>`;
+  const plan=T?`<div class="lbl" style="margin-top:4px">Plan escalonado · no validado</div>${kv('1/3 · ahora',fp(T.niveles[0])+' €')}${kv('1/3 · siguiente soporte',`${fp(T.niveles[1])} € <span class="dim">${pc(T.pct[1],1)}</span>`)}${kv('1/3 · más abajo',`${fp(T.niveles[2])} € <span class="dim">${pc(T.pct[2],1)}</span>`)}<div class="tiny" style="margin-top:6px">Revisar la tesis si cierra por debajo de <b>${fp(T.revisar)} €</b>. Los tramos salen de los soportes; no se han validado.</div>`:'';
+  el.innerHTML=`<div class="grid" style="gap:24px"><div class="c6"><div class="fia ${cl}"><i></i>${esc(a.texto)}</div><div class="tiny" style="margin-bottom:6px">${dd}${a.rsi!=null?` · RSI diario ${f0(a.rsi)}`:''} · se cumplen ${a.cumple} de ${a.total} condiciones${a.total<6?` (${6-a.total} sin dato)`:''}</div>${a.estado==='no'?det('acu','Ver las condiciones',lst):lst}</div>
+  <div class="c6">${plan}${hist?`<div class="lbl" style="margin-top:${T?14:4}px">Lo que dice el histórico</div><div class="sub" style="font-size:12.5px">${esc(hist)}</div>`:''}${ver}<div class="tiny" style="margin-top:8px">Estudio en ANALISIS_ACUMULACION.md · cada día se registra la lectura para volver a comprobarla con datos nuevos.</div></div></div>`;syncDet()}
+function prevCard(o){const p=o.prev,el=$('es-prev');if(lecturaSpot(o).accion==='ND'){el.innerHTML=spotBox(o.sym,o)+'<div class="empty" style="margin-top:10px">Previsión en suspenso hasta renovar los datos.</div>';return}if(!p){el.innerHTML='<div class="empty">Calculando previsión…</div>';return}
   const c=DIRC[p.dir],ob=p.objetivo,inv=p.invalidacion,T=o.bt&&o.bt.T,R=T&&T.fill?T.r/T.fill:null;
   const esc1=p.dir==='lateral'?(ob&&ob.rango?`Lo más probable es que se mueva en rango entre <b>${fp(ob.rango[0])}</b> (${pc(ob.pct[0],1)}) y <b>${fp(ob.rango[1])}</b> (${pc(ob.pct[1],1)}).`:'Sin dirección clara.'):`Escenario más probable: ${p.dir==='bajista'?'caída':'subida'} hacia <b>${ob?fp(ob.precio)+' €':'—'}</b>${ob?` (${pc(ob.pct,1)}, ${ob.nivel})`:''}.${inv?` Pierde validez con ${inv.texto} (<b>${fp(inv.precio)}</b>, ${pc(inv.pct,1)}).`:''}`;
-  el.innerHTML=`<div class="lbl">Decisión spot</div><p><b>${textoSpot(o.sym,o)}</b> · ${esc(lecturaSpot(o).motivo)}</p><p class="tiny">${esc(siguienteSpot(o))}</p><div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px"><div class="fdir ${c}">${ARW[p.dir]} ${p.dir[0].toUpperCase()+p.dir.slice(1)}</div><span class="tag ${p.conf==='alta'?'t-pos':p.conf==='media'?'t-wa':'t-ND'}" title="Cuánto coinciden entre sí los ${p.n_factores||7} factores con datos${p.cobertura<1?' ('+Math.round(p.cobertura*100)+' % del peso total)':''}. No es un acierto medido ni una probabilidad.">Acuerdo ${ACU[p.conf]||p.conf}</span></div>
+  el.innerHTML=`${spotBox(o.sym,o)}<div style="margin-top:12px;display:flex;align-items:baseline;justify-content:space-between;gap:10px"><div class="fdir ${c}">${ARW[p.dir]} ${p.dir[0].toUpperCase()+p.dir.slice(1)}</div><span class="tag ${p.conf==='alta'?'t-pos':p.conf==='media'?'t-wa':'t-ND'}" title="Cuánto coinciden entre sí los ${p.n_factores||7} factores con datos${p.cobertura<1?' ('+Math.round(p.cobertura*100)+' % del peso total)':''}. No es un acierto medido ni una probabilidad.">Acuerdo ${ACU[p.conf]||p.conf}</span></div>
   <div class="meter" title="Intensidad de la señal (−100 a +100). No es la probabilidad de que el precio suba o baje."><i style="left:${clamp((p.score+100)/2,0,100)}%"></i></div><div class="ml"><span>bajista</span><span title="Intensidad de la señal, no una probabilidad">${p.score>0?'+':''}${f0(p.score)}</span><span>alcista</span></div>
   <div class="box">${esc1}</div>
   <div style="margin-top:12px">${p.factores.map(f=>`<div class="fx"><span>${f.nombre}</span><div class="dv"><i style="left:${f.valor<0?50+f.valor*50:50}%;width:${Math.abs(f.valor)*50}%;background:${f.valor>0?'var(--up)':'var(--dn)'}"></i></div><b class="${f.aporte>1?'up':f.aporte<-1?'dn':'dim'}">${f.aporte>0?'+':''}${f0(f.aporte)}</b></div>`).join('')}</div>
@@ -554,8 +640,7 @@ function projDraw(){markCases();const o=DATA[SEL],svg=$('pjsvg'),chip=$('pchip')
   const ys=spread(ends.map(z=>Math.min(HP-10,Math.max(10,z.y))),20,14,HP-12),mx=x1+17,marks=ends.map((z,k)=>{const y=ys[k],f=hi==null||hi===z.i;return`<g opacity="${f?1:.3}"><line x1="${z.x.toFixed(1)}" y1="${z.y.toFixed(1)}" x2="${mx-8}" y2="${y.toFixed(1)}" stroke="${z.c}" stroke-opacity=".6"/><circle cx="${mx}" cy="${y.toFixed(1)}" r="8.5" fill="${z.c}"/><text x="${mx}" y="${(y+3.6).toFixed(1)}" text-anchor="middle" fill="var(--onc)" style="font:700 10.5px var(--sans)">${z.r}</text></g>`}).join('');
   const he=ends.findIndex(z=>z.i===hi),hl=he>=0?(()=>{const a=cl[hi],t=`${fdate(a.t)} · ${pc(a.fin,1)}`,w=t.length*6.5+16;return`<rect x="${(mx-16-w).toFixed(1)}" y="${(ys[he]-11).toFixed(1)}" width="${w.toFixed(1)}" height="22" fill="var(--pop)" stroke="${ends[he].c}"/><text x="${(mx-16-w/2).toFixed(1)}" y="${(ys[he]+4).toFixed(1)}" text-anchor="middle" fill="${ends[he].c}">${t}</text>`})():'';
   const html=`<defs><clipPath id="pjc"><rect x="0" y="0" width="${W-76}" height="${HP}"/></clipPath></defs>
-  <g clip-path="url(#pjc)">${paths}</g>${marks}${hl}
-  <circle cx="${x0}" cy="${Y(p)}" r="4.5" fill="${col}" stroke="var(--s1)" stroke-width="2"/>`;
+  <g clip-path="url(#pjc)">${paths}</g>${marks}${hl}`;   /* sin punto en el precio actual: molestaba a la vista */
   if(html!==PSIG){PSIG=html;svg.innerHTML=html}}
 function chartLive(v){if(!CS||!v||!v[TF]||CHK!==SEL+TF)return;const x=v[TF];try{CS.update({time:tsec(x.t),open:x.o,high:x.h,low:x.l,close:x.c});if(TF==='1m')VS.update({time:tsec(x.t),value:x.v,color:vcol(x.c>=x.o)});LASTX=Object.assign({tf:TF},x);if(!LASTBAR||x.t>=LASTBAR.t)LASTBAR={t:x.t};if(!HOV)$('leg').innerHTML=legend();projArrow()}catch(e){}}
 function zoneLines(){const o=DATA[SEL];if(!CS||!o||!o.z)return;const pr=o.proy&&o.proy[TF],pm={};((pr&&pr.niveles)||[]).forEach(g=>pm[g.id]=g.p);
@@ -595,11 +680,15 @@ function tabFia(o){const n=(o.crit||[]).filter(x=>x[1]).length,bt=o.bt,bl=(l,x,w
 /* mi posición */
 /* acepta "1.500,25", "1500.25", "0,0031", "3.200"…: con coma, los puntos son de miles; un solo punto seguido de
    exactamente tres cifras (3.200) también es de miles; en el resto de casos el punto es decimal (0.05, 1.5) */
-const num=x=>{let t=String(x==null?'':x).replace(/[\s€]/g,'');if(t.includes(','))t=t.replace(/\./g,'').replace(',','.');else if((t.match(/\./g)||[]).length>1||/^[1-9]\d*\.\d{3}$/.test(t))t=t.replace(/\./g,'');const v=parseFloat(t);return isFinite(v)&&v>0?v:0},mon=v=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(v),sgn=v=>(v>=0?'+':'−')+mon(Math.abs(v));
+/* contrato de cantidades: web/lib/cantidades.js. POS[s][k] = {n, txt} confirmado; una cadena es un dato antiguo que se
+   lee sin reescribirse y, si es ambiguo, queda señalado. Lo que se está escribiendo no cambia la posición hasta confirmarlo. */
+const TIPOP={qty:'qty',inv:'eur',ent:'price',gan:'eur',per:'eur'},PCAMPO={qty:'Monedas',inv:'Invertido',ent:'Precio de compra',gan:'Quiero ganar',per:'Pérdida máx.'};
+const ptxt=x=>x==null?'':typeof x==='object'?String(x.txt??''):String(x),pval=(s,k)=>CANT.valorGuardado((POS[s]||{})[k],TIPOP[k],lab(s)),num=(s,k)=>pval(s,k).v||0;
+const pRevisar=s=>Object.keys(TIPOP).map(k=>[k,pval(s,k).revisar]).filter(x=>x[1]),pBloq=s=>pRevisar(s).some(x=>['qty','inv','ent'].includes(x[0])),mon=v=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(v),sgn=v=>(v>=0?'+':'−')+mon(Math.abs(v));
 /* con dos de los tres datos (monedas, invertido, precio de compra) se deduce el tercero */
-const pq=s=>{const P=POS[s]||{},q=num(P.qty),i=num(P.inv),e=num(P.ent);return q||(i&&e?i/e:0)},pinv=s=>{const P=POS[s]||{},q=num(P.qty),i=num(P.inv),e=num(P.ent);return i||(q&&e?q*e:0)},hasPos=s=>!!(pq(s)&&pinv(s));
+const pq=s=>{if(pBloq(s))return 0;const q=num(s,'qty'),i=num(s,'inv'),e=num(s,'ent');return q||(i&&e?i/e:0)},pinv=s=>{if(pBloq(s))return 0;const q=num(s,'qty'),i=num(s,'inv'),e=num(s,'ent');return i||(q&&e?q*e:0)},hasPos=s=>!!(pq(s)&&pinv(s));
 function touchP(rows,up,dn,N){if(!rows||rows.length<N+60)return null;let a=0,b=0,n=0;for(let i=0;i+N<rows.length;i++){const c=rows[i].c;let mx=0,mn=1e18;for(let k=i+1;k<=i+N;k++){if(rows[k].h>mx)mx=rows[k].h;if(rows[k].l<mn)mn=rows[k].l}n++;if(up!=null&&mx>=c*(1+up))a++;if(dn!=null&&mn<=c*(1-dn))b++}return{up:a/n,dn:b/n,n}}
-function posCalc(s,o){if(!hasPos(s)||!o||!o.price)return null;const P=POS[s],q=pq(s),inv=pinv(s),gan=num(P.gan),per=num(P.per),p=o.price,avg=inv/q,val=q*p,pl=val-inv,net=x=>q*x-inv,tp=gan?(inv+gan)/q:null,sl=per&&per<inv?(inv-per)/q:null,z=o.z||{sup:[],res:[]},d=o.d1||{},A=d.atrPct||0,tm=o.tm,W=[];
+function posCalc(s,o){if(!hasPos(s)||!o||!o.price)return null;const P=POS[s],q=pq(s),inv=pinv(s),gan=num(s,'gan'),per=num(s,'per'),p=o.price,avg=inv/q,val=q*p,pl=val-inv,net=x=>q*x-inv,tp=gan?(inv+gan)/q:null,sl=per&&per<inv?(inv-per)/q:null,z=o.z||{sup:[],res:[]},d=o.d1||{},A=d.atrPct||0,tm=o.tm,W=[];
   const sc=z.res.map((g,i)=>({x:g.mid,l:'Salida '+(i+1),g})).filter(c=>c.x>p);if(tp&&tp>p){const c=sc.find(c=>Math.abs(c.x/tp-1)<.004);if(c)c.me=1;else sc.push({x:tp,l:'Tu objetivo',me:1})}sc.sort((a,b)=>a.x-b.x);sc.forEach(c=>{c.n=net(c.x);c.d=(c.x/p-1)*100});
   const r1=z.res[0],near=!!r1&&(r1.lo-p)/p<=Math.max(.01,A/100*.6),rs=[];if(tm&&tm.v==='V')rs.push('venta favorable');if(near)rs.push(`junto a la Salida 1 (${eur(r1.mid)})`);if(d.rsi!=null&&d.rsi>=70)rs.push('RSI alto');if(o.bL==='BA')rs.push('largo plazo bajista');
   let v;if(sl&&p<=sl)v=['BA','Stop alcanzado','Tu plan decía salir aquí.'];else if(tp&&p>=tp)v=['AL','Objetivo alcanzado',o.bL==='AL'&&!near?'Vende todo o parte y sube el stop a tu precio medio.':'Tu plan decía vender.'];else if(pl>0&&(near||(tm&&tm.v==='V')))v=['NE','Buen momento para asegurar parte',rs.join(' · ').replace(/^./,c=>c.toUpperCase())];else if(pl<0&&o.bL==='BA'&&p<avg)v=['BA','Vigila tu stop','Largo plazo bajista y bajo tu precio medio.'+(sl?'':' Sin stop definido.')];else v=['NE','Mantener','Sin señal de salida.'+(r1?` Salida 1: ${eur(r1.mid)} (${pc((r1.mid/p-1)*100,1)}).`:'')];
@@ -610,15 +699,63 @@ function posCalc(s,o){if(!hasPos(s)||!o||!o.price)return null;const P=POS[s],q=p
   if(tp&&tp<=p)W.push('Tu objetivo ya está por debajo del precio actual');
   if(avg/p>10||p/avg>10)W.push('Revisa monedas e importe: el precio medio difiere más de 10 veces del actual');const hist=o.raw1d?touchP(o.raw1d,tp&&tp>p?tp/p-1:null,sl&&sl<p?1-sl/p:null,30):null;
   return{q,inv,avg,p,val,pl,pct:pl/inv*100,tp,sl,sc,v,W,f,ts,hist}}
-function posBox(s,o){if(hasPos(s)&&lecturaSpot(o).accion==='ND')return '<p class="sub">'+esc(lecturaSpot(o).motivo)+'</p>';const c=posCalc(s,o);if(!c){const P=POS[s]||{},n=[num(P.qty),num(P.inv),num(P.ent)].filter(Boolean).length;return`<p class="sub" style="margin:12px 0 0">${n===1?'Falta un dato más: con dos de los tres (monedas, invertido o precio de compra) se calcula el resto.':'Introduce dos de los tres primeros datos. Se guarda solo en este navegador.'}</p>`}
+function posBox(s,o){if(pBloq(s))return'<p class="sub wa" style="margin:12px 0 0">Revisa los campos señalados: la posición no se calcula hasta confirmarlos.</p>';if(hasPos(s)&&lecturaSpot(o).accion==='ND')return '<p class="sub">'+esc(lecturaSpot(o).motivo)+'</p>';const c=posCalc(s,o);if(!c){const P=POS[s]||{},n=[num(s,'qty'),num(s,'inv'),num(s,'ent')].filter(Boolean).length;return`<p class="sub" style="margin:12px 0 0">${n===1?'Falta un dato más: con dos de los tres (monedas, invertido o precio de compra) se calcula el resto.':'Introduce dos de los tres primeros datos. Se guarda solo en este navegador.'}</p>`}
   const sr=c.sc.map(x=>`<div class="kv"><span>${x.me?'<b style="color:var(--ink)">Tu objetivo</b>':x.l} · ${eur(x.x)} <span class="dim">${pc(x.d,1)}</span></span><b class="${x.n>=0?'up':'dn'}">${sgn(x.n)}</b></div>`).join(''),h=c.hist;
   return`<div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="tag t-${c.v[0]}" style="font-size:12.5px">${c.v[1]}</span><span class="sub">${c.v[2]||''}</span></div>
   <div class="grid" style="gap:24px;margin-top:10px"><div class="c6">${kv('Monedas',fp(c.q,c.q<1?6:c.q<100?4:2)+' '+lab(s))}${kv('Precio medio',eur(c.avg))}${kv('Invertido',mon(c.inv))}${kv('Valor ahora',mon(c.val))}${kv('Resultado',`<span class="${c.pl>=0?'up':'dn'}">${sgn(c.pl)} · ${pc(c.pct,1)}</span>`)}${c.tp?kv('Tu objetivo',eur(c.tp)+` (${pc((c.tp/c.p-1)*100,1)})`):''}${c.sl?kv('Tu stop',eur(c.sl)+` (${pc((c.sl/c.p-1)*100,1)})`):''}${c.ts&&c.ts<c.p?kv('Stop técnico',eur(c.ts)+` (${pc((c.ts/c.p-1)*100,1)})`):''}</div>
   <div class="c6">${sr?'<div class="lbl" style="margin-bottom:4px">Si vendes todo en…</div>'+sr:''}${c.f&&c.f<1?`<p class="sub">Vender el <b>${f0(c.f*100)} %</b> recupera lo invertido.</p>`:''}${c.W.map(w=>`<p class="sub" style="margin:4px 0">• ${w}</p>`).join('')}${h&&(c.tp>c.p||c.sl)?`<p class="sub">En 30 días, históricamente: ${c.tp&&c.tp>c.p?`objetivo <b>${(h.up*100).toFixed(0)} %</b>`:''}${c.tp&&c.tp>c.p&&c.sl&&c.sl<c.p?' · ':''}${c.sl&&c.sl<c.p?`stop <b>${(h.dn*100).toFixed(0)} %</b>`:''}</p>`:''}</div></div>`}
-function tabPos(s,first){const el=$('tabc');if(first||!$('pres')||$('pres').dataset.s!==s){const P=POS[s]||{},fld=(k,l,ph)=>`<label class="pf"><span>${l}</span><input inputmode="decimal" autocomplete="off" enterkeyhint="done" data-p="${k}" placeholder="${ph||''}" value="${P[k]!=null?esc(P[k]):''}"></label>`;
-    el.innerHTML=`<div class="cb"><div class="pg p5">${fld('qty','Monedas ('+lab(s)+')','0,00')}${fld('inv','Invertido (€)','0,00')}${fld('ent','Precio de compra (€)','opcional')}${fld('gan','Quiero ganar (€)','opcional')}${fld('per','Pérdida máx. (€)','opcional')}</div><div id="pres" data-s="${s}"></div><button class="btn" id="pdel" style="margin-top:12px">Borrar</button></div>`;
-    el.oninput=e=>{const t=e.target;if(t.dataset.p){(POS[s]=POS[s]||{})[t.dataset.p]=t.value;savePos();$('pres').innerHTML=posBox(s,DATA[s])}};$('pdel').onclick=()=>{delete POS[s];savePos();tabPos(s,true)}}
-  if(!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#tabc')))$('pres').innerHTML=posBox(s,DATA[s])}
+function tabPos(s,first){const el=$('tabc');if(first||!$('pres')||$('pres').dataset.s!==s){const P=POS[s]||{},fld=(k,l,ph)=>`<label class="pf"><span>${l}</span><input inputmode="decimal" autocomplete="off" enterkeyhint="done" data-p="${k}" placeholder="${ph||''}" value="${esc(ptxt(P[k]))}"><small class="pf-h" data-h="${k}"></small></label>`;
+    el.innerHTML=`<div class="cb"><div class="pg p5">${fld('qty','Monedas ('+lab(s)+')','0,00')}${fld('inv','Invertido (€)','0,00')}${fld('ent','Precio de compra (€)','opcional')}${fld('gan','Quiero ganar (€)','opcional')}${fld('per','Pérdida máx. (€)','opcional')}</div><div id="pres" data-s="${s}"></div><button class="btn" id="pdel" style="margin-top:12px">Borrar</button><div id="pcost" style="margin-top:22px"></div></div>`;
+    el.oninput=e=>{const t=e.target;if(t.dataset.p)pfHint(s,t,false)};el.onchange=e=>{const t=e.target;if(t.dataset.p)pfConfirmar(s,t)};
+    el.onkeydown=e=>{const t=e.target;if(!t.dataset.p)return;if(e.key==='Escape'){t.value=ptxt((POS[s]||{})[t.dataset.p]);pfHint(s,t,true);t.blur()}else if(e.key==='Enter')t.blur()};
+    el.onclick=e=>{const b=e.target.closest('[data-amb]');if(b)pfAplicar(s,b.dataset.amb,+b.dataset.v)};
+    $('pdel').onclick=()=>{delete POS[s];savePos();tabPos(s,true)};el.querySelectorAll('[data-p]').forEach(t=>pfHint(s,t,true))}
+  if(!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#tabc')))$('pres').innerHTML=posBox(s,DATA[s]);costeUpd(s,first)}
+/* un campo de la cartera: vista previa al escribir (no cambia nada), confirmación al salir del campo o con Intro,
+   Escape vuelve al último valor confirmado; una entrada ambigua o mal escrita no altera el valor guardado */
+function pfHint(s,t,inicial){const k=t.dataset.p,h=t.parentNode.querySelector('.pf-h');if(!h)return;const g=(POS[s]||{})[k],r=CANT.leer(t.value,TIPOP[k],lab(s)),ya=t.value===ptxt(g);
+  const opc=r.estado==='ambiguo'?r.opciones.map(o=>`<button type="button" class="btn" data-amb="${k}" data-v="${o.v}">${esc(o.etiqueta)}</button>`).join(' '):'';
+  let html='',c='';
+  if(ya&&typeof g==='string'&&r.estado!=='ok'&&r.estado!=='vacio'){html=esc(pval(s,k).revisar)+(opc?'<br>'+opc:'');c='wa'}
+  else if(r.estado==='ok'&&!ya)html='Se guardará: '+esc(CANT.fmt(r.v,TIPOP[k]))+(TIPOP[k]==='qty'?' '+esc(lab(s)):' €');
+  else if(r.estado==='ok'&&ya&&g!=null)html='Guardado: '+esc(CANT.fmt(r.v,TIPOP[k]))+(TIPOP[k]==='qty'?' '+esc(lab(s)):' €')+(typeof g==='string'?' · dato antiguo, se usa sin reescribirlo':'');
+  else if(!inicial&&r.estado==='ambiguo'){html=esc(r.error)+'<br>'+opc;c='wa'}
+  else if(!inicial&&r.estado==='error'){html='Corrige «'+PCAMPO[k]+'»: '+esc(r.error)+(g!=null?' Se mantiene el valor guardado.':'');c='wa'}
+  h.className='pf-h '+c;h.innerHTML=html}
+function pfConfirmar(s,t){const k=t.dataset.p,r=CANT.leer(t.value,TIPOP[k],lab(s));
+  if(r.estado==='ok')return pfAplicar(s,k,r.v,t.value);
+  if(r.estado==='vacio'){if(POS[s]&&POS[s][k]!=null){delete POS[s][k];if(!Object.keys(POS[s]).length)delete POS[s];savePos();$('pres').innerHTML=posBox(s,DATA[s])}return pfHint(s,t,true)}
+  pfHint(s,t,false)}
+function pfAplicar(s,k,v,txt){const t=$('tabc').querySelector(`[data-p="${k}"]`),tx=txt!=null?txt:String(v).replace('.',',');
+  (POS[s]=POS[s]||{})[k]=CANT.confirmado(v,tx);savePos();if(t){t.value=tx;pfHint(s,t,true)}$('pres').innerHTML=posBox(s,DATA[s])}
+/* coste de 25, 50 y 100 € (cripto/costes.py, /api/coste): escenario de comisiones configurable y guardado en este navegador */
+const COSTEREF={estudio:{maker:.4,taker:.8,et:'Estudio 20 nov 2026 · 0,40 / 0,80 %'},hist:{maker:.1,taker:.1,et:'Histórico · 0,10 % por lado'}};
+let COSTE={s:null,t:0,d:null,k:''};
+function costeCfg(){const c=PREF.fee||{};return{maker:c.maker??.4,taker:c.taker??.8,lado:c.lado||'compra',tipo:c.tipo||'mercado',et:c.et||COSTEREF.estudio.et,fecha:c.fecha||'2026-11-20'}}
+/* web publicada: mismo cálculo que cripto/costes.py con el libro de 25 niveles del WebSocket de Kraken (el de la moneda abierta)
+   o, si aún no ha llegado, con el mejor bid/ask del ticker (estimación parcial); mínimos del par desde la foto de la nube */
+function costeLocal(s,c,lim){const o=DATA[s]||{},R=(NUBE&&NUBE.reglas||{})[s]||null,par=WSN[s];let libro=null;
+  if(WSST.conectado&&KSEL===s+'|'+TF&&BK.t&&BK.a.size&&BK.b.size)libro={asks:[...BK.a],bids:[...BK.b],t:BK.t,completo:true,fuente:`libro WebSocket ${par} (25 niveles)`};
+  else if(o.tkv&&o.tkv.bid&&o.tkv.ask&&o.tkv.t>=WSOPEN)libro={asks:[[o.tkv.ask,Infinity]],bids:[[o.tkv.bid,Infinity]],t:o.tkv.t,completo:false,fuente:`mejor bid/ask del ticker ${par}`};
+  return Object.assign(COSTES.tabla(c.lado,libro,Date.now(),R,c.maker/100,c.taker/100,c.tipo,lim),{simbolo:s,par,reglas:R})}
+function costeUpd(s,first){const el=$('pcost');if(!el)return;const c=costeCfg(),k=[s,c.maker,c.taker,c.lado,c.tipo].join('|');
+  if(first||el.dataset.s!==s){el.dataset.s=s;el.innerHTML=`<div class="lbl" style="margin-bottom:6px">Coste de operar · ${lab(s)}/EUR en Kraken</div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end"><label class="pf" style="width:110px"><span>Lado</span><select data-fc="lado"><option value="compra">Compra</option><option value="venta">Venta</option></select></label>
+   <label class="pf" style="width:190px"><span>Orden</span><select data-fc="tipo"><option value="mercado">A mercado (taker)</option><option value="limite">Limitada al mejor precio (maker)</option></select></label>
+   <label class="pf" style="width:100px"><span>Maker %</span><input inputmode="decimal" data-fc="maker" value="${String(c.maker).replace('.',',')}"></label><label class="pf" style="width:100px"><span>Taker %</span><input inputmode="decimal" data-fc="taker" value="${String(c.taker).replace('.',',')}"></label>
+   ${Object.entries(COSTEREF).map(([n,r])=>`<button type="button" class="btn" data-fref="${n}">${esc(r.et)}</button>`).join('')}</div><div id="pcost-t" style="margin-top:10px"></div>`;
+   el.querySelector('[data-fc=lado]').value=c.lado;el.querySelector('[data-fc=tipo]').value=c.tipo;
+   el.onchange=e=>{const t=e.target,f=t.dataset.fc;if(!f)return;const v=f==='maker'||f==='taker'?parseFloat(String(t.value).replace(',','.')):t.value;
+     if((f==='maker'||f==='taker')&&!(v>=0&&v<10)){t.value=String(c[f]).replace('.',',');return}PREF.fee=Object.assign(costeCfg(),{[f]:v},f==='maker'||f==='taker'?{et:'Escenario propio',fecha:new Date().toISOString().slice(0,10)}:{});save();COSTE.t=0;costeUpd(s)};
+   el.onclick=e=>{const b=e.target.closest('[data-fref]');if(!b)return;const r=COSTEREF[b.dataset.fref];PREF.fee=Object.assign(costeCfg(),{maker:r.maker,taker:r.taker,et:r.et,fecha:'2026-11-20'});save();costeUpd(s,true)}}
+  if(COSTE.k!==k||Date.now()-COSTE.t>5000){COSTE.k=k;COSTE.t=Date.now();const o=DATA[s]||{},lim=c.tipo==='limite'&&o.tkv?(c.lado==='compra'?o.tkv.bid:o.tkv.ask):null;
+    if(window.ESTATICO){COSTE.d=costeLocal(s,c,lim);costeTabla(c)}   /* sin servidor: lib/costes.js con el libro que llega al navegador */
+    else jget(`/api/coste?s=${s}&lado=${c.lado}&tipo=${c.tipo}&maker=${c.maker/100}&taker=${c.taker/100}${lim?'&limite='+lim:''}`).then(d=>{if(COSTE.k===k){COSTE.d=d;costeTabla(c)}})}
+  else costeTabla(c)}
+const ESTC={ejecutable:['up','estimación ejecutable'],pasiva:['','pasiva: ejecución no garantizada'],parcial:['wa','parcial: sin profundidad'],insuficiente:['dn','libro insuficiente'],bajo_minimo:['dn','bajo el mínimo del par'],caducado:['wa','libro caducado'],sin_libro:['wa','sin libro'],importe_invalido:['dn','importe no válido']};
+function costeTabla(c){const el=$('pcost-t'),d=COSTE.d;if(!el)return;if(!d){el.innerHTML='<div class="tiny">Calculando…</div>';return}const F=d.filas||[],f0=F[0]||{},m=v=>v==null?'—':mon(v);
+  el.innerHTML=`<div class="tw" style="overflow-x:auto"><table><thead><tr><th>Nominal</th><th>Comisión</th><th>Desplazamiento desde el punto medio</th><th>${d.lado==='compra'?'Pagas en total':'Cobras en total'}</th><th>Coste</th><th>Estado</th></tr></thead><tbody>${F.map(f=>{const e=ESTC[f.estado]||['',f.estado];return`<tr><td>${m(f.importe)}</td><td>${m(f.comision)} <span class="dim">${f.tipo_comision||''} ${f.tasa!=null?pc(f.tasa*100,2).replace('+',''):''}</span></td><td>${f.desplazamiento!=null?m(f.desplazamiento):'—'}${f.niveles_usados?` <span class="dim">· ${f.niveles_usados} niv.</span>`:''}</td><td>${f.total!=null?m(f.total):'—'}</td><td>${f.coste_pct!=null?pc(f.coste_pct*100,2).replace('+',''):'—'}</td><td class="${e[0]}" style="font-family:var(--sans)" title="${esc(f.motivo||'')}">${e[1]}</td></tr>`}).join('')}</tbody></table></div>
+  <div class="tiny" style="margin-top:6px;line-height:1.5">Ida y vuelta sin moverse el precio: hace falta subir ${pc((f0.equilibrio_taker||0)*100,2).replace('+','')} a mercado (taker/taker)${f0.equilibrio_maker_taker!=null?` o ${pc(f0.equilibrio_maker_taker*100,2).replace('+','')} entrando con limitada (maker) y saliendo a mercado`:''}. ${f0.captura_t?`Libro: ${esc(f0.fuente||'')} · ${hms(f0.captura_t)} (hace ${f0.edad_s} s)${f0.horquilla_pct!=null?` · horquilla ${pc(f0.horquilla_pct*100,3).replace('+','')}`:''}.`:''} ${d.reglas&&d.reglas.ordermin?`Mínimo del par: ${d.reglas.ordermin} ${lab(d.simbolo)}${d.reglas.costmin?` y ${d.reglas.costmin} €`:''}; cantidad redondeada a ${d.reglas.lot_decimals} decimales.`:''}<br>Escenario: ${esc(c.et)} (${esc(c.fecha)}). ${esc((d.referencias||{}).aviso||'')} El nominal no incluye la comisión: en una compra se paga aparte; en una venta se descuenta. El desplazamiento ya incluye la media horquilla. Estimación, no ejecución.</div>`}
 let TABT=0;function renderTab(slow){const s=SEL,o=DATA[s],el=$('tabc');if(!el)return;if(!o||!o.price){el.innerHTML='<div class="empty">Cargando…</div>';return}
   if(TAB==='pos')return tabPos(s,slow&&!$('pres'));if(TAB==='avi')return tabAvi(s,slow&&!$('avn'));el.oninput=null;el.onclick=null;if(!slow&&(TAB!=='tec'&&TAB!=='fia'||Date.now()-TABT<3000)&&el.innerHTML)return;TABT=Date.now();
   el.innerHTML=TAB==='tec'?tabTec(o):TAB==='der'?tabDer(s):tabFia(o);syncDet();const hz=$('hzs');if(hz)hz.onclick=e=>{const b=e.target.closest('button');if(b){HZ=b.dataset.h;renderTab(true)}}}
@@ -635,8 +772,9 @@ function viewNews(){const F=[['all','Todas'],['alto','Impacto alto'],['cripto','
   const st=SALUD&&SALUD.noticias?Object.values(SALUD.noticias):[];
   $('app').innerHTML=`<div class="grid" style="margin-bottom:var(--gap)"><div class="sec">Impacto por activo<small>efecto conjunto de las noticias de 24 h en el gráfico</small></div></div><div class="dg" id="dg">${['MERCADO',...coins()].map(dgc).join('')}</div><div class="grid" style="margin-top:var(--gap)"><div class="sec">Noticias<small>ábrelas para ver el detalle</small></div>
   <section class="card c8"><div class="ch"><h2>Noticias</h2><span class="t">${L.length} historias · ${st.filter(x=>x.ok).length}/${st.length||14} fuentes · hora de Canarias</span></div><div class="cb" style="flex:0"><div class="seg" id="nf" style="flex-wrap:wrap">${F.map(f=>`<button data-f="${f[0]}" aria-pressed="${NF===f[0]}">${f[1]}</button>`).join('')}</div></div><div id="nwl">${L.length?L.map(newsItem).join(''):'<div class="empty">Sin noticias con este filtro.</div>'}</div></section>
-  <div class="c4" style="display:flex;flex-direction:column;gap:var(--gap)">${card('','Agenda macro','',`<div style="padding-top:8px">${calRows(10)}</div>`)}${card('','Cómo se lee','','<div class="cb sub">Arriba, el efecto de las noticias de 24 h en cada activo. Abre una noticia para ver el detalle y el enlace.</div>')}</div></div>`;
+  <div class="c4" id="evk" style="display:flex;flex-direction:column;gap:var(--gap)">${evCard()}${card('','Agenda macro','',`<div style="padding-top:8px">${calRows(10)}</div>`)}${card('','Cómo se lee','','<div class="cb sub">Arriba, el efecto de las noticias de 24 h en cada activo. Abre una noticia para ver el detalle y el enlace.</div>')}</div></div>`;
   $('nf').onclick=e=>{const b=e.target.closest('button');if(b){NF=b.dataset.f;viewNews()}};$('dg').onclick=e=>{const c=e.target.closest('[data-f]');if(c){NF=c.dataset.f;viewNews()}};
+  evBindNews();
   $('nwl').addEventListener('click',e=>{const sm=e.target.closest('summary'),d=sm&&sm.parentElement;if(d&&d.dataset.k){d.open?OPENN.delete(d.dataset.k):OPENN.add(d.dataset.k)}})}
 /* ---------- DATOS ---------- */
 /* ---------- DATOS: estado en vivo y evidencias (lo que se publicó y cómo terminó) ---------- */
@@ -656,11 +794,29 @@ const APP={set innerHTML(h){morphInto($('app'),h)}};
    activo, intervalos e historial de casos están en el diagnóstico (#DATA/diag), que no se carga hasta abrirlo. */
 function valLineas(){const L=[...((CALI&&CALI.mensajes.mercado)||[]),...((CALI&&CALI.mensajes.datos)||[])],S=SALUD||{};
   if(S.evidencias_error)L.push('Registro de evidencias con error: '+S.evidencias_error+'.');if(S.registro_error)L.push('Registro de decisiones con error: '+S.registro_error+'.');return L}
+/* Lo que necesita el usuario: si puede fiarse de la lectura de ahora y si el sistema acierta. Lo técnico, en Diagnóstico. */
+function resumenDatos(S,w){const C=CALI,st=Object.values(S.noticias||{}),nOk=st.filter(x=>x.ok).length,live=!!(w.conectado&&Date.now()-LASTT<5000),act=C?C.cobertura.activos:null,cap=C&&C.cobertura.capitalizacion,pr=[];
+  if(!live)pr.push(window.ESTATICO?'Sin conexión en vivo con Kraken: los precios son los de la última foto de la nube.':'Flujo en vivo desconectado: los precios llegan por REST cada 45 s.');
+  if(window.ESTATICO&&NUBE&&Date.now()-NUBE.generado>SPOT_ANALISIS_MS)pr.push(`El último análisis de la nube es de hace ${ago(NUBE.generado)}: las decisiones quedan en suspenso hasta el siguiente.`);if(st.length&&nOk<st.length*.7)pr.push(`Solo responden ${nOk} de ${st.length} fuentes de noticias.`);if(S.cal_ok===false)pr.push('Agenda macro no disponible.');
+  if(EVK.error)pr.push('Eventos clave: '+EVK.error+'.');if(S.evidencias_error)pr.push('Registro de evidencias con error: '+S.evidencias_error+'.');if(S.registro_error)pr.push('Registro de decisiones con error: '+S.registro_error+'.');
+  const ms=[...((C&&C.mensajes.mercado)||[]),...pr],ok=!sinVivo()&&!(C&&C.parcial)&&!pr.length,es=sinVivo()?['dn','Sin precios en vivo']:!C?['','Comprobando…']:ok?['up','Datos al día']:['wa','Lectura parcial'];
+  const f1c=`<div class="fia ${es[0]}"><i></i>${es[1]}</div>${kv('Precios vigentes',act?`${act[0]}/${act[1]} activos${cap!=null?' · '+Math.round(cap*100)+' % de la capitalización':''}`:'—')}${kv('Conexión en vivo',live?`Conectada${w.latencia_ms!=null?' · '+w.latencia_ms+' ms':''}`:'<span class="wa">Sin conexión</span>')}${window.ESTATICO?kv('Análisis de la nube',NUBE&&NUBE.generado?'hace '+ago(NUBE.generado):'—'):''}${kv('Derivados',!C||!C.derivados.t?'—':C.derivados.ok?'Al día':'<span class="wa">Sin renovar</span>')}${kv('Noticias',st.length?`${nOk}/${st.length} fuentes`:'—')}${kv('Agenda macro',S.cal_ok?'Al día':S.cal_ok===false?'<span class="wa">No disponible</span>':'—')}${ms.map(m=>`<div class="msg t-wa">${esc(m)}</div>`).join('')}`;
+  const H=C&&C.historial,G=H&&H.global,hh=G&&G.horarias,mn=(H&&H.muestra_min_dia)||20,dv=hh?hh.max_diarias:0,
+    e2=!H?['','Cargando el historial…']:H.estado==='en_linea'?['up','En línea con lo indicado']:H.estado==='desviada'?['dn','Desviada: revisar el diagnóstico']:['','Acumulando muestra'],
+    cob=(g,h,o)=>g!=null?`${pct0(g)} <span class="dim">· objetivo ${o} %</span>`:h!=null&&hh.n?`${pct0(h)}* <span class="dim">· objetivo ${o} %</span>`:'—',
+    otros=((C&&C.mensajes.datos)||[]).filter(x=>!x.startsWith('Historial aún insuficiente'));
+  const f2c=`<div class="fia ${e2[0]}"><i></i>${e2[1]}</div><div class="tiny" style="margin-bottom:6px">Cada hora se guarda la proyección de 24 h de cada activo y se comprueba al vencer. Así el sistema mide si sus rangos son fiables.</div>
+  ${H&&H.estado==='insuficiente'?`<div class="kv"><span>Días verificados por activo</span><b>${dv} de ${mn}</b></div><div class="prog" title="Hacen falta ${mn} días sin solapar por activo para juzgar el rango"><i style="width:${Math.min(100,dv/mn*100)}%"></i></div>`:''}
+  ${kv('Rango del 80 %',G?cob(G.cob80,hh&&hh.cob80,80):'—')}${kv('Rango del 50 %',G?cob(G.cob50,hh&&hh.cob50,50):'—')}${kv('Pendientes de vencer',hh?hh.pendientes:'—')}${G&&G.cob80==null&&hh&&hh.n?`<div class="tiny" style="margin-top:6px">* Orientativo: ${hh.n} comprobaciones horarias, que miran casi el mismo movimiento. El juicio necesita ${mn} días sin solapar por activo.</div>`:''}${otros.map(m=>`<div class="msg t-ND">${esc(m)}</div>`).join('')}`;
+  return`<div class="sec">Fiabilidad<small>si se puede usar la lectura de ahora y si el sistema acierta · <button class="btn" data-dg="${DIAG?0:1}" style="margin-left:6px">${DIAG?'Cerrar diagnóstico':'Diagnóstico'}</button></small></div>
+  ${card('c6','¿Me puedo fiar ahora?','<span class="t">datos en vivo</span>',`<div class="cb">${f1c}</div>`)}${card('c6','¿Acierta el sistema?','<span class="t">proyecciones guardadas y verificadas</span>',`<div class="cb">${f2c}</div>`)}`}
 function goDiag(on){DIAG=on;history.replaceState(null,'','#DATA'+(on?'/diag':''));$('app').innerHTML='';viewData();window.scrollTo({top:0})}
 function viewData(){const S=SALUD;if(!S){APP.innerHTML='<div class="empty">Esperando estado…</div>';return}const w=S.ws||{};
-  if(!$('dt')||$('dt').dataset.diag!==String(DIAG)){$('app').innerHTML=`<div id="dt" data-diag="${DIAG}"><div class="grid" id="dt-top"></div><div class="grid" id="dt-val"></div><div class="grid" id="dt-bot" style="margin-top:var(--gap)"></div>${DIAG?'<div class="grid" id="dt-ev" style="margin-top:var(--gap)"></div><div class="grid" id="dt-dg" style="margin-top:var(--gap)"></div>':''}</div>`;
-    ['dt-top','dt-val','dt-bot'].forEach(k=>memoH($(k)));$('dt-bot').onclick=e=>{const b=e.target.closest('[data-dg]');if(b)goDiag(b.dataset.dg==='1')};
-    if(DIAG){memoH($('dt-ev'));memoH($('dt-dg'));evBind();evRender();evLoad(true)}}else if(DIAG)evLoad(false);
+  if(!$('dt')||$('dt').dataset.diag!==String(DIAG)){$('app').innerHTML=`<div id="dt" data-diag="${DIAG}"><div class="grid" id="dt-sum"></div>${DIAG?'<div class="grid" id="dt-top" style="margin-top:var(--gap)"></div><div class="grid" id="dt-val"></div><div class="grid" id="dt-bot" style="margin-top:var(--gap)"></div><div class="grid" id="dt-ev" style="margin-top:var(--gap)"></div><div class="grid" id="dt-dg" style="margin-top:var(--gap)"></div>':''}</div>`;
+    memoH($('dt-sum'));$('dt-sum').onclick=e=>{const b=e.target.closest('[data-dg]');if(b)goDiag(b.dataset.dg==='1')};
+    if(DIAG){['dt-top','dt-val','dt-bot','dt-ev','dt-dg'].forEach(k=>memoH($(k)));evBind();evRender();evLoad(true)}}else if(DIAG)evLoad(false);
+  $('dt-sum').innerHTML=resumenDatos(S,w);
+  if(!DIAG)return;
   const rows=coins().map(s=>{const o=DATA[s]||{},pv=o.procedencia||{},si=[['Kraken',o.price],['Coinbase',o.cbp],['CoinGecko',o.cgp]].filter(x=>x[1]>0),v=si.map(x=>x[1]).sort((a,b)=>a-b),md=v[Math.floor(v.length/2)],dev=md?Math.max(...si.map(x=>Math.abs(x[1]/md-1)))*100:null;
     const ed=t=>{if(!t)return'<td class="dim">—</td>';const sg=Math.round((Date.now()-t)/1000);return`<td class="${sg>900?'wa':''}">${sg<60?'hace '+sg+' s':'hace '+ago(t)}</td>`};
     return`<tr><td>${ico(s,18)} <b style="font-family:var(--sans);margin-left:6px">${lab(s)}</b></td><td>${fp(o.price)}</td><td>${fp(o.cbp)}</td><td>${fp(o.cgp)}</td><td class="${dev==null?'':dev<=1.5?'up':'wa'}">${dev==null?'—':dev.toFixed(2).replace('.',',')+' %'}</td><td style="font-family:var(--sans)">${pv.par?'Kraken '+esc(pv.par)+' · '+(window.ESTATICO?(cotizacionViva(o)?'en vivo':'foto de la nube'):esc(pv.fuente_precio||'')):'—'}</td>${ed(window.ESTATICO?o.tkv&&o.tkv.t:pv.ultima_op_t)}${ed(window.ESTATICO?null:pv.confirmacion_t)}<td class="${o.errs&&o.errs.length?'wa':'up'}">${o.res?Object.keys(o.res).length+'/4':'—'}</td><td>${o.bt===undefined?'…':o.bt?o.bt.tot+' días':'insuficiente'}</td></tr>`}).join('');
@@ -670,10 +826,9 @@ function viewData(){const S=SALUD;if(!S){APP.innerHTML='<div class="empty">Esper
   ${tile('Motor completo',S.last?'hace '+ago(S.last):'cargando')}${tile('Derivados',`${S.deriv_ok}/${S.deriv_n||coins().length} activos`,derivOk()?'':'wa')}${tile('Agenda macro',S.cal_ok?'OK':S.cal_ok===false?'No disponible':'—',S.cal_ok?'up':'wa')}${tile('Datos vigentes',CALI?`${CALI.cobertura.activos[0]}/${CALI.cobertura.activos[1]} activos`:'—',CALI&&CALI.parcial?'wa':'up')}`;
   const L=valLineas();$('dt-val').innerHTML=L.length?`<section class="card c12" style="margin-top:var(--gap)"><div class="cb" style="display:grid;gap:4px">${L.map(x=>`<div class="tiny" style="color:var(--ink2)">${esc(x)}</div>`).join('')}</div></section>`:'';
   const fd=Object.entries(S.noticias||{}).map(([k,v])=>`<tr><td style="font-family:var(--sans)">${esc(k)}</td><td class="${v.ok?'up':'dn'}">${v.ok?'OK':'Fallo'}</td><td>${v.n}</td><td>${v.t?ago(v.t):'—'}</td></tr>`).join('');
-  $('dt-bot').innerHTML=`<div class="sec">Datos en vivo<small>precio contrastado y fuentes · <button class="btn" data-dg="${DIAG?0:1}" style="margin-left:6px">${DIAG?'Cerrar diagnóstico':'Diagnóstico'}</button></small></div>
+  $('dt-bot').innerHTML=`<div class="sec">Datos en vivo<small>precio contrastado y fuentes</small></div>
   ${card('c12','Precio contrastado en 3 fuentes','<span class="t">aceptable ≤ 1,5 % · la última operación y la confirmación por el libro se miden por separado</span>',`<div class="tw" style="overflow-x:auto;padding-top:6px"><table><thead><tr><th>Activo</th><th>Kraken (vivo)</th><th>Coinbase</th><th>CoinGecko</th><th>Desviación</th><th>Mercado · fuente</th><th>Última operación</th><th>Confirmado (libro)</th><th>Gráficos</th><th>Histórico</th></tr></thead><tbody>${rows}</tbody></table></div>`)}
   ${card('c12','Fuentes de noticias','',`<div class="tw" style="overflow-x:auto;padding-top:6px"><table><thead><tr><th>Fuente</th><th>Estado</th><th>Noticias</th><th>Leída</th></tr></thead><tbody>${fd}</tbody></table></div>`)}`;
-  if(!DIAG)return;
   const HI=S.historico||{},hr=coins().map(s=>{const g=tf=>HI[s+' '+tf],src=['1m','1h','4h','1d'].map(g).find(x=>x&&x.fuente);return`<tr><td>${ico(s,18)} <b style="font-family:var(--sans);margin-left:6px">${lab(s)}</b></td>${['1m','1h','4h','1d'].map(tf=>{const x=g(tf);return`<td class="${x&&x.n?'':'dim'}">${x&&x.n?x.n+' velas':x&&x.error?'<span class="wa" title="'+esc(x.error)+'">fallo</span>':'solo Kraken'}</td>`}).join('')}<td style="font-family:var(--sans)">${src?esc(src.fuente):'—'}</td></tr>`}).join('');
   const cal=coins().map(s=>{const pp=(DATA[s]||{}).proy||{};return`<tr><td>${ico(s,18)} <b style="font-family:var(--sans);margin-left:6px">${lab(s)}</b></td>${['1h','4h','1d','1w'].map(tf=>{const v=pp[tf]&&pp[tf].val;return v?`<td class="${v.n<30?'dim':Math.abs(v.cob50-.5)<=.1&&Math.abs(v.cob80-.8)<=.1?'up':'wa'}" title="${v.n} comprobaciones independientes">${Math.round(v.cob50*100)} / ${Math.round(v.cob80*100)} % · ${v.brier_mejora>=0?'+':''}${Math.round(v.brier_mejora*100)} %</td>`:'<td class="dim">—</td>'}).join('')}</tr>`}).join('');
   const s=EV.s,f=(DATA[s]||{}).fuentes,fu=f?`<div class="c12">${f.lista.map(x=>`<div class="kv"><span>${esc(x.n)}<br><span class="tiny">afecta a: ${esc(x.afecta)}</span></span><b class="${x.ok?'up':'wa'}">${x.ok?'vigente':'caducada'}${x.t?` <span class="dim">· ${hms(x.t)}</span>`:''}</b></div>`).join('')}<div class="tiny" style="margin-top:6px">${f.suspendidos.length?'Suspendido: '+esc(f.suspendidos.join(', '))+'.':'Nada suspendido.'}</div></div>`:'';
@@ -685,7 +840,8 @@ function viewData(){const S=SALUD;if(!S){APP.innerHTML='<div class="empty">Esper
   ${card('c12','Histórico profundo para el rango','<span class="t">Binance / Coinbase empalmado con Kraken · velas cerradas</span>',`<div class="tw" style="overflow-x:auto;padding-top:6px"><table><thead><tr><th>Activo</th><th>1 min</th><th>1 h</th><th>4 h</th><th>1 día</th><th>Fuente</th></tr></thead><tbody>${hr}</tbody></table></div>`)}
   ${card('c12','Comprobación del rango y de las probabilidades','<span class="t">fuera de muestra con el histórico · cobertura real 50 / 80 % · mejora frente a ignorar la volatilidad</span>',`<div class="tw" style="overflow-x:auto;padding-top:6px"><table><thead><tr><th>Activo</th><th>1 h</th><th>4 h</th><th>1 día</th><th>1 sem</th></tr></thead><tbody>${cal}</tbody></table></div>`)}`}
 function evBind(){$('dt-ev').onclick=e=>{const q=k=>e.target.closest('['+k+']');let b;
-  if(b=q('data-evs')){EV.s=b.dataset.evs;EV.h=null;EV.det=null;EV.avo=null;EV.d=null;evRender();evLoad(true)}
+  if(b=q('data-spe')){SPOTESC=+b.dataset.spe;evRender()}
+  else if(b=q('data-evs')){EV.s=b.dataset.evs;EV.h=null;EV.det=null;EV.avo=null;EV.d=null;evRender();evLoad(true)}
   else if(b=q('data-evv')){EV.v=b.dataset.evv;evRender()}
   else if(b=q('data-evh')){const h=+b.dataset.evh;EV.h=EV.h===h?null:h;EV.det=null;EV.scroll=!!EV.h;evRender();if(EV.h)evDet()}
   else if(b=q('data-avo')){const i=+b.dataset.avo;EV.avo=EV.avo===i?null:i;evRender()}
@@ -769,8 +925,21 @@ function avDetalle(a){const x=a.detalle||{},C=x.contexto||{},d=C.decision||{},p=
 function evAvisos(){const A=EV.av;if(!A)return'';const L=(A.avisos||[]).filter(a=>a.simbolo===EV.s).slice(0,30),N=(A.niveles||[]).filter(n=>n.simbolo===EV.s);
   return card('c6','Avisos de '+EV.s,'<span class="t">por qué saltó cada uno · clic para ver el contexto</span>',`<div class="cb">${L.length?L.map(a=>`<div id="av-${a.id}" style="border-bottom:1px solid var(--ln);padding:8px 0"><div data-avo="${a.id}" style="cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:baseline"><span><b>${esc(a.titulo)}</b><br><span class="tiny">${fchc(a.t_emision)} · ${a.tipo==='cruce'?'cruce de nivel':'cambio de contexto'}</span></span>${a.estado==='omitido'?'<span class="tag t-ND">Omitido</span>':a.t_entrega?'<span class="tag t-pos">Entregado</span>':'<span class="tag t-wa">Sin confirmar</span>'}</div>${EV.avo===a.id?avDetalle(a):''}</div>`).join(''):'<div class="tiny">Todavía no hay avisos de '+EV.s+'.</div>'}
    <div class="tiny" style="margin-top:10px;line-height:1.5">Niveles que sigues: ${N.length?N.map(n=>fp(n.precio)+' €').join(', '):'ninguno'}. Se añaden en Estudio › ${EV.s} › Avisos. Cruce: con una operación de Kraken, ±0,1 % y 15 min de enfriamiento. Contexto: la decisión spot cambia y se mantiene 5 min con datos vigentes.</div></div>`)}
+/* evaluador eval-spot/2 (estudios/evaluar_spot.py): C, E, V y ND con efectivo o posición hipotética, mismo presupuesto,
+   mismo vencimiento y costes explícitos; se calcula en segundo plano y aquí solo se lee */
+let SPOTESC=0;
+function evSpot2(V){if(!V||!V.escenarios)return'<div class="tiny">El evaluador nuevo aún no ha terminado su primera pasada (se ejecuta en segundo plano cada 10 min).</div>';
+  const E=Object.values(V.escenarios),x=E[Math.min(SPOTESC,E.length-1)],c=x.conteo,N=x.nombres||{},G=x.grupos.filter(g=>g.evaluadas||g.pendientes||g.sin_seguimiento||g.esperando_datos);
+  const al=g=>Object.entries(g.alternativas).map(([a,v])=>`<div class="kv"><span>${esc(N[a]||a)}</span><b class="${cls(v.media)}">${v.media==null?'—':pc(v.media*100)}<span class="dim"> · indep. ${v.media_independientes==null?'—':pc(v.media_independientes*100)}</span></b></div>`).join('');
+  return`<div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 10px">${E.map((e,i)=>`<button class="btn${i===SPOTESC?' go':''}" data-spe="${i}">${esc(e.etiqueta)}</button>`).join('')}</div>
+  ${x.compras.mensaje?`<div class="msg t-wa">${esc(x.compras.mensaje)}: no hay base para afirmar una eficacia observada al comprar.</div>`:''}
+  <div class="grid" style="gap:16px"><div class="c6">${kv('Emisiones registradas',c.emisiones)}${kv('Candidatas (primera de cada activo, acción y hora)',c.candidatas)}${kv('Casos evaluados',c.evaluadas)}${kv('Pendientes de vencer',c.pendientes)}${kv('Esperando datos descargables',c.esperando_datos)}${kv('Sin seguimiento',c.sin_seguimiento)}${Object.entries(x.excluidas||{}).map(([k,n])=>kv('Excluidas · '+esc(k),n)).join('')}${Object.entries(c.por_categoria||{}).map(([k,n])=>kv('Categoría · '+esc(k),n)).join('')}</div>
+  <div class="c6"><div class="lbl" style="margin-bottom:4px">Sin datos (ND) · no se imputa ningún retorno</div>${Object.entries(x.nd||{}).map(([k,v])=>kv(esc(k),`${v.n} registros · ${f1(v.horas)} h sin cobertura`)).join('')||'<div class="tiny">Ninguno.</div>'}</div></div>
+  <div class="tw" style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Activo</th><th>Situación</th><th>Horizonte</th><th>Evaluadas · independientes</th><th>Pendientes / sin seguimiento</th><th style="min-width:330px">Alternativas (media · independientes)</th></tr></thead><tbody>${G.map(g=>`<tr><td>${COINS[g.simbolo]?ico(g.simbolo,18):''} <b style="font-family:var(--sans);margin-left:6px">${lab(g.simbolo)}</b></td><td style="font-family:var(--sans)">${esc(N[g.situacion]||g.situacion)}${g.situacion==='E_zona'&&g.evaluadas?`<div class="tiny">zona tocada ${g.zona_tocada} de ${g.evaluadas} (simulado)</div>`:''}</td><td>${g.horizonte_h===24?'24 h':'7 días'}</td><td>${g.evaluadas} · ${g.independientes}${g.aproximadas?`<div class="tiny">${g.aproximadas} con velas (aprox.)</div>`:''}</td><td>${g.pendientes} / ${g.sin_seguimiento}${g.esperando_datos?` · ${g.esperando_datos} esperando datos`:''}</td><td style="white-space:normal">${g.evaluadas?al(g):'<span class="dim">sin casos evaluados</span>'}</td></tr>`).join('')}</tbody></table></div>
+  <div class="tiny" style="margin-top:8px;line-height:1.5">${esc(x.metodo)} Escenario ${esc(x.escenario.id)} · presupuesto de referencia ${fp(x.importe_ref,0)} € · calculado ${hc(V.t)}.${V.referencia_v1?` Referencia histórica congelada (evaluador original de esperas, supuesto original 0,10 % por lado): ${V.referencia_v1.informe.evaluadas} esperas evaluadas en la base auditada.`:''}</div>`}
 function evSpot(){const P=EV.spot;if(!P)return'';const A=Object.entries(P.activos||{}),ex=Object.entries(P.excluidas||{});
-  return card('c12','Evaluación spot','<span class="t">esperar la zona · entrar al principio · repartir la entrada</span>',`<div class="cb">${A.length?`<div class="tw" style="overflow-x:auto"><table><thead><tr><th>Activo</th><th>Casos</th><th>Zona observada</th><th>Esperar zona</th><th>Entrar al principio</th><th>Mitad y mitad a 12 h</th></tr></thead><tbody>${A.map(([s,a])=>`<tr><td>${COINS[s]?ico(s,18):''} <b style="font-family:var(--sans);margin-left:6px">${lab(s)}</b></td><td>${a.n}</td><td>${a.zona_tocada}</td><td class="${cls(a.espera)}">${pc(a.espera*100)}</td><td class="${cls(a.inmediata)}">${pc(a.inmediata*100)}</td><td class="${cls(a.repartida)}">${pc(a.repartida*100)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="tiny">Aún no hay esperas con 24 h de seguimiento.</div>'}
+  return card('c12','Evaluación spot · C, E, V y ND','<span class="t">comprar, esperar o vender · con efectivo o posición · mismo vencimiento y costes</span>',`<div class="cb">${evSpot2(P.v2)}${P.v2_error?`<div class="msg t-wa">Error del evaluador: ${esc(P.v2_error)}</div>`:''}</div>`)+
+  card('c12','Evaluador original de esperas (esperas-v1)','<span class="t">esperar la zona · entrar al principio · repartir la entrada</span>',`<div class="cb">${A.length?`<div class="tw" style="overflow-x:auto"><table><thead><tr><th>Activo</th><th>Casos</th><th>Zona observada</th><th>Esperar zona</th><th>Entrar al principio</th><th>Mitad y mitad a 12 h</th></tr></thead><tbody>${A.map(([s,a])=>`<tr><td>${COINS[s]?ico(s,18):''} <b style="font-family:var(--sans);margin-left:6px">${lab(s)}</b></td><td>${a.n}</td><td>${a.zona_tocada}</td><td class="${cls(a.espera)}">${pc(a.espera*100)}</td><td class="${cls(a.inmediata)}">${pc(a.inmediata*100)}</td><td class="${cls(a.repartida)}">${pc(a.repartida*100)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="tiny">Aún no hay esperas con 24 h de seguimiento.</div>'}
    ${kv('Decisiones registradas',P.total??0)}${kv('Evaluadas',P.evaluadas??0)}${ex.map(([k,n])=>kv('Excluidas · '+esc(k),n)).join('')}
    <div class="tiny" style="margin-top:8px;line-height:1.5">${esc(P.metodo||'')} Coste ${pc((P.coste||0)*100,1).replace('+','')} por lado. Medias simuladas por observación, no rentabilidad esperada; sin visita a la zona, esperar conserva efectivo.</div></div>`)}
 function evExp(){const D=EV.d;if(!D||!D.captura||window.ESTATICO)return'';  /* la nube no tiene canal en vivo: ni libro ni volumen */const c=D.captura,v=c.velas||{},rg=x=>x&&x.n?`${x.n} · ${fchc(x.desde)} → ${fchc(x.hasta)}`:'0',P=(D.diarias||{}).publicada||{n:0};
@@ -872,7 +1041,7 @@ function kmsg(m){if(!m.channel)return;const now=Date.now();WSST.n.push(now);if(!
     if(s!==SEL)continue;
     if(m.channel==='ohlc'){const c={t:isoMs(d.interval_begin),o:d.open,h:d.high,l:d.low,c:d.close,v:d.volume},tf=Object.keys(IVL).find(k=>IVL[k]===d.interval);if(d.interval===1)V1.set(c.t,c.c);if(tf){if(!LIVEC[s+'|'+tf]||c.t>=LIVEC[s+'|'+tf].t)LIVEC[s+'|'+tf]=c;chartLive({[tf]:c})}}
     else if(m.channel==='trade'){const ts=isoMs(d.timestamp);TR.push({p:d.price,q:d.qty,side:d.side,t:ts});if(m.type==='update')WSST.lat.push(now-ts)}
-    else if(m.channel==='book'){if(m.type==='snapshot')BK={a:new Map(),b:new Map()};for(const [k,mp] of [['asks',BK.a],['bids',BK.b]]){for(const lv of d[k]||[])lv.qty===0?mp.delete(lv.price):mp.set(lv.price,lv.qty);if(mp.size>25){const ks=[...mp.keys()].sort((x,y)=>k==='asks'?x-y:y-x);for(const x of ks.slice(25))mp.delete(x)}}}}
+    else if(m.channel==='book'){if(m.type==='snapshot')BK={a:new Map(),b:new Map()};BK.t=now;for(const [k,mp] of [['asks',BK.a],['bids',BK.b]]){for(const lv of d[k]||[])lv.qty===0?mp.delete(lv.price):mp.set(lv.price,lv.qty);if(mp.size>25){const ks=[...mp.keys()].sort((x,y)=>k==='asks'?x-y:y-x);for(const x of ks.slice(25))mp.delete(x)}}}}
   if(TR.length>3000)TR.splice(0,TR.length-3000);if(WSST.lat.length>100)WSST.lat.splice(0,WSST.lat.length-100);while(WSST.n.length&&now-WSST.n[0]>10000)WSST.n.shift()}
 /* misma lectura de microestructura que el motor en Python (cripto/envivo.py) */
 function microJS(s){const o=DATA[s];if(!o||!o.price)return null;const now=Date.now(),out={};
@@ -918,15 +1087,19 @@ function calidadEstatica(){const vis=coins(),vig=[],cad=[],S=CALS||{},Hs=(S.hist
   for(const [s,x] of Object.entries((S.mensajes||{}).estudio||{}))if(!es[s]&&(Hs[s]||{}).estado==='desviada')es[s]=x;
   return{vigentes:vig,caducados:cad,cobertura:{activos:[vig.length,vis.length],capitalizacion:tot?vig.filter(s=>cr.includes(s)).reduce((a,s)=>a+mc(s),0)/tot:null},derivados:der,
     parcial:!!cad.length||der.ok===false,historial:S.historial,mensajes:{mercado:m,datos:(S.mensajes||{}).datos||[],estudio:es}}}
+/* `precio_t` es la hora de esta comprobación (precio confirmado en vivo ahora): así lib/spot.js aplica la misma regla de
+   120 s que en el Mac. `revisar` y `anterior` como en cripto/decision.py. */
 function decisionEstatica(o){const now=Date.now(),ult=WSST.n.length?WSST.n[WSST.n.length-1]:0,t=o.tkv&&o.tkv.t||0,p=o.prev||{},tm=o.tm,
-    z=((o.z||{}).sup||[]).find(g=>!g.proj),out=(accion,motivo)=>({accion,motivo,zona:z?[z.lo,z.hi]:null,cobertura:p.cobertura,precio_t:t,caduca:now+5000});
-  if(!(WSST.conectado&&t>=WSOPEN&&now-t>=0&&now-ult<=10000))return out('ND','Cotización pendiente de renovar');
-  if(!NUBE||now-NUBE.generado>SPOT_ANALISIS_MS)return out('ND','Análisis de la nube con más de 2 h: pendiente de renovar');
-  if(p.obsoleta||!(p.cobertura>=.5)||!tm)return out('ND','Análisis incompleto o pendiente de renovar');
-  if(tm.v==='C'&&p.dir!=='bajista')return out('C','Entrada técnica favorable y contexto compatible');
-  if(tm.v==='V'&&p.dir!=='alcista')return out('V','Se cumplen las condiciones técnicas de salida');
-  if((tm.v==='C'&&p.dir==='bajista')||(tm.v==='V'&&p.dir==='alcista'))return out('E','El contexto y el semáforo discrepan');
-  return out('E','Esperar confirmación del semáforo')}
+    vivo=WSST.conectado&&t>=WSOPEN&&now-t>=0&&now-ult<=10000,previa=o.decision,cob=p.cobertura||0,
+    z=((o.z||{}).sup||[]).find(g=>!g.proj),out=(accion,motivo,revisar)=>{const d={accion,motivo,zona:z?[z.lo,z.hi]:null,cobertura:p.cobertura,precio_t:vivo?now:t,caduca:now+5000,revisar};
+      if(accion==='ND'&&previa){const a=previa.accion&&previa.accion!=='ND'?previa:previa.anterior;if(a)d.anterior={accion:a.accion,motivo:a.motivo,precio_t:a.precio_t||null,zona:a.zona||null}}return d};
+  if(!vivo)return out('ND','Cotización pendiente de renovar','Se evaluará al recibir precios en vivo de Kraken.');
+  if(!NUBE||now-NUBE.generado>SPOT_ANALISIS_MS)return out('ND','Análisis de la nube con más de 2 h: pendiente de renovar','Se evaluará con el próximo análisis de la nube.');
+  if(p.obsoleta||!(cob>=.5)||!tm)return out('ND','Análisis incompleto o pendiente de renovar',o.prev&&cob<.5?`Se evaluará cuando la cobertura de factores llegue al 50 % (ahora ${Math.round(cob*100)} %).`:'Se evaluará cuando se recalcule el análisis con datos vigentes.');
+  if(tm.v==='C'&&p.dir!=='bajista')return out('C','Entrada técnica favorable y contexto compatible','Cambia si el semáforo deja de indicar compra o la lectura combinada pasa a bajista.');
+  if(tm.v==='V'&&p.dir!=='alcista')return out('V','Se cumplen las condiciones técnicas de salida','Cambia si el semáforo deja de indicar venta o la lectura combinada pasa a alcista.');
+  if((tm.v==='C'&&p.dir==='bajista')||(tm.v==='V'&&p.dir==='alcista'))return out('E','El contexto y el semáforo discrepan',tm.v==='C'?'Pasaría a «Valorar entrada» si la lectura combinada deja de ser bajista.':'Pasaría a «Revisar salida / Evitar entrada» si la lectura combinada deja de ser alcista.');
+  return out('E','Esperar confirmación del semáforo','Cambia si el semáforo pasa a compra (con contexto no bajista) o a venta (con contexto no alcista).')}
 /* al tocar una moneda se empieza a descargar su archivo antes de que termine el toque (la vista cambia sin esperar) */
 if(window.ESTATICO)document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('[data-s]');if(b&&COINS[b.dataset.s])moneda(b.dataset.s).catch(()=>{})},{passive:true});
 if(window.ESTATICO){setInterval(vivoEstatico,1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){poll();if(!KW)krakenWS()}})}
@@ -945,6 +1118,11 @@ function crearNucleo(cv,host,onPick){
   let W=0,H=0,dpr=1,cx=0,cy=0,U=1,raf=0,last=0,vis=true,st={coins:[]},anc={L:[],R:[]},paq=[],waves=[],grupos=[],gdir=[],cen=[],proxA=0,proxO=0,rowHot=-1,canHot=-1,coste=0,ligero=false;
   const T0=performance.now(),par={x:0,y:0,tx:0,ty:0},lo=document.createElement('canvas'),lg=lo.getContext('2d'),ultimo={};
   const clamp=(x,a=0,b=1)=>x<a?a:x>b?b:x,hot=()=>rowHot>=0?rowHot:canHot;
+  /* movimiento: muelles con solución exacta (no dependen de los fotogramas por segundo). respuesta = periodo sin amortiguar (s);
+     z = amortiguamiento (1 = llega sin pasarse; < 1 = rebote amortiguado). Ver ANALISIS_ANIMACION.md */
+  let dtS=0,tPrev=0,rapido=false,lento=false;const muelleP={x:{x:0,v:0},y:{x:0,v:0}},MH=[],MS=[],wd=new Float32Array(4000);
+  const {suave,eio,arco}=MOV,paso=(m,obj,resp,z)=>{if(reduce){m.x=obj;m.v=0;return obj}if(MOV.muelle(m,obj,dtS,resp,z))rapido=true;return m.x};
+  const mezcla=(a,b,h,al)=>{const p=parseInt(a.slice(1),16),q=parseInt(b.slice(1),16),f=(s)=>Math.round((p>>s&255)*(1-h)+(q>>s&255)*h);return`rgba(${f(16)},${f(8)},${f(0)},${al})`};
   const rnd=(()=>{let a=20261118;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}})();
   const gauss=()=>{let u=0,v=0;while(!u)u=rnd();while(!v)v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(6.2831853*v)};
   const rgba=(hex,a)=>{const n=parseInt(hex.slice(1),16);return`rgba(${n>>16&255},${n>>8&255},${n&255},${a})`};
@@ -975,19 +1153,26 @@ function crearNucleo(cv,host,onPick){
     anc=W<900?{L:[],R:[]}:{L:tomar('#panL .fila','r'),R:tomar('#panR .fila','l')}}
   function ajustar(){const r=cv.getBoundingClientRect();W=Math.max(300,r.width);H=Math.max(260,r.height);dpr=Math.min(2,window.devicePixelRatio||1,Math.sqrt(2.6e6/(W*H)));cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);lo.width=Math.ceil(W/LO);lo.height=Math.ceil(H/LO);
     ancla();draw(performance.now())}
-  const cub=(p0,p1,p2,p3,s)=>{const q=1-s,a=q*q*q,b=3*q*q*s,c=3*q*s*s,d=s*s*s;return[a*p0[0]+b*p1[0]+c*p2[0]+d*p3[0],a*p0[1]+b*p1[1]+c*p2[1]+d*p3[1]]};
   const ANILLOS=[{R:.78,tx:.55,tz:.25,v:1/21000},{R:.94,tx:.8,tz:-.5,v:-1/29000}];
-  function draw(now){if(!W)return;const ini=performance.now();claro=document.documentElement.dataset.theme==='light';COL=claro?COLL:COLD;K=claro?TL:TD;OP=claro?'source-over':'lighter';kk=claro?2.6:1;ka=claro?2.7:1;kf=claro?.75:1;ctx.clearRect(0,0,W,H);const t=now-T0,hg=hot();par.x+=(par.tx-par.x)*.04;par.y+=(par.ty-par.y)*.04;
+  function draw(now){if(!W)return;const ini=performance.now();claro=document.documentElement.dataset.theme==='light';COL=claro?COLL:COLD;K=claro?TL:TD;OP=claro?'source-over':'lighter';kk=claro?2.6:1;ka=claro?2.7:1;kf=claro?.75:1;ctx.clearRect(0,0,W,H);const t=now-T0,hg=hot();
+    /* paso de tiempo real (limitado: tras una pausa no hay saltos) y muelles: paralaje, resalte de cada franja y nivel de luz */
+    dtS=tPrev&&now>tPrev?Math.min(.064,(now-tPrev)/1000):0;tPrev=now;rapido=false;
+    par.x=paso(muelleP.x,par.tx,1.1,1);par.y=paso(muelleP.y,par.ty,1.1,1);
+    while(MH.length<st.coins.length){MH.push({x:0,v:0});MS.push({x:0,v:0})}
+    const hv=st.coins.map((co,g)=>paso(MH[g],g===hg?1:0,.34,1)),nivel=st.coins.map((co,g)=>paso(MS[g],clamp(co.score||0),1.5,.82));
     const yaw=reduce?-.2:.5*Math.sin(t/17000)+par.x,pit=.34+(reduce?0:.05*Math.sin(t/11000))+par.y,cp=Math.cos(pit),sp=Math.sin(pit),u=U/260,respira=reduce?0:.006*Math.sin(t/2600);
     /* ondas: cada precio nuevo es un frente suave que recorre la esfera desde el centro de su franja, con un eco */
     if(!reduce){waves=waves.filter(w=>now-w.t0<w.life);if(now>proxA){proxA=now+4500+Math.random()*3000;onda(norm(gauss(),gauss(),gauss()),.3,3,.5,.85)}}
-    wg.fill(0);wc.fill(0);
-    for(const w of waves){const e=now-w.t0,phi=w.v*e/1000,fade=Math.min(1,e/400)*(1-.55*Math.min(1,phi/3.14)),lim=2.2*w.w;
-      for(let i=0;i<NI;i++){const d=Math.acos(clamp(DX[i]*w.x+DY[i]*w.y+DZ[i]*w.z,-1,1))-phi;if(d>lim||d<-.55-lim)continue;const a=w.amp*fade*(Math.exp(-((d/w.w)**2))+.4*Math.exp(-(((d+.55)/w.w)**2)))*(i<NS?1:.25);if(a>wg[i]){wg[i]=a;wc[i]=w.c}}}
+    wg.fill(0);wc.fill(0);wd.fill(0);
+    /* envolvente: entrada suave (sin destello), pérdida de energía al avanzar y salida a cero exacto (sin «pop» al terminar).
+       La superficie se levanta en la cresta y se hunde un poco detrás: el rebote amortiguado de una onda real */
+    for(const w of waves){const e=now-w.t0,phi=w.v*e/1000,fade=suave(0,320,e)*(1-.5*suave(0,3.14,phi))*(1-suave(.62*w.life,w.life,e)),lim=2.2*w.w;if(fade<=0)continue;
+      for(let i=0;i<NI;i++){const d=Math.acos(clamp(DX[i]*w.x+DY[i]*w.y+DZ[i]*w.z,-1,1))-phi;if(d>lim||d<-.55-lim)continue;const sur=i<NS,g1=Math.exp(-((d/w.w)**2)),a=w.amp*fade*(g1+.4*Math.exp(-(((d+.55)/w.w)**2)))*(sur?1:.25);
+        if(sur)wd[i]+=w.amp*fade*(g1-.5*Math.exp(-(((d+1.15*w.w)/w.w)**2)));if(a>wg[i]){wg[i]=a;wc[i]=w.c}}}
     for(let b=0;b<8;b++){const a=yaw*(1+.55*(1-(b+.5)/8));cb[b]=Math.cos(a);sb[b]=Math.sin(a)}
-    for(let i=0;i<N;i++){const lift=1+respira+(i<NS?.03*wg[i]:0),b=SH[i],x0=X[i]*lift,y0=Y[i]*lift,z0=Z[i]*lift,x1=x0*cb[b]+z0*sb[b],z1=-x0*sb[b]+z0*cb[b],y2=y0*cp-z1*sp,z2=y0*sp+z1*cp,s=F/(F-z2);px[i]=cx+x1*s*U;py[i]=cy-y2*s*U;pz[i]=z2;ps[i]=s}
+    for(let i=0;i<N;i++){const lift=1+respira+(i<NS?.03*clamp(wd[i],-.6,1.2):0),b=SH[i],x0=X[i]*lift,y0=Y[i]*lift,z0=Z[i]*lift,x1=x0*cb[b]+z0*sb[b],z1=-x0*sb[b]+z0*cb[b],y2=y0*cp-z1*sp,z2=y0*sp+z1*cp,s=F/(F-z2);px[i]=cx+x1*s*U;py[i]=cy-y2*s*U;pz[i]=z2;ps[i]=s}
     /* luz dorada: el nivel de cada franja es su puntuación; el borde ondula despacio */
-    st.coins.forEach((co,g)=>{const sc=clamp(co.score||0);for(const i of grupos[g]||[])lit[i]=clamp((sc-(HR[i]+.018*Math.sin(t/2800+X[i]*9+Z[i]*5)))/.07)});
+    st.coins.forEach((co,g)=>{const sc=nivel[g];for(const i of grupos[g]||[])lit[i]=clamp((sc-(HR[i]+.018*Math.sin(t/2800+X[i]*9+Z[i]*5)))/.07)});
     cen=grupos.map(ids=>{let sx=0,sy=0,n=0;for(const i of ids)if(i<NS){sx+=px[i];sy+=py[i];n++}return[sx/n,sy/n]});
     /* resplandor central y anillo trasero */
     const cg=ctx.createRadialGradient(cx,cy,0,cx,cy,U*.62);cg.addColorStop(0,rgba(COL.ion,.07*kk));cg.addColorStop(.6,rgba(COL.ion,.02*kk));cg.addColorStop(1,rgba(COL.ion,0));ctx.fillStyle=cg;ctx.fillRect(0,0,W,H);
@@ -998,9 +1183,9 @@ function crearNucleo(cv,host,onPick){
     ctx.lineWidth=1;for(const an of ANILLOS){ctx.strokeStyle=rgba(COL.ion,.05*kk);ctx.stroke(anillo(an,false))}
     /* hilos de puntos hacia las filas de los paneles (detrás de las partículas): casi invisibles, se destaca el de la fila señalada */
     ctx.save();ctx.setLineDash([2,9]);ctx.lineDashOffset=reduce?0:-t/110;
-    st.coins.forEach((co,g)=>{const c=cen[g];if(!c||!isFinite(c[0]))return;const on=g===hg;
-      if(anc.L[g]){const a=anc.L[g];ctx.strokeStyle=rgba(COL.ion,on?.55:.07*kk);ctx.beginPath();ctx.moveTo(a.x+6,a.y);ctx.bezierCurveTo((a.x+c[0])/2,a.y,(a.x+c[0])/2,c[1],c[0],c[1]);ctx.stroke()}
-      if(anc.R[g]){const a=anc.R[g],buy=(co.objetivo||0)>0;ctx.strokeStyle=on?rgba(COL.gold,.6):buy?rgba(COL.gold,.3):rgba(COL.steel,.07*kk);ctx.beginPath();ctx.moveTo(c[0],c[1]);ctx.bezierCurveTo((a.x+c[0])/2,c[1],(a.x+c[0])/2,a.y,a.x-6,a.y);ctx.stroke()}});
+    st.coins.forEach((co,g)=>{const c=cen[g];if(!c||!isFinite(c[0]))return;const h=hv[g];
+      if(anc.L[g]){const a=anc.L[g];ctx.strokeStyle=rgba(COL.ion,.07*kk+(.55-.07*kk)*h);ctx.beginPath();ctx.moveTo(a.x+6,a.y);ctx.bezierCurveTo((a.x+c[0])/2,a.y,(a.x+c[0])/2,c[1],c[0],c[1]);ctx.stroke()}
+      if(anc.R[g]){const a=anc.R[g],buy=(co.objetivo||0)>0;ctx.strokeStyle=buy?rgba(COL.gold,.3+.3*h):mezcla(COL.steel,COL.gold,h,.07*kk+(.6-.07*kk)*h);ctx.beginPath();ctx.moveTo(c[0],c[1]);ctx.bezierCurveTo((a.x+c[0])/2,c[1],(a.x+c[0])/2,a.y,a.x-6,a.y);ctx.stroke()}});
     ctx.restore();
     /* resplandor de baja resolución (cuerpo de la esfera, luz dorada y crestas de las ondas) */
     lg.setTransform(1,0,0,1,0,0);lg.clearRect(0,0,lo.width,lo.height);lg.globalCompositeOperation=OP;
@@ -1015,7 +1200,7 @@ function crearNucleo(cv,host,onPick){
       else{ctx.globalAlpha=Math.min(1,base)*(1-.55*l);ctx.drawImage(K.SP[dt>.55?'ion':'steel'],x-sz/2,y-sz/2,sz,sz)}
       if(l>.02){ctx.globalAlpha=Math.min(.95,.8*l*(.35+.65*dt)*(claro?1.5:1))*BR[i];const z=sz*1.5;ctx.drawImage(K.SP.gold,x-z/2,y-z/2,z,z)}
       if(g>.05){ctx.globalAlpha=Math.min(.95,.9*g*(.35+.65*dt));const z=sz*(1.6+1.4*g);ctx.drawImage(K.SP[COLS[wc[i]]||'ion'],x-z/2,y-z/2,z,z)}
-      if(hg>=0&&!polvo&&GR[i]===hg&&dt>.4){ctx.globalAlpha=.16*dt;const z=sz*2.1;ctx.drawImage(K.SP.ion,x-z/2,y-z/2,z,z)}}
+      if(!polvo&&dt>.4&&hv[GR[i]]>.01){ctx.globalAlpha=.16*dt*hv[GR[i]];const z=sz*2.1;ctx.drawImage(K.SP.ion,x-z/2,y-z/2,z,z)}}
     ctx.globalAlpha=1;
     /* resplandor ampliado con suavizado (bloom barato) y anillos delanteros */
     ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(lo,0,0,W,H);
@@ -1024,19 +1209,26 @@ function crearNucleo(cv,host,onPick){
     ctx.globalCompositeOperation=OP;if(!reduce)ANILLOS.forEach((an,n)=>{const ca=Math.cos(an.tx),sa=Math.sin(an.tx),cz=Math.cos(an.tz),sz=Math.sin(an.tz),a=t*an.v*6.2832+6.2832*(n?.31:0)+t/13000,x=an.R*rk*Math.cos(a),y0=an.R*rk*Math.sin(a),y1=y0*ca,z1=y0*sa,xr=x*cz-y1*sz,yr=x*sz+y1*cz,x2=xr*Math.cos(yaw)+z1*Math.sin(yaw),z2=-xr*Math.sin(yaw)+z1*Math.cos(yaw),yy=yr*cp-z2*sp,zz=yr*sp+z2*cp,s=F/(F-zz),z=15*u*(.6+.5*(zz+.5));
       ctx.globalAlpha=zz>0?.6:.2;ctx.drawImage(K.SP.ion,cx+x2*s*U-z/2,cy-yy*s*U-z/2,z,z)});
     /* paquetes de datos: entran por la izquierda con cada precio nuevo; salen por la derecha mientras el semáforo pida compra */
-    paq=paq.filter(p=>now-p.t<p.dur);
+    /* al llegar al centro de su franja, el paquete lanza la onda (antes iba con un temporizador aparte y podía desacompasarse) */
+    paq=paq.filter(p=>{if(now-p.t<p.dur)return true;if(p.llega&&now-p.t<p.dur+400)p.llega();return false});if(paq.length)rapido=true;
     for(const p of paq){const c=cen[p.g];if(!c||!isFinite(c[0]))continue;const a=p.out?anc.R[p.g]:(anc.L[p.g]||{x:10,y:H/2});if(!a)continue;
-      const mx=(a.x+c[0])/2,P0=p.out?c:[a.x+6,a.y],P3=p.out?[a.x-6,a.y]:c,P1=p.out?[mx,c[1]]:[mx,a.y],P2=p.out?[mx,a.y]:[mx,c[1]],e=(now-p.t)/p.dur,ent=e<.15?e/.15:e>.85?(1-e)/.15:1;
-      for(let n=0;n<5;n++){const z=1-n/5,q=cub(P0,P1,P2,P3,Math.max(0,e-n*.03)),sz=4+11*z;ctx.globalAlpha=.6*z*z*ent;ctx.drawImage(K.SP[p.k],q[0]-sz/2,q[1]-sz/2,sz,sz)}}
+      const mx=(a.x+c[0])/2,P0=p.out?c:[a.x+6,a.y],P3=p.out?[a.x-6,a.y]:c,P1=p.out?[mx,c[1]]:[mx,a.y],P2=p.out?[mx,a.y]:[mx,c[1]],e=(now-p.t)/p.dur,ent=suave(0,.14,e)*(1-suave(.88,1,e)),ruta=arco(P0,P1,P2,P3);
+      /* aceleración y frenada (ease-in-out) sobre la longitud real del trazo; la estela son posiciones de instantes anteriores,
+         así se estira al acelerar y se recoge al frenar, como un desenfoque de movimiento */
+      for(let n=0;n<5;n++){const z=1-n/5,q=ruta(eio(clamp(e-n*.028))),sz=4+11*z;ctx.globalAlpha=.6*z*z*ent;ctx.drawImage(K.SP[p.k],q[0]-sz/2,q[1]-sz/2,sz,sz)}}
     ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
     /* rótulos: el activo de cada franja, que sigue a la esfera al girar */
     ctx.font=`600 ${Math.round(clamp(U/46,10,13))}px ui-monospace,"SF Mono",Menlo,monospace`;ctx.textAlign='center';ctx.textBaseline='middle';
     const alt=U/Math.max(1,st.coins.length)<44;   /* en pantallas estrechas los rótulos vecinos se escalonan para no pisarse */
-    st.coins.forEach((co,g)=>{const c=cen[g];if(!c||!isFinite(c[0]))return;ctx.fillStyle=g===hg?rgba(COL.gold,.98):rgba(COL.ion,claro?.8:.46);ctx.fillText(co.etq||'',c[0],cy+U*.585+(alt&&g%2?14:0))});
+    st.coins.forEach((co,g)=>{const c=cen[g];if(!c||!isFinite(c[0]))return;const h=hv[g],b=claro?.8:.46;ctx.fillStyle=mezcla(COL.ion,COL.gold,h,b+(.98-b)*h);ctx.fillText(co.etq||'',c[0],cy+U*.585+(alt&&g%2?14:0))});
     if(!reduce&&grupos.length&&now>proxO){proxO=now+4200;st.coins.forEach((co,g)=>{if((co.objetivo||0)>0&&anc.R[g])paq.push({t:now,dur:2200,g,k:'gold',out:true})})}
     /* calidad adaptable: si el equipo tarda más de 11 ms por fotograma se dibuja la mitad del polvo y del interior (vuelve a todo por debajo de 7 ms) */
-    coste=coste*.9+(performance.now()-ini)*.1;if(coste>11)ligero=true;else if(coste<7)ligero=false}
-  function bucle(now){raf=0;if(!vis||document.hidden)return;if(now-last>=32){last=now;draw(now)}raf=requestAnimationFrame(bucle)}
+    if(waves.some(w=>w.amp>.5))rapido=true;   /* las ondas de fondo, anchas y lentas, no necesitan 60 fps */
+    coste=coste*.9+(performance.now()-ini)*.1;if(coste>11)ligero=true;else if(coste<7)ligero=false;if(coste>13)lento=true;else if(coste<8)lento=false}
+  /* cadencia: 60 fps mientras algo se desplaza deprisa (onda de un precio, paquetes, cursor, muelles sin asentar); 30 fps con
+     solo el giro (menos de medio píxel por fotograma) y las ondas de fondo, anchas y suaves. Siempre múltiplos del refresco
+     (60/120 Hz): sin intervalos desiguales. Con el equipo cargado (`lento`) se queda en 30 */
+  function bucle(now){raf=0;if(!vis||document.hidden)return;const obj=rapido&&!lento?1000/60:1000/30;if(now-last>=obj-3){last=now;draw(now)}raf=requestAnimationFrame(bucle)}
   function arrancar(){if(reduce){draw(performance.now());return}if(!raf&&vis&&!document.hidden)raf=requestAnimationFrame(bucle)}
   function repinta(){if(reduce||!raf)draw(performance.now())}
   if('ResizeObserver' in window)new ResizeObserver(()=>ajustar()).observe(cv);
@@ -1052,26 +1244,32 @@ function crearNucleo(cv,host,onPick){
   return{
     set(s){const cambia=s.coins.length!==st.coins.length;st=s;if(cambia)asignar();cv.setAttribute('aria-label','Esfera de luz del mercado. '+s.coins.map(c=>c.txt).join('. '));ancla();repinta();arrancar()},
     fila(g){if(g!==rowHot){rowHot=g;repinta()}},
-    tick(sym,dir){const g=st.coins.findIndex(c=>c.sym===sym),ahora=performance.now();if(g<0||reduce||!vis||ahora-(ultimo[sym]||0)<3500)return;ultimo[sym]=ahora;paq.push({t:ahora,dur:1500,g,k:dir>0?'pos':dir<0?'neg':'ion'});setTimeout(()=>onda(gdir[g]||[0,1,0],.95,dir>0?1:dir<0?2:3,.3,1.1),1400)},
-    ancla,frame(ms){draw(T0+ms)}};
+    tick(sym,dir){const g=st.coins.findIndex(c=>c.sym===sym),ahora=performance.now();if(g<0||reduce||!vis||ahora-(ultimo[sym]||0)<3500)return;ultimo[sym]=ahora;paq.push({t:ahora,dur:1500,g,k:dir>0?'pos':dir<0?'neg':'ion',llega:()=>onda(gdir[g]||[0,1,0],.95,dir>0?1:dir<0?2:3,.3,1.1)});arrancar()},
+    ancla,frame(ms){draw(T0+ms)},
+    /* solo para pruebas: estado de los muelles y de la cadencia */
+    estado:()=>({T0,resalte:MH.map(m=>m.x),nivel:MS.map(m=>m.x),paralaje:[par.x,par.y],rapido,lento,ligero,ondas:waves.length,paquetes:paq.length})};
 }
 /* ---------- portada de Mercado: textos y paneles que rodean a la esfera ---------- */
 const cdn=ms=>{if(ms<=0)return'ahora';const s=Math.floor(ms/1e3),d=Math.floor(s/86400),r=s%86400;return(d?d+' d ':'')+[Math.floor(r/3600),Math.floor(r%3600/60),r%60].map(x=>String(x).padStart(2,'0')).join(':')};
 const puntuacion=o=>{if(!o)return null;const v=o.vivo||{},a=[v.ts!=null?v.ts:o.ts,v.tl!=null?v.tl:o.tl].filter(x=>x!=null);return a.length?a.reduce((x,y)=>x+y,0)/a.length:null};
-function heroUpdate(){const L=coins(),P=panorama(),live=!!(SALUD&&SALUD.ws&&SALUD.ws.conectado&&Date.now()-LASTT<5000),n=P?P.pa+P.pb+P.pl:0,now=Date.now(),
-    tone=P?(P.head[0]==='up'?'pos':P.head[0]==='dn'?'neg':'warn'):'warn';
-  $('hl').innerHTML=`<div class="tone ${tone}"><i></i><span class="lbl">Estado del mercado · ${hm(now)}</span></div><h1 class="tit">${P?P.head[1]:sinVivo()?'Sin precios en vivo':'Analizando el mercado…'}</h1><p class="subt">${P&&n?`${n} ${n===1?'activo':'activos'}: ${P.pb} ${P.pb===1?'bajista':'bajistas'}, ${P.pl} ${P.pl===1?'lateral':'laterales'}, ${P.pa} ${P.pa===1?'alcista':'alcistas'}. Solo análisis, no opera.`:P?'Lectura pendiente de un análisis reciente.':sinVivo()?'Ningún activo tiene una cotización reciente: la lectura queda en suspenso hasta recibir precios.':'Reuniendo datos…'}</p>`;
+function heroUpdate(){const L=coins(),P=panorama(),live=!!(SALUD&&SALUD.ws&&SALUD.ws.conectado&&Date.now()-LASTT<5000),now=Date.now(),
+    RS=SPOT.resumen(L,DATA,COINS,hasPos,now,lab),[na,nt]=RS.cobertura,pend=!na,
+    tone=pend||!P?'warn':P.head[0]==='up'?'pos':P.head[0]==='dn'?'neg':'warn';
+  /* con cero activos aptos el titular es «Decisión pendiente de datos»: nunca se combina con una lectura de compra */
+  $('hl').innerHTML=`<div class="tone ${tone}"><i></i><span class="lbl">Estado del mercado · ${hm(now)}</span></div><h1 class="tit">${pend?'Decisión pendiente de datos':P?P.head[1]:'Lectura de mercado incompleta'}</h1><p class="subt">${pend?(sinVivo()?(window.ESTATICO?'Sin conexión en vivo con Kraken: ningún activo tiene una cotización renovada.':'Sin precios en vivo: ningún activo tiene una cotización de menos de 120 s.')+' La última lectura se conserva como anterior y los avisos que dependen de ella quedan en suspenso.':BUSY||!L.some(s=>DATA[s]&&DATA[s].decision)?(window.ESTATICO?'Cargando la foto de la nube…':'Cargando datos del motor…'):window.ESTATICO&&NUBE&&now-NUBE.generado>SPOT_ANALISIS_MS?'Lectura pendiente de un análisis reciente de la nube (el último tiene más de 2 h).':`Ninguno de los ${nt} activos cripto tiene datos vigentes para evaluar.`):`${na} de ${nt} activos cripto evaluados${RS.faltan.length?` · faltan ${esc(SPOT.lista(RS.faltan.map(lab)))}`:''}${P?`: ${P.pb} ${P.pb===1?'bajista':'bajistas'}, ${P.pl} ${P.pl===1?'lateral':'laterales'}, ${P.pa} ${P.pa===1?'alcista':'alcistas'}`:''}. Solo análisis, no opera.`}</p>`;
   $('panL').innerHTML=`<div class="pan-t"><span class="lbl">Mercado en vivo</span><span class="chip ${live?'pos':'warn'}">${live?'● en vivo':'sin conexión'}</span></div>`+L.map((s,g)=>{const o=DATA[s],p=o&&o.price,fl=p&&PRV[s]&&p!==PRV[s]?(p>PRV[s]?'fu':'fd'):'';
     return`<button class="fila" data-s="${s}" data-g="${g}" title="Abrir el estudio de ${COINS[s].n}"><span class="sym">${lab(s)}</span><span class="px ${fl}">${p?fp(p):'…'}</span><span class="chg ${cls(o&&o.chg)}">${o&&o.chg!=null?pc(o.chg,1):''}</span></button>`}).join('');
   $('panR').innerHTML=`<div class="pan-t"><span class="lbl">Decisión spot</span><span class="chip ion">por activo</span></div>`+L.map((s,g)=>{
     const o=DATA[s],d=lecturaSpot(o);
     return `<button class="fila" data-s="${s}" data-g="${g}" title="${esc(d.motivo)} · ${esc(siguienteSpot(o))}"><span class="sym">${lab(s)}</span><b class="${d.accion==='C'?'up':d.accion==='V'?'dn':'dim'}">${textoSpot(s,o)}</b></button>`
   }).join('')+`<p class="nota">Toca un activo para ver el motivo.</p>`;
-  const C=L.filter(s=>DATA[s]&&lecturaSpot(DATA[s]).accion==='C').map(lab),V=L.filter(s=>DATA[s]&&lecturaSpot(DATA[s]).accion==='V').map(lab),ev=CAL.find(e=>e.rel>=2&&e.t>now);
-  $('hb').innerHTML=`<div class="${C.length?'si':''}"><span class="lbl">Decisión spot</span><b>${C.length?`Valorar entrada en ${C.join(', ')}`:'Ninguna compra favorable ahora'}</b><span class="sm">${V.length?`Revisar salida en ${V.join(', ')}.`:'Sin salidas indicadas.'}</span></div>
-  <div><span class="lbl">Próximo evento macro</span>${ev?`<b>${esc(ev.titulo)} <span class="dim">${esc(ev.pais)}</span></b><span class="cuenta">${cdn(ev.t-now)}</span><span class="sm">${ev.impacto==='Alto'?'Impacto alto':'Impacto medio'}${ev.prevision?' · previsión '+esc(ev.prevision):''}</span>`:'<b>Sin eventos importantes</b><span class="sm">La agenda de la próxima semana se publica el domingo.</span>'}</div>
+  const ev=CAL.find(e=>e.rel>=2&&e.t>now),
+    AC=L.filter(s=>fresco(DATA[s])&&DATA[s].acum&&['zona','capitulacion'].includes(DATA[s].acum.estado)).map(lab),ACV=L.some(s=>DATA[s]&&DATA[s].acum&&DATA[s].acum.estado==='zona'),
+    hoyK=(EVK.lista||[]).find(e=>e.estado==='hoy'),nxK=(EVK.lista||[]).find(e=>e.estado==='previsto'&&(!ev||e.fecha<ev.t));
+  $('hb').innerHTML=`<div class="${RS.tono==='pos'?'si':''}"><span class="lbl">Decisión spot · ${na} de ${nt} evaluados</span><b>${esc(RS.titular)}</b>${RS.lineas.map(x=>`<span class="sm">${esc(x)}</span>`).join('')}${RS.aparte.map(x=>`<span class="sm">${lab(x.s)} (fuera del agregado cripto): ${esc(x.texto.toLowerCase())}.</span>`).join('')}${AC.length?`<span class="sm">Capitulación técnica en ${AC.join(', ')} · ${ACV?'zona de acumulación':'ventaja no demostrada'}.</span>`:''}</div>
+  <div>${hoyK?`<span class="lbl">Evento clave · hoy</span><b>${esc(hoyK.titulo)}</b><span class="sm">${esc(evReac(hoyK,true)||TIPOEV[hoyK.tipo]+' · '+CERTEV[hoyK.certeza].toLowerCase())}</span><span class="sm">${ev?'Próximo macro: '+esc(ev.titulo)+' '+until(ev.t):''}</span>`:nxK?`<span class="lbl">Próximo evento clave</span><b>${esc(nxK.titulo)}</b><span class="cuenta">${cdn(nxK.fecha-now)}</span><span class="sm">${TIPOEV[nxK.tipo]} · ${CERTEV[nxK.certeza].toLowerCase()}</span>`:`<span class="lbl">Próximo evento macro</span>${ev?`<b>${esc(ev.titulo)} <span class="dim">${esc(ev.pais)}</span></b><span class="cuenta">${cdn(ev.t-now)}</span><span class="sm">${ev.impacto==='Alto'?'Impacto alto':'Impacto medio'}${ev.prevision?' · previsión '+esc(ev.prevision):''}</span>`:'<b>Sin eventos importantes</b><span class="sm">La agenda de la próxima semana se publica el domingo.</span>'}`}</div>
   <div><span class="lbl">Sentimiento</span>${SENT?`<b class="${SENT.valor>=60?'up':SENT.valor<40?'dn':''}">${f0(SENT.valor)}/100 · ${esc(SENT.lectura)}</b><span class="sm">${CTX.fg?`Miedo y codicia ${CTX.fg.value} · `:''}${SENT.componentes.length} componentes disponibles</span>`:'<b>Calculando…</b>'}</div>`;
-  NUC.set({coins:L.map(s=>{const o=DATA[s],sc=puntuacion(o);return{sym:s,etq:lab(s),score:sc==null?0:sc/100,objetivo:o&&o.tm&&o.tm.v==='C'?1:0,txt:`${lab(s)}: ${sc==null?'sin datos':'puntuación técnica '+f0(sc)+' de 100'}`}})})}
+  NUC.set({coins:L.map(s=>{const o=DATA[s],sc=puntuacion(o);return{sym:s,etq:lab(s),score:sc==null?0:sc/100,objetivo:lecturaSpot(o).accion==='C'?1:0,txt:`${lab(s)}: ${sc==null?'sin datos':'puntuación técnica '+f0(sc)+' de 100'}`}})})}
 const NUC=crearNucleo($('nuc'),$('stage'),s=>go('TRADE',s));['hl','panL','panR','hb'].forEach(id=>memoH($(id)));
 $('stage').addEventListener('click',e=>{const r=e.target.closest('.fila');if(r)go('TRADE',r.dataset.s)});
 $('stage').addEventListener('mouseover',e=>{const r=e.target.closest('.fila');NUC.fila(r?+r.dataset.g:-1)});
